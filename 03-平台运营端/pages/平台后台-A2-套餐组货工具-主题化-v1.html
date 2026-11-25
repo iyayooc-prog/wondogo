@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>云栖度假 · 平台后台 · 套餐组货工具（A2）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F7; --card:#fff; --tx:#1A2138; --tx2:#5B6477; --tx3:#9BA3B5;
+  --line:#E5E9EF; --line2:#F0F3F7;
+  --pri:#2B5FE0; --pri-d:#1E48B8; --pri-l:#EEF2FE; --pri-xl:#F6F8FE;
+  --ok:#16A34A; --ok-l:#ECFDF5;
+  --warn:#D97706; --warn-l:#FFF7ED;
+  --err:#DC2626; --err-l:#FEF2F2;
+  --gold:#C9952B;
+  --r-sm:6px; --r-md:10px; --r-lg:14px;
+  --sh:0 1px 3px rgba(26,33,56,.06),0 1px 2px rgba(26,33,56,.04);
+  --sh-m:0 4px 14px rgba(26,33,56,.08);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+
+/* ===== 侧边栏 ===== */
+.side{background:#1A2138;color:#C5CCDE;padding:20px 14px;display:flex;flex-direction:column;gap:3px}
+.brand{display:flex;align-items:center;gap:8px;padding:6px 10px 22px;color:#fff;font-weight:800;font-size:15px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px}
+.brand .mi{font-size:20px;color:#4E7FEF}
+.brand small{font-size:9px;font-weight:600;letter-spacing:.1em;color:#6C7690;margin-left:4px}
+.nav{font-size:10.5px;font-weight:700;letter-spacing:.08em;color:#6C7690;padding:14px 10px 6px}
+.sit{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+.sit .mi{font-size:18px;color:#8993A8}
+.sit:hover{background:rgba(255,255,255,.05);color:#fff}
+.sit.on{background:linear-gradient(90deg,#2B5FE0,rgba(43,95,224,.3));color:#fff}
+.sit.on .mi{color:#fff}
+.sit b{margin-left:auto;padding:1px 6px;background:var(--warn);color:#fff;font-size:9px;border-radius:8px;font-weight:700}
+.sfoot{margin-top:auto;padding:12px 10px 0;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:#8993A8;display:flex;align-items:center;gap:8px}
+.sfoot-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4E7FEF,#2B5FE0);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px}
+
+/* ===== 主区 ===== */
+.main{display:flex;flex-direction:column;min-width:0}
+.top{height:62px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.bread{font-size:12.5px;color:var(--tx3);font-weight:600;display:flex;align-items:center;gap:6px}
+.bread .mi{font-size:14px}
+.bread b{color:var(--tx);font-weight:800}
+.top-search{flex:1;max-width:380px;display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--line2);border-radius:8px;font-size:12.5px;color:var(--tx3)}
+.top-search .mi{font-size:16px}
+.top-search input{flex:1;background:transparent;border:none;outline:none;font-size:12.5px;font-family:var(--sans);color:var(--tx)}
+.top-r{display:flex;align-items:center;gap:14px}
+.top-ic{position:relative;cursor:pointer}
+.top-ic .mi{font-size:20px;color:var(--tx2)}
+.top-ic b{position:absolute;top:-4px;right:-6px;padding:0 5px;background:var(--err);color:#fff;font-size:9px;border-radius:8px;font-weight:800}
+
+.page{padding:24px 28px 40px;max-width:1520px}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px}
+.pt{font-size:22px;font-weight:800;letter-spacing:-.015em}
+.ps{font-size:12px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.6}
+.ph-r{display:flex;gap:10px;align-items:center}
+.btn{padding:9px 17px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;transition:.15s}
+.btn .mi{font-size:16px}
+.btn-pri{background:var(--pri);color:#fff;box-shadow:var(--sh)}
+.btn-pri:hover{background:var(--pri-d)}
+.btn-sec{background:#fff;color:var(--tx2);border-color:var(--line)}
+.btn-sec:hover{border-color:var(--pri);color:var(--pri-d)}
+.btn-gh{background:transparent;color:var(--tx2)}
+.btn-gh:hover{color:var(--pri-d)}
+
+/* ===== 组货工作区 ===== */
+.ws{display:grid;grid-template-columns:360px 1fr 340px;gap:18px;margin-bottom:22px}
+.panel{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 180px)}
+.panel-h{padding:15px 17px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:#FAFBFD}
+.panel-t{font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px}
+.panel-t .mi{font-size:17px;color:var(--pri)}
+.panel-t small{font-size:10px;color:var(--tx3);font-weight:600;margin-left:4px}
+.panel-act{font-size:11px;color:var(--pri);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:3px}
+.panel-act .mi{font-size:14px}
+.panel-b{padding:14px 16px;overflow-y:auto;flex:1}
+
+/* 资源项池 */
+.pool-f{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
+.chip{padding:5px 11px;background:var(--line2);border-radius:20px;font-size:11px;font-weight:700;color:var(--tx2);cursor:pointer}
+.chip.on{background:var(--pri-l);color:var(--pri-d)}
+.pool-search{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--line2);border-radius:7px;font-size:12px;color:var(--tx3);margin-bottom:10px}
+.pool-search .mi{font-size:15px}
+.pool-search input{flex:1;background:transparent;border:none;outline:none;font-size:12px;font-family:var(--sans);color:var(--tx)}
+.res{padding:11px 12px;border:1.5px solid var(--line);border-radius:9px;margin-bottom:7px;cursor:pointer;transition:.15s;background:#fff}
+.res:hover{border-color:var(--pri);transform:translateX(2px)}
+.res-top{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.res-ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.res-ic .mi{font-size:17px;color:#fff}
+.res-n{font-size:12.5px;font-weight:800;flex:1;min-width:0}
+.res-n small{display:block;font-size:9.5px;color:var(--tx3);font-weight:600;margin-top:2px}
+.res-st{padding:2px 7px;border-radius:10px;font-size:8.5px;font-weight:800;background:var(--ok-l);color:var(--ok)}
+.res-m{display:flex;align-items:center;gap:10px;font-size:10px;color:var(--tx3);font-weight:600}
+.res-m b{color:var(--tx);font-weight:800}
+.res-add{margin-top:8px;padding:5px 0;border-top:1px dashed var(--line);display:flex;justify-content:space-between;align-items:center;font-size:10.5px}
+.res-add span{color:var(--tx3);font-weight:600}
+.res-add-b{padding:3px 11px;background:var(--pri-l);color:var(--pri-d);border-radius:5px;font-size:10.5px;font-weight:800;cursor:pointer}
+
+/* 套餐构建器 */
+.bld-t{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--tx3);font-weight:700;padding:0 4px 12px}
+.bld-t::after{content:'';flex:1;height:1px;background:var(--line)}
+.bld-empty{padding:40px 20px;text-align:center;color:var(--tx3)}
+.bld-empty .mi{font-size:42px;color:var(--line);display:block;margin-bottom:10px}
+.bld-empty-t{font-size:13px;font-weight:700;color:var(--tx2);margin-bottom:5px}
+.bld-empty-d{font-size:11px;line-height:1.75}
+
+/* 套餐卡 */
+.pkg{border:1.5px solid var(--line);border-radius:var(--r-lg);overflow:hidden;margin-bottom:14px}
+.pkg.on{border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-l)}
+.pkg-h{padding:13px 15px;display:flex;align-items:center;gap:11px;background:linear-gradient(135deg,var(--pri-l),#fff);border-bottom:1px solid var(--line)}
+.pkg-img{width:62px;height:62px;border-radius:10px;flex-shrink:0;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#8FE0F0,#2E9BD4 52%,#14689E)}
+.pkg-img .mi{font-size:22px;color:#fff;position:relative;z-index:2}
+.pkg-tk{position:absolute;bottom:0;left:0;right:0;padding:2px 0;background:rgba(0,0,0,.4);backdrop-filter:blur(3px);font-size:7.5px;font-weight:800;color:#fff;text-align:center;letter-spacing:.05em;z-index:3}
+.pkg-i{flex:1;min-width:0}
+.pkg-t{font-size:13.5px;font-weight:800;line-height:1.4}
+.pkg-d{font-size:10px;color:var(--tx3);margin-top:4px;font-weight:600}
+.pkg-tag{display:inline-block;padding:2px 7px;background:var(--warn-l);color:var(--warn);border-radius:10px;font-size:8.5px;font-weight:800;margin-left:5px}
+.pkg-more{cursor:pointer;padding:5px}
+.pkg-more .mi{font-size:18px;color:var(--tx3)}
+.pkg-b{padding:4px 0}
+.itm{display:flex;align-items:center;gap:10px;padding:9px 15px;border-bottom:1px solid var(--line2);transition:.15s}
+.itm:hover{background:#FAFBFD}
+.itm:last-child{border-bottom:none}
+.itm-ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.itm-ic .mi{font-size:14px;color:#fff}
+.itm-b{flex:1;min-width:0}
+.itm-n{font-size:12px;font-weight:700}
+.itm-m{font-size:9.5px;color:var(--tx3);font-weight:600;margin-top:2px}
+.itm-p{font-size:11px;font-weight:800;color:var(--tx);text-align:right}
+.itm-p small{display:block;font-size:9px;color:var(--tx3);font-weight:600;margin-top:1px}
+.itm-x{cursor:pointer;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:5px;color:var(--tx3)}
+.itm-x:hover{background:var(--err-l);color:var(--err)}
+.itm-x .mi{font-size:16px}
+.pkg-f{padding:11px 15px;background:#FAFBFD;border-top:1px solid var(--line);display:flex;align-items:center;gap:9px;font-size:11px;color:var(--tx2);font-weight:700}
+.pkg-f .mi{font-size:14px}
+.pkg-f-b{margin-left:auto;display:flex;gap:7px}
+
+/* 右侧配置 */
+.cfg{display:flex;flex-direction:column;gap:14px;overflow-y:auto;max-height:calc(100vh - 180px);padding-right:3px}
+.cfg::-webkit-scrollbar{width:5px}
+.cfg::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.cfg-c{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);padding:15px 16px}
+.cfg-t{font-size:12px;font-weight:800;display:flex;align-items:center;gap:6px;margin-bottom:12px;color:var(--tx)}
+.cfg-t .mi{font-size:15px;color:var(--pri)}
+.cfg-t small{font-size:9.5px;color:var(--tx3);font-weight:600;margin-left:auto}
+.f{margin-bottom:11px}
+.f label{display:block;font-size:10.5px;font-weight:800;color:var(--tx2);margin-bottom:6px;letter-spacing:.03em}
+.f input,.f select,.f textarea{width:100%;padding:8px 11px;background:#fff;border:1.5px solid var(--line);border-radius:6px;font-size:12px;font-family:var(--sans);outline:none;color:var(--tx);font-weight:600;appearance:none;transition:.15s}
+.f textarea{resize:none;line-height:1.7;min-height:58px}
+.f input:focus,.f select:focus{border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-l)}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* 主题选择器 */
+.theme-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.thm{padding:10px 7px;border:1.5px solid var(--line);border-radius:8px;cursor:pointer;text-align:center;transition:.15s;background:#fff}
+.thm:hover{border-color:var(--pri)}
+.thm.on{border-color:var(--pri);background:var(--pri-l)}
+.thm-sw{width:24px;height:24px;border-radius:50%;margin:0 auto 5px;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 3px var(--line)}
+.thm.on .thm-sw{box-shadow:0 0 0 2px #fff,0 0 0 3px var(--pri)}
+.thm-n{font-size:10.5px;font-weight:800;color:var(--tx)}
+.thm-n small{display:block;font-size:8.5px;color:var(--tx3);font-weight:600;margin-top:1px}
+.thm-lock{display:inline-flex;align-items:center;gap:3px;margin-top:5px;padding:1px 6px;background:var(--err-l);color:var(--err);border-radius:8px;font-size:8px;font-weight:800}
+.thm-lock .mi{font-size:10px}
+
+/* 结构切换 */
+.stg{display:flex;gap:5px;background:var(--line2);padding:4px;border-radius:8px}
+.stg div{flex:1;padding:7px 4px;text-align:center;border-radius:6px;font-size:11px;font-weight:700;color:var(--tx2);cursor:pointer}
+.stg div.on{background:#fff;color:var(--pri-d);box-shadow:var(--sh)}
+
+/* 价格 */
+.price-row{display:flex;align-items:flex-end;gap:9px;padding:11px;background:var(--pri-xl);border-radius:9px;margin-bottom:11px}
+.price-row .mi{font-size:22px;color:var(--pri-d)}
+.price-b{flex:1}
+.price-k{font-size:10px;color:var(--pri-d);font-weight:800;letter-spacing:.06em}
+.price-v{font-size:23px;font-weight:800;color:var(--pri-d);letter-spacing:-.02em;margin-top:3px;line-height:1}
+.price-v small{font-size:12px;font-weight:700}
+.price-s{font-size:10px;color:var(--tx3);margin-top:5px;font-weight:600;text-decoration:line-through}
+.split-h{display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;color:var(--tx2);margin:14px 0 9px;letter-spacing:.04em}
+.split-h::after{content:'';flex:1;height:1px;background:var(--line)}
+.sp-r{display:flex;align-items:center;gap:7px;padding:7px 9px;background:var(--line2);border-radius:7px;margin-bottom:5px;font-size:11px}
+.sp-ic{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sp-ic .mi{font-size:11px;color:#fff}
+.sp-n{flex:1;font-weight:700}
+.sp-p{font-weight:800;color:var(--tx)}
+.sp-ratio{font-size:10px;color:var(--tx3);font-weight:700;padding:1px 6px;background:#fff;border-radius:10px}
+.sp-tot{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:var(--pri-l);border-radius:8px;margin-top:10px;font-size:11.5px;font-weight:700;color:var(--pri-d)}
+.sp-tot b{font-size:15px;font-weight:800}
+
+/* 底部 */
+.bottom{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.bottom-l{font-size:11.5px;color:var(--tx3);font-weight:600;line-height:1.6}
+.bottom-l b{color:var(--tx);font-weight:800}
+.bottom-r{display:flex;gap:10px}
+
+/* 实时预览浮层 */
+.preview{position:fixed;right:28px;bottom:92px;z-index:30;background:#fff;border-radius:var(--r-lg);box-shadow:0 8px 32px rgba(26,33,56,.18);width:200px;height:360px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:.3s}
+.preview.closed{transform:translateY(340px)}
+.preview-h{padding:7px 11px;background:linear-gradient(135deg,var(--pri-l),#fff);display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--line)}
+.preview-h .mi{font-size:14px;color:var(--pri)}
+.preview-h b{font-size:10px;font-weight:800;flex:1}
+.preview-h .toggle{font-size:10px;color:var(--pri);font-weight:700}
+.preview-b{flex:1;background:#F3F5F7;overflow-y:auto}
+.phone{max-width:200px;margin:0 auto;padding:8px}
+.ph-hero{height:90px;border-radius:6px;position:relative;overflow:hidden;display:flex;align-items:flex-end;background:linear-gradient(160deg,var(--ph-g1a),var(--ph-g1b) 52%,var(--ph-g1c))}
+.ph-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(0,0,0,.4))}
+.ph-hero .mi{position:relative;z-index:2;font-size:28px;color:rgba(255,255,255,.5);margin:0 auto}
+.ph-title{position:absolute;bottom:6px;left:7px;right:7px;z-index:2;font-size:9px;font-weight:800;color:#fff;line-height:1.3;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+.ph-claim{padding:7px 7px 4px;text-align:center}
+.ph-claim-t{font-size:8px;font-weight:800;line-height:1.55}
+.ph-anchors{display:flex;gap:2px;margin:5px 0}
+.ph-anchors div{flex:1;padding:5px 0;background:#fff;border-radius:4px;text-align:center}
+.ph-anchors b{display:block;font-size:9px;font-weight:800;color:var(--pri-d)}
+.ph-anchors small{font-size:6.5px;color:var(--tx3);font-weight:600}
+.ph-stories{display:flex;gap:4px;padding:0 7px;overflow-x:auto;scrollbar-width:none}
+.ph-stories::-webkit-scrollbar{display:none}
+.ph-story{flex:0 0 90px;height:56px;border-radius:5px;background:linear-gradient(160deg,var(--ph-g2a),var(--ph-g2c));position:relative;display:flex;align-items:flex-end;padding:4px 5px}
+.ph-story .mi{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:rgba(255,255,255,.5)}
+.ph-story-t{position:relative;z-index:2;font-size:7.5px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);line-height:1.2}
+.ph-cta{margin:7px;padding:6px;background:var(--ph-acc);color:#fff;text-align:center;border-radius:20px;font-size:8px;font-weight:800}
+
+/* 弹窗 */
+.modal{position:fixed;inset:0;background:rgba(26,33,56,.55);backdrop-filter:blur(3px);z-index:100;display:none;align-items:center;justify-content:center}
+.modal.on{display:flex;animation:fade .22s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal-b{background:#fff;border-radius:var(--r-lg);box-shadow:0 20px 60px rgba(0,0,0,.22);width:540px;max-height:85vh;overflow-y:auto}
+.modal-h{padding:17px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.modal-t{font-size:16px;font-weight:800}
+.modal-x{cursor:pointer;width:30px;height:30px;border-radius:50%;background:var(--line2);display:flex;align-items:center;justify-content:center}
+.modal-x .mi{font-size:17px;color:var(--tx2)}
+.modal-p{padding:20px 22px}
+.modal-f{padding:14px 22px;border-top:1px solid var(--line);display:flex;gap:9px;justify-content:flex-end;background:#FAFBFD}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 20px;background:rgba(26,33,56,.94);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:600}
+.toast.show{opacity:1}
+.toast.ok{background:var(--ok)}
+.toast.warn{background:var(--warn)}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="mi">terrain</span>云栖度假<small>ADMIN</small></div>
+    <div class="nav">概览</div>
+    <div class="sit"><span class="mi">dashboard</span>数据看板</div>
+    <div class="sit on"><span class="mi">inventory_2</span>套餐组货工具<b>NEW</b></div>
+    <div class="nav">资源与商家</div>
+    <div class="sit"><span class="mi">storefront</span>商家与资质审核<b>3</b></div>
+    <div class="sit"><span class="mi">category</span>资源项库</div>
+    <div class="sit"><span class="mi">local_shipping</span>资源项审核</div>
+    <div class="nav">订单与售后</div>
+    <div class="sit"><span class="mi">receipt_long</span>订单中心</div>
+    <div class="sit"><span class="mi">gavel</span>退款仲裁<b>1</b></div>
+    <div class="sit"><span class="mi">payments</span>分账与结算</div>
+    <div class="nav">内容与营销</div>
+    <div class="sit"><span class="mi">auto_stories</span>内容与首页 CMS</div>
+    <div class="sit"><span class="mi">campaign</span>营销中心</div>
+    <div class="sit"><span class="mi">palette</span>主题库<b>6</b></div>
+    <div class="nav">系统</div>
+    <div class="sit"><span class="mi">admin_panel_settings</span>权限配置</div>
+    <div class="sit"><span class="mi">settings</span>系统设置</div>
+    <div class="sfoot"><div class="sfoot-av">YK</div>运营 · 尹凯</div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="bread">平台后台 <span class="mi">chevron_right</span> 套餐组货 <span class="mi">chevron_right</span> <b>新建套餐</b></div>
+      <div class="top-search"><span class="mi">search</span><input placeholder="搜资源项 / 商家 / 套餐编号 / 主题"></div>
+      <div class="top-r">
+        <div class="top-ic" onclick="showToast('待办事项')"><span class="mi">notifications_none</span><b>7</b></div>
+        <div class="top-ic" onclick="showToast('帮助文档')"><span class="mi">help_outline</span></div>
+      </div>
+    </div>
+
+    <div class="page">
+      <div class="ph">
+        <div>
+          <div class="pt">套餐组货工具 <span style="font-size:11px;font-weight:700;padding:3px 9px;background:var(--ok-l);color:var(--ok);border-radius:10px;vertical-align:middle;margin-left:6px">beta v2.0</span></div>
+          <div class="ps">把资源项池拼成套餐，指定主题与分账规则，发布后商家不可改色、只能传素材</div>
+        </div>
+        <div class="ph-r">
+          <div class="btn btn-gh" onclick="showToast('草稿已保存')"><span class="mi">save</span>保存草稿</div>
+          <div class="btn btn-sec" onclick="openModal()"><span class="mi">visibility</span>预览详情页</div>
+          <div class="btn btn-pri" onclick="publish()"><span class="mi">publish</span>发布套餐</div>
+        </div>
+      </div>
+
+      <div class="ws">
+        <!-- 左：资源项池 -->
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">category</span>资源项池<small id="poolCount">128 项</small></div>
+            <div class="panel-act" onclick="showToast('查看未入库资源项')"><span class="mi">add</span>新建资源项</div>
+          </div>
+          <div class="panel-b">
+            <div class="pool-f" id="poolFilter"></div>
+            <div class="pool-search"><span class="mi">search</span><input placeholder="搜商家 / 资源项名" id="poolQ"></div>
+            <div id="pool"></div>
+          </div>
+        </div>
+
+        <!-- 中：套餐构建 -->
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">view_timeline</span>套餐行程编排<small>拖拽排序 · 按天分组</small></div>
+            <div class="panel-act" onclick="addDay()"><span class="mi">calendar_add_on</span>加一天</div>
+          </div>
+          <div class="panel-b" id="builder">
+            <div class="bld-t">Day 1 · 抵达与山谷</div>
+            <div class="pkg on" id="pkg1" data-theme="ocean">
+              <div class="pkg-h">
+                <div class="pkg-img" id="pkgImg"><span class="mi">sailing</span><div class="pkg-tk" id="pkgTk">海洋主题</div></div>
+                <div class="pkg-i">
+                  <div class="pkg-t" id="pkgTitle">东极岛听海两日 <span class="pkg-tag">草稿</span></div>
+                  <div class="pkg-d" id="pkgMeta">海洋 ocean · 固定套餐 · 4 家商家 · 9 项服务</div>
+                </div>
+                <div class="pkg-more"><span class="mi">more_horiz</span></div>
+              </div>
+              <div class="pkg-b" id="pkgItems"></div>
+              <div class="pkg-f">
+                <span class="mi">info</span>
+                <span>商家之间的分账将在「分账与结算」里统一处理，运营只需确认每家结算价</span>
+                <div class="pkg-f-b">
+                  <div class="btn btn-gh" style="padding:4px 10px;font-size:10.5px" onclick="showToast('复制为同款主题新套餐')"><span class="mi">content_copy</span>复制</div>
+                  <div class="btn btn-gh" style="padding:4px 10px;font-size:10.5px;color:var(--err)" onclick="showToast('已删除整个套餐','warn')"><span class="mi">delete_outline</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="bld-t">Day 2 · 返程</div>
+            <div class="pkg" id="pkg2" data-theme="ocean">
+              <div class="pkg-h">
+                <div class="pkg-img" style="background:linear-gradient(160deg,#FFE2B0,#FFA96B 50%,#F0805A)"><span class="mi">wb_twilight</span><div class="pkg-tk">海洋主题</div></div>
+                <div class="pkg-i">
+                  <div class="pkg-t">Day 2 · 返程</div>
+                  <div class="pkg-d">3 项服务 · 1 项需预约</div>
+                </div>
+                <div class="pkg-more"><span class="mi">more_horiz</span></div>
+              </div>
+              <div class="pkg-b">
+                <div class="itm"><div class="itm-ic" style="background:linear-gradient(135deg,#A8E8DC,#2A8A80)"><span class="mi">free_breakfast</span></div><div class="itm-b"><div class="itm-n">石屋早餐 ×2</div><div class="itm-m">海隅·石屋 · 07:00-09:30</div></div><div class="itm-p">¥80<small>供货价</small></div><span class="itm-x"><span class="mi">close</span></span></div>
+                <div class="itm"><div class="itm-ic" style="background:linear-gradient(135deg,#8FE0F0,#14689E)"><span class="mi">hiking</span></div><div class="itm-b"><div class="itm-n">环岛徒步与灯塔</div><div class="itm-m">山野向导 · 含讲解</div></div><div class="itm-p">¥120<small>供货价</small></div><span class="itm-x"><span class="mi">close</span></span></div>
+                <div class="itm"><div class="itm-ic" style="background:linear-gradient(135deg,#BFD9F2,#3F6E9E)"><span class="mi">local_taxi</span></div><div class="itm-b"><div class="itm-n">渡轮返航 + 送站</div><div class="itm-m">东极客运 · 需预约</div></div><div class="itm-p">¥220<small>供货价</small></div><span class="itm-x"><span class="mi">close</span></span></div>
+              </div>
+            </div>
+            <div class="bld-t">可选加购（不计入基础价）</div>
+            <div class="pkg">
+              <div class="pkg-h" style="background:linear-gradient(135deg,var(--warn-l),#fff)">
+                <div class="pkg-img" style="background:linear-gradient(135deg,#FFE2B0,#F0805A)"><span class="mi">local_offer</span><div class="pkg-tk" style="background:rgba(217,119,6,.85)">可选加购</div></div>
+                <div class="pkg-i"><div class="pkg-t">可选加购项</div><div class="pkg-d">3 项 · 用户可在下单时勾选</div></div>
+                <div class="pkg-more"><span class="mi">more_horiz</span></div>
+              </div>
+              <div class="pkg-b">
+                <div class="itm"><div class="itm-ic" style="background:linear-gradient(135deg,#A8E8DC,#2A8A80)"><span class="mi">scuba_diving</span></div><div class="itm-b"><div class="itm-n">潜水体验</div><div class="itm-m">含装备与水下摄影 · 12 岁以上</div></div><div class="itm-p">¥420<small>加购价</small></div><span class="itm-x"><span class="mi">close</span></span></div>
+                <div class="itm"><div class="itm-ic" style="background:linear-gradient(135deg,#FFE2B0,#F0805A)"><span class="mi">sailing</span></div><div class="itm-b"><div class="itm-n">日落帆船 90 分钟</div><div class="itm-m">含香槟 · 最多 6 人</div></div><div class="itm-p">¥380<small>加购价</small></div><span class="itm-x"><span class="mi">close</span></span></div>
+                <div class="itm"><div class="itm-ic" style="background:linear-gradient(135deg,#FFE2B0,#F0805A)"><span class="mi">restaurant_menu</span></div><div class="itm-b"><div class="itm-n">海鲜私厨加工</div><div class="itm-m">把钓上来的鱼做成三道菜</div></div><div class="itm-p">¥260<small>加购价</small></div><span class="itm-x"><span class="mi">close</span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右：套餐配置 -->
+        <div class="cfg">
+          <div class="cfg-c">
+            <div class="cfg-t"><span class="mi">tune</span>套餐基础信息</div>
+            <div class="f"><label>套餐名称 *</label><input value="东极岛听海两日" id="cfgName"></div>
+            <div class="f"><label>一句话卖点</label><input value="住进面朝东海的石头房，白天出海、傍晚在沙滩吃刚上岸的海鲜"></div>
+            <div class="f-row">
+              <div class="f"><label>目的地 *</label><select><option>舟山 · 东极岛</option><option>嵊泗 · 枸杞岛</option><option>象山</option></select></div>
+              <div class="f"><label>天数 / 晚数</label><select><option>2 天 1 晚</option><option>3 天 2 晚</option><option>4 天 3 晚</option></select></div>
+            </div>
+            <div class="f"><label>产品结构</label>
+              <div class="stg"><div class="on" onclick="stgPick(this)">固定套餐</div><div onclick="stgPick(this)">自选组合</div><div onclick="stgPick(this)">两种都支持</div></div>
+            </div>
+            <div class="f"><label>适用场景（多选）</label>
+              <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px">
+                <span class="chip on" onclick="this.classList.toggle('on')">家庭亲子</span>
+                <span class="chip on" onclick="this.classList.toggle('on')">情侣自由行</span>
+                <span class="chip" onclick="this.classList.toggle('on')">公司团建</span>
+                <span class="chip" onclick="this.classList.toggle('on')">定制小团</span>
+                <span class="chip" onclick="this.classList.toggle('on')">企业福利</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="cfg-c">
+            <div class="cfg-t"><span class="mi">palette</span>主题指定<small>商家不可改</small></div>
+            <div class="theme-sel" id="themeSel"></div>
+            <div style="margin-top:11px;padding:9px 11px;background:var(--pri-xl);border-radius:7px;font-size:10.5px;color:var(--pri-d);line-height:1.75;font-weight:600">
+              <span class="mi" style="font-size:13px;vertical-align:-3px;margin-right:3px">info</span>
+              主题由平台运营指定，商家侧只读。<br>商家可上传影像素材替换占位图，但<b>主色不可覆盖</b>。
+            </div>
+          </div>
+
+          <div class="cfg-c">
+            <div class="cfg-t"><span class="mi">payments</span>价格与分账</div>
+            <div class="price-row">
+              <span class="mi">sell</span>
+              <div class="price-b">
+                <div class="price-k">售卖价（对外）</div>
+                <div class="price-v"><small>¥</small><span id="priceV">1,580</span></div>
+                <div class="price-s">单买总价 ¥2,960（省 ¥1,380）</div>
+              </div>
+            </div>
+            <div class="f"><label>基础价（2 人）</label><input value="1580" type="number"></div>
+            <div class="f-row">
+              <div class="f"><label>儿童价</label><input value="880" type="number"></div>
+              <div class="f"><label>早鸟价</label><input value="1480" type="number"></div>
+            </div>
+            <div class="split-h">分账明细（按供货价归集）</div>
+            <div id="splitList"></div>
+            <div class="sp-tot"><span>平台佣金（剩余部分）</span><b>¥<span id="commV">200</span></b></div>
+          </div>
+
+          <div class="cfg-c">
+            <div class="cfg-t"><span class="mi">rule</span>退改与履约规则</div>
+            <div class="f"><label>有效期</label><select><option>购买后 90 天内</option><option>指定日期前</option><option>长期有效</option></select></div>
+            <div class="f"><label>退改模板</label><select><option>标准版（部分核销按 1.2 扣除）</option><option>宽松版（全额退）</option><option>严格版（不可退）</option></select></div>
+            <div class="f"><label>改期规则</label><select><option>提前 48 小时联系管家</option><option>提前 24 小时</option><option>不可改期</option></select></div>
+            <div class="f"><label>退改说明（富文本）</label><textarea>· 全部未核销：随时全额退款，1-3 个工作日原路退回
+· 部分已核销：退款金额 = 实付 − 已核销项结算价 ×1.2 − 手续费
+· 不可抗力（风浪停航、商家停业）：全额退或免费改期</textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom">
+        <div class="bottom-l">草稿自动保存于 <b>16:41</b> · 当前套餐含 <b>9 项服务 + 3 项加购</b> · 主题：<b id="bottomTheme">海洋 ocean</b></div>
+        <div class="bottom-r">
+          <div class="btn btn-sec" onclick="showToast('已保存为草稿')"><span class="mi">save</span>保存草稿</div>
+          <div class="btn btn-pri" onclick="publish()"><span class="mi">publish</span>发布套餐</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 实时手机预览 -->
+<div class="preview" id="preview" onclick="this.classList.toggle('closed')">
+  <div class="preview-h">
+    <span class="mi">smartphone</span>
+    <b>详情页实时预览</b>
+    <span class="toggle">收起 ▾</span>
+  </div>
+  <div class="preview-b">
+    <div class="phone">
+      <div class="ph-hero"><span class="mi">sailing</span><div class="ph-title">把两天交给海<br>潮声当闹钟</div></div>
+      <div class="ph-claim"><div class="ph-claim-t">不用查潮汐，不用抢船票，<br>一个二维码走完这座岛。</div>
+      <div class="ph-anchors"><div><b>9</b><small>全包</small></div><div><b>4</b><small>商家</small></div><div><b>1,380</b><small>省下</small></div></div></div>
+      <div class="ph-stories">
+        <div class="ph-story"><span class="mi">waves</span><div class="ph-story-t">推开窗<br>海在脚下</div></div>
+        <div class="ph-story" style="background:linear-gradient(160deg,#A8E8DC,#2A8A80)"><span class="mi">directions_boat</span><div class="ph-story-t">跟老船长出海</div></div>
+        <div class="ph-story" style="background:linear-gradient(160deg,#FFE2B0,#F0805A)"><span class="mi">local_fire_department</span><div class="ph-story-t">沙滩长桌晚宴</div></div>
+      </div>
+      <div class="ph-cta">立即预订 ¥1,580 起</div>
+    </div>
+  </div>
+</div>
+
+<!-- 预览弹窗（点击"预览详情页"） -->
+<div class="modal" id="modal">
+  <div class="modal-b">
+    <div class="modal-h">
+      <div class="modal-t">预览 · 小程序端产品详情页</div>
+      <div class="modal-x" onclick="closeModal()"><span class="mi">close</span></div>
+    </div>
+    <div class="modal-p">
+      <div style="display:flex;gap:18px;align-items:flex-start">
+        <div style="flex-shrink:0;width:230px;height:460px;background:var(--bg);border-radius:18px;padding:9px;box-shadow:var(--sh-m)">
+          <div style="height:100%;background:#fff;border-radius:11px;overflow:hidden;display:flex;flex-direction:column">
+            <div style="height:120px;background:linear-gradient(160deg,#8FE0F0,#2E9BD4 52%,#14689E);position:relative;display:flex;align-items:flex-end;padding:8px 10px">
+              <span class="mi" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:36px;color:rgba(255,255,255,.5)">sailing</span>
+              <div style="position:relative;z-index:2;color:#fff;font-size:10px;font-weight:800;text-shadow:0 1px 4px rgba(0,0,0,.4);line-height:1.35">把两天交给海<br>潮声当闹钟</div>
+            </div>
+            <div style="padding:7px 9px;flex:1;overflow:hidden">
+              <div style="font-size:8px;font-weight:800;line-height:1.5;text-align:center">不用查潮汐<br>一个二维码走完这座岛</div>
+              <div style="display:flex;gap:2px;margin:5px 0">
+                <div style="flex:1;background:#EEF2FE;border-radius:3px;padding:3px 0;text-align:center;font-size:7.5px"><b style="font-weight:800;color:#2B5FE0;display:block">9</b>全包</div>
+                <div style="flex:1;background:#EEF2FE;border-radius:3px;padding:3px 0;text-align:center;font-size:7.5px"><b style="font-weight:800;color:#2B5FE0;display:block">4</b>商家</div>
+                <div style="flex:1;background:#EEF2FE;border-radius:3px;padding:3px 0;text-align:center;font-size:7.5px"><b style="font-weight:800;color:#2B5FE0;display:block">1380</b>省下</div>
+              </div>
+              <div style="background:#FF7A59;color:#fff;text-align:center;padding:5px;border-radius:14px;font-size:7.5px;font-weight:800;margin-top:4px">立即预订 ¥1,580 起</div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1;font-size:12px;line-height:1.85;color:var(--tx2)">
+          <div style="font-size:14px;font-weight:800;color:var(--tx);margin-bottom:10px">发布后用户看到的页面</div>
+          <p>这是右侧配置面板当前设定的详情页效果。所有主题色、包含项、商家阵容、退改规则都会原样落到小程序端。</p>
+          <p style="margin-top:10px"><b style="color:var(--tx)">主题作用域：</b>整个详情页容器（含影像、主张句高亮、包含项图标、价格与主 CTA）都会用「海洋」主题。</p>
+          <p style="margin-top:10px"><b style="color:var(--tx)">商家权限：</b>发布后商家不可改主色，但可在「商家后台 · 参与的套餐」里上传自己的影像素材替换占位图。</p>
+          <p style="margin-top:10px"><b style="color:var(--tx)">分账：</b>订单完成后平台按这里的分账明细与商家结算，结算周期可在「分账与结算」页面统一配置。</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <div class="btn btn-sec" onclick="closeModal()">关闭</div>
+      <div class="btn btn-pri" onclick="publish();closeModal()">确认并发布</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const THEMES={
+  ocean:{n:'海洋',sw:'#0E86C4',en:'OCEAN',g1:['#8FE0F0','#2E9BD4','#14689E'],g2:['#FFE2B0','#FFA96B','#F0805A'],acc:'#FF7A59'},
+  forest:{n:'山林',sw:'#12897C',en:'FOREST',g1:['#C6E8B0','#6FBF7F','#2E8B57'],g2:['#A8E0C8','#4FB894','#1E8367'],acc:'#FF7A59'},
+  heritage:{n:'古镇',sw:'#8A5A3B',en:'HERITAGE',g1:['#E8DCCB','#BFA78A','#8A6F52'],g2:['#D9CBB8','#A98F6E','#6E5842'],acc:'#C0453A'},
+  grassland:{n:'草原',sw:'#6FA22E',en:'GRASSLAND',g1:['#DCF0A8','#93C85A','#5A9430'],g2:['#BFE8F5','#79C0DC','#3F8FB0'],acc:'#D9701F',acc_d:'#C2410C'},
+  snow:{n:'雪域温泉',sw:'#4C7FA8',en:'SNOW',g1:['#F0F7FC','#BDD8EA','#7FA8C8'],g2:['#FFE0D0','#F5A882','#D4764E'],acc:'#E8734A'},
+  city:{n:'城市',sw:'#5A5BD0',en:'CITY',g1:['#CFCFFF','#8A8AF0','#5A5BD0'],g2:['#FFD3E2','#FF92B4','#E05A82'],acc:'#FF5C8A'}
+};
+const CATS=[['全部','all',128],['住宿','hotel',24],['餐饮','restaurant',38],['玩乐','hiking',41],['交通','local_taxi',18],['服务','support',7]];
+const POOL=[
+  ['住宿','hotel','海景石屋大床房','海隅·石屋民宿','东极岛 · 28㎡ 海景露台 · 含双早',880,'g1'],
+  ['住宿','hotel','云海大床房','云景·山居','莫干山 · 35㎡ 观景阳台',980,'g1'],
+  ['住宿','night_shelter','古宅木楼天井大床房','承志堂','宏村 · 200 年木楼',680,'g1'],
+  ['餐饮','restaurant','渔家海鲜午餐','海味厨房','东极岛 · 八道时令海鲜',280,'g2'],
+  ['餐饮','restaurant','山野午餐','竹里馆','莫干山 · 八道时令',280,'g2'],
+  ['餐饮','restaurant','徽州家宴','叙园','宏村 · 臭鳜鱼 + 毛豆腐',320,'g2'],
+  ['餐饮','local_fire_department','沙滩长桌晚宴','海味厨房','东极岛 · 炭火海鲜 8 道',460,'g2'],
+  ['餐饮','local_fire_department','星空围炉晚宴','竹里馆','莫干山 · 自酿桂花酒',460,'g2'],
+  ['玩乐','directions_boat','出海海钓 4 小时','老陈船队','东极岛 · 含钓具鱼饵',520,'g3'],
+  ['玩乐','hiking','溪谷徒步 · 向导随行','山野向导俱乐部','莫干山 · 3 公里低强度',480,'g3'],
+  ['玩乐','brush','徽墨手作 + 古法造纸','胡氏墨坊','宏村 · 非遗师傅带练',480,'g3'],
+  ['玩乐','park','骑马穿越 2 小时','巴尔虎马队','呼伦贝尔 · 含头盔',520,'g3'],
+  ['交通','local_taxi','高铁站专车接站','云栖出行','莫干山 · 7 座商务',280,'g4'],
+  ['交通','directions_boat','渡轮登岛','东极客运','东极岛 · 快船 70 分钟',240,'g4'],
+  ['服务','support_agent','专属旅行管家','平台客服','全程 1v1 跟进',240,'g1']
+];
+const G={住宿:'g1',餐饮:'g2',玩乐:'g3',交通:'g4',服务:'g1'};
+const PKG_ITEMS=[
+  ['交通','directions_boat','渡轮登岛 · 靠窗座位','东极客运 · 商家A','需预约 · 10:30',240],
+  ['交通','local_taxi','码头专车接站','东极客运 · 商家A','需预约 · 08:30',180],
+  ['餐饮','restaurant','渔家海鲜午餐','海味厨房 · 商家B','需预约 · 12:30',280],
+  ['玩乐','directions_boat','出海海钓 4 小时','老陈船队 · 商家C','已包含 · 15:00',520],
+  ['餐饮','local_fire_department','沙滩长桌晚宴','海味厨房 · 商家B','需预约 · 19:30',460],
+  ['玩乐','photo_camera','星空摄影跟拍（加购）','独立摄影师','已包含 · 20:30',360],
+  ['住宿','hotel','海景石屋大床房 1 晚','海隅·石屋 · 商家D','已包含 · 含双早',880],
+  ['服务','support_agent','专属旅行管家','阿海 · 全程在线','已包含 · 有效期 90 天',240]
+];
+let curTheme='ocean',curCat='all';
+const $=id=>document.getElementById(id);
+
+function renderCats(){
+  $('poolFilter').innerHTML=CATS.map(c=>`<div class="chip${c[1]===curCat?' on':''}" onclick="pickCat('${c[1]}')">${c[0]} <small style="opacity:.6">${c[2]}</small></div>`).join('');
+}
+function pickCat(k){curCat=k;renderCats();renderPool();}
+function renderPool(){
+  const q=$('poolQ').value.trim().toLowerCase();
+  const list=POOL.filter(p=>(curCat==='all'||p[0]===CATS.find(c=>c[1]===curCat)[0])&&
+    (!q||p[2].toLowerCase().includes(q)||p[3].toLowerCase().includes(q)));
+  $('pool').innerHTML=list.map(p=>{
+    const [cat,ic,name,mer,desc,price]=p;
+    return `<div class="res" onclick="addToPkg('${name}')">
+      <div class="res-top">
+        <div class="res-ic ${G[cat]}"><span class="mi">${ic}</span></div>
+        <div class="res-n">${name}<small>${mer}</small></div>
+        <div class="res-st">已审核</div>
+      </div>
+      <div class="res-m"><span>${cat}</span><span>${desc}</span></div>
+      <div class="res-add"><span>供货价</span><b>¥${price}</b>
+        <span class="res-add-b">＋ 加入套餐</span></div>
+    </div>`;
+  }).join('')||'<div style="text-align:center;padding:30px;color:var(--tx3);font-size:12px">无匹配资源项</div>';
+  $('poolCount').textContent=list.length+' 项';
+}
+$('poolQ').addEventListener('input',renderPool);
+
+function renderThemes(){
+  $('themeSel').innerHTML=Object.keys(THEMES).map(k=>{
+    const t=THEMES[k];
+    return `<div class="thm${k===curTheme?' on':''}" onclick="pickTheme('${k}')" style="--sw:${t.sw}">
+      <div class="thm-sw" style="background:${t.sw}"></div>
+      <div class="thm-n">${t.n}<small>${t.en}</small></div>
+      <div class="thm-lock"><span class="mi">lock</span>商家不可改</div></div>`;}).join('');
+}
+function pickTheme(k){
+  curTheme=k;renderThemes();
+  $('pkgTk').textContent=THEMES[k].n+'主题';
+  $('pkgImg').style.background=`linear-gradient(160deg,${THEMES[k].g1.join(',')})`;
+  $('bottomTheme').textContent=THEMES[k].n+' '+k;
+  showToast('主题已切换为「'+THEMES[k].n+'」，详情页实时预览已同步');
+}
+function renderItems(){
+  $('pkgItems').innerHTML=PKG_ITEMS.map(p=>{
+    const [cat,ic,name,mer,slot,price]=p;
+    return `<div class="itm">
+      <div class="itm-ic ${G[cat]}"><span class="mi">${ic}</span></div>
+      <div class="itm-b"><div class="itm-n">${name}</div><div class="itm-m">${mer} · ${slot}</div></div>
+      <div class="itm-p">¥${price}<small>供货价</small></div>
+      <span class="itm-x"><span class="mi">close</span></span></div>`;
+  }).join('');
+  renderSplit();
+}
+function renderSplit(){
+  const byCat={};
+  PKG_ITEMS.forEach(p=>{byCat[p[0]]=(byCat[p[0]]||0)+p[5];});
+  const total=Object.values(byCat).reduce((a,b)=>a+b,0);
+  const price=1580;
+  $('splitList').innerHTML=Object.entries(byCat).map(([cat,v])=>{
+    const ratio=Math.round(v/total*100);
+    return `<div class="sp-r">
+      <div class="sp-ic ${G[cat]}"><span class="mi">${cat==='住宿'?'hotel':cat==='餐饮'?'restaurant':cat==='玩乐'?'hiking':cat==='交通'?'local_taxi':'support_agent'}</span></div>
+      <div class="sp-n">${cat}</div>
+      <div class="sp-p">¥${v}</div>
+      <div class="sp-ratio">${ratio}%</div></div>`;
+  }).join('');
+  $('commV').textContent=(price-total).toLocaleString();
+}
+function addToPkg(name){showToast('已加入：'+name,'ok');}
+function addDay(){showToast('已新增 Day 3（空）','ok');}
+function stgPick(el){el.parentNode.querySelectorAll('div').forEach(d=>d.classList.remove('on'));el.classList.add('on');}
+function publish(){showToast('套餐「'+$('cfgName').value+'」已发布 · theme_key='+curTheme,'ok');}
+function openModal(){$('modal').classList.add('on');}
+function closeModal(){$('modal').classList.remove('on');}
+function showToast(x,t){const el=$('toast');el.textContent=x;el.className='toast show'+(t?' '+t:'');clearTimeout(window._tt);window._tt=setTimeout(()=>el.className='toast',2200);}
+renderCats();renderPool();renderThemes();renderItems();
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+</body>
+</html>

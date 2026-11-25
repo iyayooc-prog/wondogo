@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>云栖度假 · 平台后台 · 租户管理（A8）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F7; --card:#fff; --tx:#1A2138; --tx2:#5B6477; --tx3:#9BA3B5;
+  --line:#E5E9EF; --line2:#F0F3F7;
+  --pri:#2B5FE0; --pri-d:#1E48B8; --pri-l:#EEF2FE; --pri-xl:#F6F8FE;
+  --ok:#16A34A; --ok-l:#ECFDF5;
+  --warn:#D97706; --warn-l:#FFF7ED;
+  --err:#DC2626; --err-l:#FEF2F2;
+  --gold:#C9952B; --gold-l:#FBF6E9;
+  --r-sm:6px; --r-md:10px; --r-lg:14px;
+  --sh:0 1px 3px rgba(26,33,56,.06),0 1px 2px rgba(26,33,56,.04);
+  --sh-m:0 4px 14px rgba(26,33,56,.08);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+
+/* 侧边栏 */
+.side{background:#1A2138;color:#C5CCDE;padding:20px 14px;display:flex;flex-direction:column;gap:3px}
+.brand{display:flex;align-items:center;gap:8px;padding:6px 10px 22px;color:#fff;font-weight:800;font-size:15px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px}
+.brand .mi{font-size:20px;color:#4E7FEF}
+.brand small{font-size:9px;font-weight:600;letter-spacing:.1em;color:#6C7690;margin-left:4px}
+.nav{font-size:10.5px;font-weight:700;letter-spacing:.08em;color:#6C7690;padding:14px 10px 6px}
+.sit{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+.sit .mi{font-size:18px;color:#8993A8}
+.sit:hover{background:rgba(255,255,255,.05);color:#fff}
+.sit.on{background:linear-gradient(90deg,#2B5FE0,rgba(43,95,224,.3));color:#fff}
+.sit.on .mi{color:#fff}
+.sit b{margin-left:auto;padding:1px 6px;background:var(--warn);color:#fff;font-size:9px;border-radius:8px;font-weight:700}
+.sit b.ok{background:var(--ok)}
+.sfoot{margin-top:auto;padding:12px 10px 0;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:#8993A8;display:flex;align-items:center;gap:8px}
+.sfoot-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4E7FEF,#2B5FE0);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px}
+
+/* 顶部栏 */
+.main{display:flex;flex-direction:column;min-width:0}
+.top{height:62px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.bread{font-size:12.5px;color:var(--tx3);font-weight:600;display:flex;align-items:center;gap:6px}
+.bread .mi{font-size:14px}
+.bread b{color:var(--tx);font-weight:800}
+.top-search{flex:1;max-width:380px;display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--line2);border-radius:8px;font-size:12.5px;color:var(--tx3)}
+.top-search .mi{font-size:16px}
+.top-search input{flex:1;background:transparent;border:none;outline:none;font-size:12.5px;font-family:var(--sans);color:var(--tx)}
+.top-r{display:flex;align-items:center;gap:14px}
+.top-ic{position:relative;cursor:pointer}
+.top-ic .mi{font-size:20px;color:var(--tx2)}
+.top-ic b{position:absolute;top:-4px;right:-6px;padding:0 5px;background:var(--err);color:#fff;font-size:9px;border-radius:8px;font-weight:800}
+
+/* 主体 */
+.page{padding:24px 28px 40px;max-width:1520px;width:100%}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:14px}
+.pt{font-size:22px;font-weight:800;letter-spacing:-.015em}
+.ps{font-size:12px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.6}
+.ph-r{display:flex;gap:10px;align-items:center}
+.btn{padding:9px 17px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;transition:.15s}
+.btn .mi{font-size:16px}
+.btn-pri{background:var(--pri);color:#fff;box-shadow:var(--sh)}
+.btn-pri:hover{background:var(--pri-d)}
+.btn-sec{background:#fff;color:var(--tx2);border-color:var(--line)}
+.btn-sec:hover{border-color:var(--pri);color:var(--pri-d)}
+.btn-gh{background:transparent;color:var(--tx2)}
+.rpicker{display:flex;gap:6px;align-items:center;padding:7px 10px;background:#fff;border:1px solid var(--line);border-radius:7px;font-size:12px;font-weight:700;cursor:pointer}
+.rpicker .mi{font-size:15px;color:var(--tx3)}
+.rpicker b{color:var(--pri-d)}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{background:#fff;border-radius:var(--r-lg);padding:18px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,var(--pri-l),transparent 70%);opacity:.6}
+.kpi-l{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:.04em;display:flex;align-items:center;gap:6px}
+.kpi-l .mi{font-size:14px;color:var(--pri)}
+.kpi-v{font-size:28px;font-weight:800;letter-spacing:-.025em;margin-top:10px;line-height:1}
+.kpi-v small{font-size:13px;font-weight:700;color:var(--tx3)}
+.kpi-d{display:flex;align-items:center;gap:4px;margin-top:11px;font-size:11px;font-weight:800}
+.kpi-d .mi{font-size:14px}
+.kpi-d.up{color:var(--ok)}.kpi-d.down{color:var(--err)}.kpi-d.flat{color:var(--tx3)}
+.kpi-sub{font-size:10px;color:var(--tx3);margin-top:4px;font-weight:600;line-height:1.55}
+
+/* 主体双栏：列表 + 详情 */
+.grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start}
+.panel{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden}
+.panel-h{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.panel-t{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:7px}
+.panel-t .mi{font-size:17px;color:var(--pri)}
+.panel-t small{font-size:10px;color:var(--tx3);font-weight:600;margin-left:4px}
+.panel-act{font-size:11px;color:var(--pri);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:3px}
+.panel-act .mi{font-size:14px}
+.panel-b{padding:0}
+
+/* 筛选条 */
+.filters{display:flex;gap:8px;padding:14px 18px;border-bottom:1px solid var(--line);align-items:center;flex-wrap:wrap}
+.chip{padding:6px 12px;border-radius:var(--r-sm);font-size:12px;font-weight:700;cursor:pointer;background:var(--line2);color:var(--tx2);transition:.15s;border:1px solid transparent}
+.chip:hover{background:var(--pri-l)}
+.chip.on{background:var(--pri);color:#fff}
+.chip .mi{font-size:13px}
+.sinput{flex:1;max-width:200px;display:flex;align-items:center;gap:6px;padding:7px 12px;background:var(--line2);border-radius:var(--r-sm);font-size:12px;color:var(--tx3)}
+.sinput input{background:transparent;border:none;outline:none;font-size:12px;font-family:var(--sans);color:var(--tx);width:100%}
+
+/* 租户列表 */
+.tlist{display:flex;flex-direction:column}
+.trow{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line2);cursor:pointer;transition:.12s}
+.trow:hover{background:var(--pri-xl)}
+.trow.on{background:var(--pri-l)}
+.trow:last-child{border-bottom:none}
+.trow-av{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;font-weight:800;color:#fff}
+.trow-b{flex:1;min-width:0}
+.trow-n{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:8px}
+.trow-n .ver{padding:1px 7px;border-radius:4px;font-size:9px;font-weight:800;background:var(--pri-l);color:var(--pri-d)}
+.trow-n .ver.pro{background:var(--gold-l);color:var(--gold)}
+.trow-meta{font-size:11px;color:var(--tx3);margin-top:4px;font-weight:600;display:flex;gap:14px;flex-wrap:wrap}
+.trow-meta span{display:flex;align-items:center;gap:3px}
+.trow-meta .mi{font-size:12px}
+.trow-r{text-align:right;flex-shrink:0}
+.trow-gmv{font-size:14px;font-weight:800;color:var(--pri-d)}
+.trow-gmv small{font-size:9px;color:var(--tx3);font-weight:600}
+.trow-exp{font-size:9.5px;margin-top:3px;font-weight:700}
+.trow-exp.warn{color:var(--warn)}
+.trow-exp.err{color:var(--err)}
+.trow-exp.ok{color:var(--ok)}
+.trow-act{display:flex;gap:6px;flex-shrink:0}
+.tact{padding:5px 10px;border-radius:var(--r-sm);font-size:11px;font-weight:700;cursor:pointer;background:var(--line2);color:var(--tx2);transition:.12s}
+.tact:hover{background:var(--pri);color:#fff}
+
+/* 租户详情侧栏 */
+.tdetail{display:flex;flex-direction:column}
+.td-h{padding:22px 18px 16px;background:linear-gradient(135deg,#2B5FE0,#4E7FEF);color:#fff}
+.td-av{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;margin-bottom:12px}
+.td-n{font-size:17px;font-weight:800}
+.td-sub{font-size:11px;opacity:.85;margin-top:5px;font-weight:600}
+.td-tags{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.td-tag{padding:3px 8px;background:rgba(255,255,255,.2);border-radius:4px;font-size:9.5px;font-weight:700}
+.td-body{padding:18px}
+.td-sec{margin-bottom:20px}
+.td-sec-t{font-size:11px;font-weight:800;color:var(--tx3);letter-spacing:.04em;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.td-sec-t .mi{font-size:14px;color:var(--pri)}
+.td-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.td-cell{background:var(--line2);border-radius:var(--r-sm);padding:11px 13px}
+.td-cell-l{font-size:10px;color:var(--tx3);font-weight:600}
+.td-cell-v{font-size:14px;font-weight:800;margin-top:4px}
+.td-cell-v.ok{color:var(--ok)}
+.td-cell-v.warn{color:var(--warn)}
+.td-cell-v.err{color:var(--err)}
+.td-actions{display:flex;flex-direction:column;gap:8px;padding-top:6px;border-top:1px solid var(--line)}
+.td-btn{padding:10px;border-radius:var(--r-sm);font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s}
+.td-btn .mi{font-size:15px}
+.td-btn-pri{background:var(--pri);color:#fff}
+.td-btn-pri:hover{background:var(--pri-d)}
+.td-btn-sec{background:var(--line2);color:var(--tx2)}
+.td-btn-sec:hover{background:var(--pri-l);color:var(--pri-d)}
+.td-btn-warn{background:var(--warn-l);color:var(--warn)}
+.td-btn-warn:hover{background:var(--warn);color:#fff}
+
+/* 套餐版本卡 */
+.ver-list{display:flex;flex-direction:column;gap:10px}
+.ver-card{display:flex;align-items:center;gap:12px;padding:13px;background:var(--line2);border-radius:var(--r-md);cursor:pointer;transition:.15s}
+.ver-card:hover{background:var(--pri-l)}
+.ver-card.on{background:var(--pri-l);border:1.5px solid var(--pri)}
+.ver-ic{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ver-ic .mi{font-size:17px;color:#fff}
+.ver-b{flex:1}
+.ver-n{font-size:12.5px;font-weight:800}
+.ver-d{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600;line-height:1.5}
+.ver-p{font-size:14px;font-weight:800;color:var(--pri-d)}
+.ver-p small{font-size:9px;color:var(--tx3);font-weight:600;display:block}
+
+/* 弹窗 */
+.modal-bg{position:fixed;inset:0;background:rgba(26,33,56,.5);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:var(--r-lg);width:560px;max-width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-h{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.modal-h-t{font-size:16px;font-weight:800}
+.modal-h-c{cursor:pointer;color:var(--tx3)}
+.modal-h-c .mi{font-size:22px}
+.modal-b{padding:24px}
+.form-row{margin-bottom:18px}
+.form-l{font-size:12.5px;font-weight:700;color:var(--tx2);margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.form-l .mi{font-size:14px;color:var(--pri)}
+.form-l small{color:var(--err);font-size:10px;margin-left:3px}
+.form-in{width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:13px;font-family:var(--sans);color:var(--tx);outline:none;transition:.15s}
+.form-in:focus{border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-l)}
+.form-in::placeholder{color:var(--tx3)}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ver-pick{display:flex;flex-direction:column;gap:8px}
+.ver-opt{display:flex;align-items:center;gap:12px;padding:13px;border:1.5px solid var(--line);border-radius:var(--r-md);cursor:pointer;transition:.15s}
+.ver-opt:hover{border-color:var(--pri)}
+.ver-opt.on{border-color:var(--pri);background:var(--pri-l)}
+.ver-opt-ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.ver-opt-ic .mi{font-size:15px;color:#fff}
+.ver-opt-b{flex:1}
+.ver-opt-n{font-size:13px;font-weight:800}
+.ver-opt-d{font-size:10px;color:var(--tx3);margin-top:2px;font-weight:600}
+.ver-opt-p{font-size:14px;font-weight:800;color:var(--pri-d)}
+.modal-f{padding:16px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px}
+
+/* Toast */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(26,33,56,.92);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;max-width:320px}
+.toast.show{opacity:1}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="mi">terrain</span>云栖度假<small>ADMIN</small></div>
+    <div class="nav">概览</div>
+    <div class="sit" onclick="showToast('进入 A1 数据看板')"><span class="mi">dashboard</span>数据看板</div>
+    <div class="nav">资源与商家</div>
+    <div class="sit"><span class="mi">storefront</span>商家与资质审核<b>3</b></div>
+    <div class="sit"><span class="mi">inventory_2</span>套餐组货工具</div>
+    <div class="nav">订单与售后</div>
+    <div class="sit"><span class="mi">receipt_long</span>订单中心</div>
+    <div class="sit"><span class="mi">gavel</span>退款仲裁<b>1</b></div>
+    <div class="nav">内容与营销</div>
+    <div class="sit"><span class="mi">campaign</span>营销中心</div>
+    <div class="nav">租户管理</div>
+    <div class="sit on"><span class="mi">apartment</span>租户管理<b>2</b></div>
+    <div class="sit"><span class="mi">cloud_queue</span>套餐版本<span class="ver-pro">PRO</span></div>
+    <div class="nav">系统</div>
+    <div class="sit"><span class="mi">admin_panel_settings</span>权限配置</div>
+    <div class="sit"><span class="mi">history</span>操作日志</div>
+    <div class="sfoot"><div class="sfoot-av">运</div><div>平台运营·林总监<br><span style="font-size:10px;color:#6C7690">超管权限</span></div></div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="bread"><span class="mi">apartment</span>租户管理 / <b>租户列表</b></div>
+      <div class="top-search"><span class="mi">search</span><input placeholder="搜索租户名称 / 编号 / 联系人"></div>
+      <div class="top-r">
+        <div class="top-ic"><span class="mi">notifications</span><b>5</b></div>
+        <div class="top-ic"><span class="mi">help_outline</span></div>
+        <div class="top-ic"><span class="mi">account_circle</span></div>
+      </div>
+    </div>
+
+    <div class="page">
+      <!-- 标题栏 -->
+      <div class="ph">
+        <div>
+          <div class="pt">租户管理</div>
+          <div class="ps">管理 SaaS 租户开通、套餐版本、到期续费与品牌配置。租户是平台的付费客户，其下管理多个商家与套餐。</div>
+        </div>
+        <div class="ph-r">
+          <div class="rpicker"><span class="mi">download</span>导出列表</div>
+          <button class="btn btn-pri" onclick="openModal()"><span class="mi">person_add</span>新建租户</button>
+        </div>
+      </div>
+
+      <!-- KPI -->
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">apartment</span>总租户数</div>
+          <div class="kpi-v">48<small>家</small></div>
+          <div class="kpi-d up"><span class="mi">arrow_upward</span>本月新增 4 家</div>
+          <div class="kpi-sub">含标准版 28 / 专业版 15 / 旗舰版 5</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">verified</span>活跃租户</div>
+          <div class="kpi-v">41<small>家</small></div>
+          <div class="kpi-d up"><span class="mi">arrow_upward</span>活跃率 85.4%</div>
+          <div class="kpi-sub">近 30 天有交易或登录的租户</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">trending_up</span>本月租户 GMV</div>
+          <div class="kpi-v">¥3.28M</div>
+          <div class="kpi-d up"><span class="mi">arrow_upward</span>环比 +18.6%</div>
+          <div class="kpi-sub">租户侧产生的总交易额</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">timer</span>到期预警</div>
+          <div class="kpi-v" style="color:var(--warn)">7<small>家</small></div>
+          <div class="kpi-d down"><span class="mi">arrow_downward</span>3 家 30 天内到期</div>
+          <div class="kpi-sub">需触发续费流程</div>
+        </div>
+      </div>
+
+      <!-- 列表 + 详情 -->
+      <div class="grid2">
+        <!-- 左：租户列表 -->
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">apartment</span>租户列表<small>48 家</small></div>
+            <div class="panel-act"><span class="mi">filter_list</span>高级筛选</div>
+          </div>
+          <div class="filters">
+            <div class="chip on">全部</div>
+            <div class="chip" onclick="pickChip(this)">标准版</div>
+            <div class="chip" onclick="pickChip(this)">专业版</div>
+            <div class="chip" onclick="pickChip(this)">旗舰版</div>
+            <div class="chip" onclick="pickChip(this)">即将到期</div>
+            <div class="chip" onclick="pickChip(this)">已停用</div>
+            <div class="sinput"><span class="mi">search</span><input placeholder="租户名称 / 编号"></div>
+          </div>
+          <div class="tlist" style="padding-bottom:6px">
+            <div class="trow on" onclick="pickTenant(this, 'tr-1')">
+              <div class="trow-av" style="background:linear-gradient(135deg,#4E7FEF,#2B5FE0)">野</div>
+              <div class="trow-b">
+                <div class="trow-n">野趣旅行<span class="ver pro">旗舰版</span></div>
+                <div class="trow-meta">
+                  <span><span class="mi">storefront</span>6 家商家</span>
+                  <span><span class="mi">inventory_2</span>18 个套餐</span>
+                  <span><span class="mi">people</span>张明 · 138****6201</span>
+                  <span><span class="mi">calendar_today</span>2026-12-15 到期</span>
+                </div>
+              </div>
+              <div class="trow-r">
+                <div class="trow-gmv">¥862K<small>/月</small></div>
+                <div class="trow-exp ok">剩余 40 天</div>
+              </div>
+              <div class="trow-act">
+                <div class="tact" onclick="event.stopPropagation();showToast('进入租户工作台')">工作台</div>
+                <div class="tact" onclick="event.stopPropagation();showToast('续费流程已发起')">续费</div>
+              </div>
+            </div>
+            <div class="trow" onclick="pickTenant(this, 'tr-2')">
+              <div class="trow-av" style="background:linear-gradient(135deg,#16A34A,#0E7A35)">云</div>
+              <div class="trow-b">
+                <div class="trow-n">云漫度假<span class="ver pro">旗舰版</span></div>
+                <div class="trow-meta">
+                  <span><span class="mi">storefront</span>5 家商家</span>
+                  <span><span class="mi">inventory_2">12 个套餐</span></span>
+                  <span><span class="mi">people</span>陈悦 · 139****8830</span>
+                  <span><span class="mi">calendar_today</span>2026-11-28 到期</span>
+                </div>
+              </div>
+              <div class="trow-r">
+                <div class="trow-gmv">¥615K<small>/月</small></div>
+                <div class="trow-exp warn">剩余 22 天</div>
+              </div>
+              <div class="trow-act">
+                <div class="tact" onclick="event.stopPropagation();showToast('进入租户工作台')">工作台</div>
+                <div class="tact" onclick="event.stopPropagation();showToast('续费流程已发起')">续费</div>
+              </div>
+            </div>
+            <div class="trow" onclick="pickTenant(this, 'tr-3')">
+              <div class="trow-av" style="background:linear-gradient(135deg,#C9952B,#A87B1E)">山</div>
+              <div class="trow-b">
+                <div class="trow-n">山隐文旅<span class="ver">专业版</span></div>
+                <div class="trow-meta">
+                  <span><span class="mi">storefront</span>4 家商家</span>
+                  <span><span class="mi">inventory_2</span>9 个套餐</span>
+                  <span><span class="mi">people</span>赵磊 · 137****4521</span>
+                  <span><span class="mi">calendar_today</span>2026-11-12 到期</span>
+                </div>
+              </div>
+              <div class="trow-r">
+                <div class="trow-gmv">¥238K<small>/月</small></div>
+                <div class="trow-exp warn">剩余 6 天</div>
+              </div>
+              <div class="trow-act">
+                <div class="tact" onclick="event.stopPropagation();showToast('进入租户工作台')">工作台</div>
+                <div class="tact" onclick="event.stopPropagation();showToast('续费流程已发起')">续费</div>
+              </div>
+            </div>
+            <div class="trow" onclick="pickTenant(this, 'tr-4')">
+              <div class="trow-av" style="background:linear-gradient(135deg,#7C63C8,#5A47A0)">海</div>
+              <div class="trow-b">
+                <div class="trow-n">海屿海旅<span class="ver">专业版</span></div>
+                <div class="trow-meta">
+                  <span><span class="mi">storefront</span>3 家商家</span>
+                  <span><span class="mi">inventory_2</span>7 个套餐</span>
+                  <span><span class="mi">people</span>王芳 · 136****9912</span>
+                  <span><span class="mi">calendar_today</span>2026-10-30 到期</span>
+                </div>
+              </div>
+              <div class="trow-r">
+                <div class="trow-gmv">¥194K<small>/月</small></div>
+                <div class="trow-exp err">已过期</div>
+              </div>
+              <div class="trow-act">
+                <div class="tact" onclick="event.stopPropagation();showToast('进入租户工作台')">工作台</div>
+                <div class="tact" onclick="event.stopPropagation();showToast('已发送续费提醒')">催费</div>
+              </div>
+            </div>
+            <div class="trow" onclick="pickTenant(this, 'tr-5')">
+              <div class="trow-av" style="background:linear-gradient(135deg,#5A5BD0,#413FA8)">城</div>
+              <div class="trow-b">
+                <div class="trow-n">城市微度假<span class="ver">标准版</span></div>
+                <div class="trow-meta">
+                  <span><span class="mi">storefront</span>2 家商家</span>
+                  <span><span class="mi">inventory_2">4 个套餐</span></span>
+                  <span><span class="mi">people</span>孙强 · 135****7765</span>
+                  <span><span class="mi">calendar_today</span>2027-03-01 到期</span>
+                </div>
+              </div>
+              <div class="trow-r">
+                <div class="trow-gmv">¥86K<small>/月</small></div>
+                <div class="trow-exp ok">剩余 116 天</div>
+              </div>
+              <div class="trow-act">
+                <div class="tact" onclick="event.stopPropagation();showToast('进入租户工作台')">工作台</div>
+              </div>
+            </div>
+            <div class="trow" onclick="pickTenant(this, 'tr-6')">
+              <div class="trow-av" style="background:linear-gradient(135deg,#12897C,#0C6B61)">竹</div>
+              <div class="trow-b">
+                <div class="trow-n">竹海秘境<span class="ver">标准版</span></div>
+                <div class="trow-meta">
+                  <span><span class="mi">storefront</span>3 家商家</span>
+                  <span><span class="mi">inventory_2">5 个套餐</span></span>
+                  <span><span class="mi">people</span>周敏 · 138****2233</span>
+                  <span><span class="mi">calendar_today</span>2026-11-15 到期</span>
+                </div>
+              </div>
+              <div class="trow-r">
+                <div class="trow-gmv">¥124K<small>/月</small></div>
+                <div class="trow-exp warn">剩余 9 天</div>
+              </div>
+              <div class="trow-act">
+                <div class="tact" onclick="event.stopPropagation();showToast('进入租户工作台')">工作台</div>
+                <div class="tact" onclick="event.stopPropagation();showToast('续费流程已发起')">续费</div>
+              </div>
+            </div>
+            <div class="trow" onclick="pickTenant(this, 'tr-7')">
+              <div class="trow-av" style="background:linear-gradient(135deg,#D97706,#B45309)">瀚</div>
+              <div class="trow-b">
+                <div class="trow-n">瀚海探索<span class="ver">专业版</span></div>
+                <div class="trow-meta">
+                  <span><span class="mi">storefront</span>4 家商家</span>
+                  <span><span class="mi">inventory_2">11 个套餐</span></span>
+                  <span><span class="mi">people</span>吴迪 · 139****6677</span>
+                  <span><span class="mi">calendar_today</span>2027-01-20 到期</span>
+                </div>
+              </div>
+              <div class="trow-r">
+                <div class="trow-gmv">¥402K<small>/月</small></div>
+                <div class="trow-exp ok">剩余 75 天</div>
+              </div>
+              <div class="trow-act">
+                <div class="tact" onclick="event.stopPropagation();showToast('进入租户工作台')">工作台</div>
+              </div>
+            </div>
+            <div class="trow" onclick="pickTenant(this, 'tr-8')">
+              <div class="trow-av" style="background:linear-gradient(135deg,#9BA3B5,#5B6477)">停</div>
+              <div class="trow-b">
+                <div class="trow-n">悠然假期<span class="ver" style="background:var(--err-l);color:var(--err)">已停用</span></div>
+                <div class="trow-meta">
+                  <span><span class="mi">storefront</span>0 家商家</span>
+                  <span><span class="mi">inventory_2">0 个套餐</span></span>
+                  <span><span class="mi">people</span>郑华 · 137****8899</span>
+                  <span><span class="mi">calendar_today</span>2026-08-01 到期</span>
+                </div>
+              </div>
+              <div class="trow-r">
+                <div class="trow-gmv" style="color:var(--tx3)">¥0</div>
+                <div class="trow-exp" style="color:var(--tx3)">已停用 3 月</div>
+              </div>
+              <div class="trow-act">
+                <div class="tact" onclick="event.stopPropagation();showToast('已重新激活')">激活</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右：租户详情 -->
+        <div class="panel tdetail">
+          <div class="td-h">
+            <div class="td-av">野</div>
+            <div class="td-n">野趣旅行</div>
+            <div class="td-sub">租户编号：TY-2026-0042 · 开通日期 2026-01-15 · 旗舰版</div>
+            <div class="td-tags">
+              <div class="td-tag"><span class="mi" style="font-size:12px">storefront</span>6 家商家</div>
+              <div class="td-tag"><span class="mi" style="font-size:12px">inventory_2</span>18 个套餐</div>
+              <div class="td-tag"><span class="mi" style="font-size:12px">group</span>3 个子账号</div>
+              <div class="td-tag"><span class="mi" style="font-size:12px">verified</span>资质已验证</div>
+            </div>
+          </div>
+          <div class="td-body">
+            <div class="td-sec">
+              <div class="td-sec-t"><span class="mi">payments</span>经营概况</div>
+              <div class="td-grid">
+                <div class="td-cell"><div class="td-cell-l">本月 GMV</div><div class="td-cell-v">¥862K</div></div>
+                <div class="td-cell"><div class="td-cell-l">本月订单</div><div class="td-cell-v">1,248</div></div>
+                <div class="td-cell"><div class="td-cell-l">商家数</div><div class="td-cell-v">6</div></div>
+                <div class="td-cell"><div class="td-cell-l">套餐数</div><div class="td-cell-v">18</div></div>
+              </div>
+            </div>
+            <div class="td-sec">
+              <div class="td-sec-t"><span class="mi">credit_card</span>套餐与计费</div>
+              <div class="td-grid">
+                <div class="td-cell"><div class="td-cell-l">当前版本</div><div class="td-cell-v">旗舰版</div></div>
+                <div class="td-cell"><div class="td-cell-l">年费</div><div class="td-cell-v">¥48,000</div></div>
+                <div class="td-cell"><div class="td-cell-l">到期日期</div><div class="td-cell-v ok">2026-12-15</div></div>
+                <div class="td-cell"><div class="td-cell-l">佣金率</div><div class="td-cell-v">8%</div></div>
+              </div>
+            </div>
+            <div class="td-sec">
+              <div class="td-sec-t"><span class="mi">format_list_bulleted</span>版本权益</div>
+              <div style="display:flex;flex-direction:column;gap:7px">
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600"><span class="mi" style="font-size:14px;color:var(--ok)">check_circle</span>不限商家数量</div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600"><span class="mi" style="font-size:14px;color:var(--ok)">check_circle</span>不限套餐数量</div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600"><span class="mi" style="font-size:14px;color:var(--ok)">check_circle</span>自定义品牌（Logo/名称）</div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600"><span class="mi" style="font-size:14px;color:var(--ok)">check_circle</span>租户级营销活动</div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600"><span class="mi" style="font-size:14px;color:var(--ok)">check_circle</span>数据报表导出</div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--tx3)"><span class="mi" style="font-size:14px;color:var(--tx3)">remove_circle_outline</span>专属客户成功经理</div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--tx3)"><span class="mi" style="font-size:14px;color:var(--tx3)">remove_circle_outline</span>API 开放接口</div>
+              </div>
+            </div>
+            <div class="td-sec">
+              <div class="td-sec-t"><span class="mi">subscriptions</span>套餐版本（可升级/续费）</div>
+              <div class="ver-list">
+                <div class="ver-card" onclick="showToast('当前版本：旗舰版')">
+                  <div class="ver-ic" style="background:linear-gradient(135deg,#2B5FE0,#4E7FEF)"><span class="mi">stars</span></div>
+                  <div class="ver-b"><div class="ver-n">旗舰版 <span style="font-size:9px;color:var(--ok);font-weight:700">当前</span></div><div class="ver-d">不限商家/套餐，自定义品牌，租户级营销</div></div>
+                  <div class="ver-p">¥48,000<small>/年</small></div>
+                </div>
+                <div class="ver-card" onclick="showToast('升级至专业版')">
+                  <div class="ver-ic" style="background:linear-gradient(135deg,#C9952B,#A87B1E)"><span class="mi">workspace_premium</span></div>
+                  <div class="ver-b"><div class="ver-n">专业版</div><div class="ver-d">最多 10 商家，50 套餐，基础营销</div></div>
+                  <div class="ver-p">¥28,000<small>/年</small></div>
+                </div>
+                <div class="ver-card" onclick="showToast('升级至标准版')">
+                  <div class="ver-ic" style="background:linear-gradient(135deg,#9BA3B5,#5B6477)"><span class="mi">workspaces</span></div>
+                  <div class="ver-b"><div class="ver-n">标准版</div><div class="ver-d">最多 3 商家，20 套餐，基础功能</div></div>
+                  <div class="ver-p">¥12,000<small>/年</small></div>
+                </div>
+              </div>
+            </div>
+            <div class="td-actions">
+              <div class="td-btn td-btn-pri" onclick="showToast('进入野趣旅行租户工作台')"><span class="mi">launch</span>进入租户工作台</div>
+              <div class="td-btn td-btn-warn" onclick="showToast('续费流程已发起，将发送续约邮件')"><span class="mi">refresh</span>续费 / 升级版本</div>
+              <div class="td-btn td-btn-sec" onclick="showToast('已打开品牌配置')"><span class="mi">brush</span>品牌配置</div>
+              <div class="td-btn td-btn-sec" onclick="showToast('已打开子账号管理')"><span class="mi">manage_accounts</span>子账号管理</div>
+              <div class="td-btn td-btn-sec" onclick="showToast('已打开操作日志')"><span class="mi">history</span>租户操作日志</div>
+              <div class="td-btn td-btn-sec" onclick="showToast('已打开分账明细')"><span class="mi">payments</span>分账明细</div>
+              <div class="td-btn td-btn-sec" onclick="showToast('已停用该租户')"><span class="mi">block</span>停用租户</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 新建租户弹窗 -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-h">
+      <div class="modal-h-t">新建租户</div>
+      <div class="modal-h-c" onclick="closeModal()"><span class="mi">close</span></div>
+    </div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-l"><span class="mi">apartment</span>租户名称<small>*</small></div>
+        <input class="form-in" placeholder="如：野趣旅行">
+      </div>
+      <div class="form-row2">
+        <div class="form-row">
+          <div class="form-l"><span class="mi">badge</span>统一信用代码<small>*</small></div>
+          <input class="form-in" placeholder="91XXXXXXXXXXXXXX">
+        </div>
+        <div class="form-row">
+          <div class="form-l"><span class="mi">contact</span>联系人<small>*</small></div>
+          <input class="form-in" placeholder="姓名">
+        </div>
+      </div>
+      <div class="form-row2">
+        <div class="form-row">
+          <div class="form-l"><span class="mi">call</span>联系电话<small>*</small></div>
+          <input class="form-in" placeholder="手机号">
+        </div>
+        <div class="form-row">
+          <div class="form-l"><span class="mi">email</span>邮箱</div>
+          <input class="form-in" placeholder="企业邮箱">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-l"><span class="mi">workspaces</span>选择套餐版本<small>*</small></div>
+        <div class="ver-pick">
+          <div class="ver-opt on">
+            <div class="ver-opt-ic" style="background:linear-gradient(135deg,#2B5FE0,#4E7FEF)"><span class="mi">stars</span></div>
+            <div class="ver-opt-b"><div class="ver-opt-n">旗舰版</div><div class="ver-opt-d">不限商家/套餐，自定义品牌，租户级营销</div></div>
+            <div class="ver-opt-p">¥48,000/年</div>
+          </div>
+          <div class="ver-opt" onclick="pickVer(this)">
+            <div class="ver-opt-ic" style="background:linear-gradient(135deg,#C9952B,#A87B1E)"><span class="mi">workspace_premium</span></div>
+            <div class="ver-opt-b"><div class="ver-opt-n">专业版</div><div class="ver-opt-d">最多 10 商家，50 套餐，基础营销</div></div>
+            <div class="ver-opt-p">¥28,000/年</div>
+          </div>
+          <div class="ver-opt" onclick="pickVer(this)">
+            <div class="ver-opt-ic" style="background:linear-gradient(135deg,#9BA3B5,#5B6477)"><span class="mi">workspaces</span></div>
+            <div class="ver-opt-b"><div class="ver-opt-n">标准版</div><div class="ver-opt-d">最多 3 商家，20 套餐，基础功能</div></div>
+            <div class="ver-opt-p">¥12,000/年</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-l"><span class="mi">brush</span>品牌配置（可选）</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div style="width:48px;height:48px;border-radius:10px;border:2px dashed var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tx3)"><span class="mi" style="font-size:20px">add</span></div>
+          <input class="form-in" placeholder="租户 Logo（可选）">
+        </div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-sec" onclick="closeModal()">取消</button>
+      <button class="btn btn-pri" onclick="closeModal();showToast('租户创建成功，已发送激活邮件')"><span class="mi">check</span>创建租户</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')},2400);
+}
+function pickChip(el){
+  var chips=el.parentNode.querySelectorAll('.chip');
+  chips.forEach(function(c){c.classList.remove('on')});
+  el.classList.add('on');
+}
+function pickTenant(el,id){
+  document.querySelectorAll('.trow').forEach(function(r){r.classList.remove('on')});
+  el.classList.add('on');
+}
+function openModal(){document.getElementById('modalBg').classList.add('show')}
+function closeModal(){document.getElementById('modalBg').classList.remove('show')}
+function pickVer(el){
+  var opts=el.parentNode.querySelectorAll('.ver-opt');
+  opts.forEach(function(o){o.classList.remove('on')});
+  el.classList.add('on');
+}
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+</body>
+</html>

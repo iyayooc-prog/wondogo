@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>云栖度假 · 平台后台 · 数据看板（A1）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F7; --card:#fff; --tx:#1A2138; --tx2:#5B6477; --tx3:#9BA3B5;
+  --line:#E5E9EF; --line2:#F0F3F7;
+  --pri:#2B5FE0; --pri-d:#1E48B8; --pri-l:#EEF2FE; --pri-xl:#F6F8FE;
+  --ok:#16A34A; --ok-l:#ECFDF5;
+  --warn:#D97706; --warn-l:#FFF7ED;
+  --err:#DC2626; --err-l:#FEF2F2;
+  --r-sm:6px; --r-md:10px; --r-lg:14px;
+  --sh:0 1px 3px rgba(26,33,56,.06),0 1px 2px rgba(26,33,56,.04);
+  --sh-m:0 4px 14px rgba(26,33,56,.08);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+
+.side{background:#1A2138;color:#C5CCDE;padding:20px 14px;display:flex;flex-direction:column;gap:3px}
+.brand{display:flex;align-items:center;gap:8px;padding:6px 10px 22px;color:#fff;font-weight:800;font-size:15px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px}
+.brand .mi{font-size:20px;color:#4E7FEF}
+.brand small{font-size:9px;font-weight:600;letter-spacing:.1em;color:#6C7690;margin-left:4px}
+.nav{font-size:10.5px;font-weight:700;letter-spacing:.08em;color:#6C7690;padding:14px 10px 6px}
+.sit{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+.sit .mi{font-size:18px;color:#8993A8}
+.sit:hover{background:rgba(255,255,255,.05);color:#fff}
+.sit.on{background:linear-gradient(90deg,#2B5FE0,rgba(43,95,224,.3));color:#fff}
+.sit.on .mi{color:#fff}
+.sit b{margin-left:auto;padding:1px 6px;background:var(--warn);color:#fff;font-size:9px;border-radius:8px;font-weight:700}
+.sfoot{margin-top:auto;padding:12px 10px 0;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:#8993A8;display:flex;align-items:center;gap:8px}
+.sfoot-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4E7FEF,#2B5FE0);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px}
+
+.main{display:flex;flex-direction:column;min-width:0}
+.top{height:62px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.bread{font-size:12.5px;color:var(--tx3);font-weight:600;display:flex;align-items:center;gap:6px}
+.bread .mi{font-size:14px}
+.bread b{color:var(--tx);font-weight:800}
+.top-search{flex:1;max-width:380px;display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--line2);border-radius:8px;font-size:12.5px;color:var(--tx3)}
+.top-search .mi{font-size:16px}
+.top-search input{flex:1;background:transparent;border:none;outline:none;font-size:12.5px;font-family:var(--sans);color:var(--tx)}
+.top-r{display:flex;align-items:center;gap:14px}
+.top-ic{position:relative;cursor:pointer}
+.top-ic .mi{font-size:20px;color:var(--tx2)}
+.top-ic b{position:absolute;top:-4px;right:-6px;padding:0 5px;background:var(--err);color:#fff;font-size:9px;border-radius:8px;font-weight:800}
+
+.page{padding:24px 28px 40px;max-width:1520px;width:100%}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:14px}
+.pt{font-size:22px;font-weight:800;letter-spacing:-.015em}
+.ps{font-size:12px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.6}
+.ph-r{display:flex;gap:10px;align-items:center}
+.btn{padding:9px 17px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;transition:.15s}
+.btn .mi{font-size:16px}
+.btn-pri{background:var(--pri);color:#fff;box-shadow:var(--sh)}
+.btn-pri:hover{background:var(--pri-d)}
+.btn-sec{background:#fff;color:var(--tx2);border-color:var(--line)}
+.btn-sec:hover{border-color:var(--pri);color:var(--pri-d)}
+.btn-gh{background:transparent;color:var(--tx2)}
+.rpicker{display:flex;gap:6px;align-items:center;padding:7px 10px;background:#fff;border:1px solid var(--line);border-radius:7px;font-size:12px;font-weight:700;cursor:pointer}
+.rpicker .mi{font-size:15px;color:var(--tx3)}
+.rpicker b{color:var(--pri-d)}
+
+/* KPI 网格 */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{background:#fff;border-radius:var(--r-lg);padding:18px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,var(--pri-l),transparent 70%);opacity:.6}
+.kpi-l{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:.04em;display:flex;align-items:center;gap:6px}
+.kpi-l .mi{font-size:14px;color:var(--pri)}
+.kpi-v{font-size:28px;font-weight:800;letter-spacing:-.025em;margin-top:10px;line-height:1}
+.kpi-v small{font-size:13px;font-weight:700;color:var(--tx3)}
+.kpi-d{display:flex;align-items:center;gap:4px;margin-top:11px;font-size:11px;font-weight:800}
+.kpi-d .mi{font-size:14px}
+.kpi-d.up{color:var(--ok)}.kpi-d.down{color:var(--err)}.kpi-d.flat{color:var(--tx3)}
+.kpi-sub{font-size:10px;color:var(--tx3);margin-top:4px;font-weight:600;line-height:1.55}
+.kpi-spark{display:flex;align-items:flex-end;gap:2px;height:24px;margin-top:10px}
+.kpi-spark i{flex:1;background:var(--pri-l);border-radius:1px}
+.kpi-spark i.hi{background:var(--pri)}
+
+/* 双列布局 */
+.grid2{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;margin-bottom:22px}
+.panel{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden}
+.panel-h{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.panel-t{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:7px}
+.panel-t .mi{font-size:17px;color:var(--pri)}
+.panel-t small{font-size:10px;color:var(--tx3);font-weight:600;margin-left:4px}
+.panel-act{font-size:11px;color:var(--pri);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:3px}
+.panel-act .mi{font-size:14px}
+.panel-b{padding:16px 18px}
+
+/* 主题分布图 */
+.theme-chart{display:flex;gap:18px;align-items:center}
+.pie{width:160px;height:160px;border-radius:50%;position:relative;flex-shrink:0;box-shadow:inset 0 0 0 4px #fff,0 4px 14px rgba(26,33,56,.08)}
+.pie-center{position:absolute;inset:32px;background:#fff;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 0 0 2px var(--line2)}
+.pie-v{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.pie-l{font-size:9.5px;font-weight:700;color:var(--tx3);margin-top:2px}
+.theme-list{flex:1}
+.thm-r{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:12px;cursor:pointer}
+.thm-sw{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.thm-n{flex:1;font-weight:700}
+.thm-pct{font-weight:800}
+.thm-bar{flex:0 0 80px;height:5px;background:var(--line2);border-radius:3px;overflow:hidden}
+.thm-bar i{display:block;height:100%;border-radius:3px;transition:.4s var(--ease)}
+
+/* 商家排行 */
+.rank{display:flex;flex-direction:column}
+.rk{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--line2);cursor:pointer}
+.rk:last-child{border-bottom:none}
+.rk:hover{background:var(--pri-xl)}
+.rk-pos{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;flex-shrink:0}
+.rk-pos.t1{background:linear-gradient(135deg,#FDE68A,#F59E0B);color:#fff}
+.rk-pos.t2{background:linear-gradient(135deg,#E5E9EF,#9BA3B5);color:#fff}
+.rk-pos.t3{background:linear-gradient(135deg,#E7B08C,#B45309);color:#fff}
+.rk-pos.other{background:var(--line2);color:var(--tx3)}
+.rk-av{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:800;color:#fff}
+.rk-b{flex:1;min-width:0}
+.rk-n{font-size:12px;font-weight:800;display:flex;align-items:center;gap:6px}
+.rk-tag{padding:1px 6px;border-radius:4px;font-size:8.5px;font-weight:800;background:var(--pri-l);color:var(--pri-d)}
+.rk-m{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.rk-r{text-align:right;flex-shrink:0}
+.rk-v{font-size:12px;font-weight:800}
+.rk-sub{font-size:9.5px;color:var(--tx3);margin-top:3px;font-weight:600}
+
+/* 客群场景 */
+.sc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.sc{background:var(--line2);border-radius:var(--r-md);padding:14px;text-align:center;cursor:pointer;transition:.2s}
+.sc:hover{background:var(--pri-l);transform:translateY(-2px)}
+.sc-ic{width:42px;height:42px;border-radius:12px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.sc-ic .mi{font-size:22px;color:#fff}
+.sc-v{font-size:19px;font-weight:800;margin-top:9px;letter-spacing:-.02em}
+.sc-l{font-size:10px;color:var(--tx2);margin-top:3px;font-weight:700}
+.sc-d{display:inline-block;margin-top:5px;padding:1px 6px;border-radius:8px;font-size:8.5px;font-weight:800}
+.sc-d.up{background:var(--ok-l);color:var(--ok)}
+.sc-d.down{background:var(--err-l);color:var(--err)}
+
+/* 目的地热力 */
+.dest{display:flex;flex-direction:column;gap:9px}
+.dst{display:flex;align-items:center;gap:11px;padding:9px 11px;background:var(--line2);border-radius:var(--r-md);cursor:pointer;transition:.18s}
+.dst:hover{background:var(--pri-l)}
+.dst-ic{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dst-ic .mi{font-size:17px;color:#fff}
+.dst-b{flex:1;min-width:0}
+.dst-n{font-size:12px;font-weight:800;display:flex;align-items:center;gap:6px}
+.dst-n small{font-size:9px;color:var(--tx3);font-weight:600;padding:1px 6px;background:#fff;border-radius:4px}
+.dst-m{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.dst-r{text-align:right}
+.dst-v{font-size:13px;font-weight:800}
+.dst-sub{font-size:9.5px;color:var(--tx3);margin-top:3px;font-weight:600}
+
+/* 实时订单流 */
+.stream{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto}
+.stream::-webkit-scrollbar{width:4px}
+.stream::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
+.st{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--line2);border-radius:var(--r-sm);border-left:3px solid var(--pri)}
+.st-ic{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.st-ic .mi{font-size:14px;color:#fff}
+.st-b{flex:1;min-width:0}
+.st-t{font-size:11.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-m{font-size:9.5px;color:var(--tx3);margin-top:2px;font-weight:600}
+.st-r{font-size:11.5px;font-weight:800;color:var(--pri-d);flex-shrink:0}
+.st-tg{font-size:9.5px;color:var(--tx3);margin-top:2px;font-weight:600;text-align:right}
+
+/* 待处理 */
+.todo{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.td{padding:13px;background:var(--line2);border-radius:var(--r-md);cursor:pointer;transition:.2s}
+.td:hover{background:var(--pri-l);transform:translateY(-2px)}
+.td-ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.td-ic .mi{font-size:17px;color:#fff}
+.td-v{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.td-l{font-size:10.5px;color:var(--tx2);margin-top:3px;font-weight:700}
+.td-d{font-size:9.5px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.55}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(26,33,56,.92);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;max-width:320px}
+.toast.show{opacity:1}
+
+/* decision v3 - confirmed rules strip */
+.dstrip{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;margin-bottom:14px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;font-size:10.5px;color:#14532D;font-weight:700;line-height:1.85}
+.dstrip>.mi{font-size:18px;flex-shrink:0;color:#15803D}
+.dstrip b{color:#166534}
+.dstrip .dstrip-t{font-size:11px;font-weight:800;letter-spacing:.02em}
+.dstrip .dstrip-x{color:#166534;font-weight:600}
+
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+
+/* yx-deep-A1 */
+.yx-kpi-hint{margin-top:6px;font-size:10px;color:#6B7280;font-weight:600;line-height:1.7}
+
+/* yx-prod-A1-NORTH */
+
+.yx-north{margin:8px 12px 12px;padding:14px 15px;background:#fff;border:1px solid #E5E7EB;border-left:3px solid #12897C;border-radius:10px}
+.yx-north-h{font-size:11px;font-weight:800;color:#0E6B62;display:flex;gap:7px;align-items:center;letter-spacing:.02em}
+.yx-north-h .mi{font-size:18px}
+.yx-north-g{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.yx-nk{background:#F8FAFC;border:1px solid #E8EBE8;border-radius:9px;padding:11px 12px}
+.yx-nk-t{font-size:10px;color:#6B7280;font-weight:700}
+.yx-nk-v{font-size:21px;font-weight:800;color:#1F2937;margin-top:4px;letter-spacing:-.02em}
+.yx-nk-v small{font-size:11px;color:#15803D;font-weight:800;margin-left:5px}
+.yx-nk-d{font-size:9.5px;color:#9CA3AF;line-height:1.7;margin-top:4px;font-weight:600}
+.yx-north-n{margin-top:11px;font-size:10px;color:#6B7280;line-height:1.8;font-weight:600;border-top:1px solid #E8EBE8;padding-top:9px}
+.yx-north-n b{color:#1F2937}
+
+</style>
+</head>
+<body>
+<!-- yx-deep-A1 -->
+<div class="yx-kpi-hint" id="yxKpiHint">口径：GMV 不回冲 · 退款单列冲减 · 环比 / 同比 / 主题占比 / 活动 ROI 全用净 GMV（decision-defaults-v3.json）</div>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="mi">terrain</span>云栖度假<small>ADMIN</small></div>
+    <div class="nav">概览</div>
+    <div class="sit on"><span class="mi">dashboard</span>数据看板</div>
+    <div class="sit" onclick="showToast('进入 A2 套餐组货工具')"><span class="mi">inventory_2</span>套餐组货工具</div>
+    <div class="nav">资源与商家</div>
+    <div class="sit"><span class="mi">storefront</span>商家与资质审核<b>3</b></div>
+    <div class="sit"><span class="mi">category</span>资源项库</div>
+    <div class="sit"><span class="mi">local_shipping</span>资源项审核</div>
+    <div class="nav">订单与售后</div>
+    <div class="sit"><span class="mi">receipt_long</span>订单中心</div>
+    <div class="sit"><span class="mi">gavel</span>退款仲裁<b>1</b></div>
+    <div class="sit"><span class="mi">payments</span>分账与结算</div>
+    <div class="nav">内容与营销</div>
+    <div class="sit"><span class="mi">auto_stories</span>内容与首页 CMS</div>
+    <div class="sit"><span class="mi">campaign</span>营销中心</div>
+    <div class="sit"><span class="mi">palette</span>主题库<b>6</b></div>
+    <div class="nav">系统</div>
+    <div class="sit"><span class="mi">admin_panel_settings</span>权限配置</div>
+    <div class="sit"><span class="mi">settings</span>系统设置</div>
+    <div class="sfoot"><div class="sfoot-av">YK</div>运营 · 尹凯</div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="bread"><span class="mi">home</span> 平台后台 <span class="mi">chevron_right</span> <b>数据看板</b></div>
+      <div class="top-search"><span class="mi">search</span><input placeholder="搜商家 / 套餐 / 订单号 / 主题"></div>
+      <div class="top-r">
+        <div class="top-ic" onclick="showToast('待办事项')"><span class="mi">notifications_none</span><b>9</b></div>
+        <div class="top-ic" onclick="showToast('导出本周报表')"><span class="mi">download</span></div>
+        <div class="top-ic" onclick="showToast('帮助文档')"><span class="mi">help_outline</span></div>
+      </div>
+    </div>
+
+    <div class="page">
+      <!-- DECISION_V3_APPLIED -->
+<div class="dstrip"><span class="mi">gavel</span><div><div class="dstrip-t">决策 5 已定稿 · 看板口径</div><div class="dstrip-x"><b>GMV 不回冲</b>（成交总额历史值不改写）·<b>退款单列「退款冲减」科目</b>·<b>环比 / 同比 / 主题占比 / 活动 ROI 全用净 GMV</b>。对齐 CAS 14「销售退回冲减当期收入、不追溯改写历史」与 2025 年天猫「剔除退款后的 GMV」口径。财务导出带净 GMV 水印。</div></div></div>
+
+      <div class="ph">
+        <div>
+          <div class="pt">平台数据看板</div>
+          <div class="ps">截至 2026-10-10 21:42 · 本周第 6 天 · 数据延迟 &lt; 5 分钟</div>
+        </div>
+        <div class="ph-r">
+          <div class="rpicker" onclick="showToast('切换时间范围')"><span class="mi">date_range</span><b>本周</b> · 10-05 ~ 10-10</div>
+          <div class="btn btn-sec" onclick="showToast('导出 PDF 报表')"><span class="mi">picture_as_pdf</span>导出</div>
+          <div class="btn btn-pri" onclick="showToast('新建运营日报')"><span class="mi">add</span>新建日报</div>
+        </div>
+      </div>
+
+      <!-- 主 KPI -->
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">paid</span>GMV（本周）· 成交口径</div>
+          <div class="kpi-v">¥284<small>.6 万</small></div>
+          <div class="kpi-d up"><span class="mi">trending_up</span>+22.3% vs 上周（按净 GMV 计算）</div>
+          <div class="kpi-spark"><i></i><i></i><i></i><i></i><i class="hi"></i><i class="hi"></i><i class="hi"></i></div>
+          <div class="kpi-sub" style="line-height:1.9">累计 1,842 单 · 客单价 ¥1,545<br><span style="color:var(--err);font-weight:800">退款冲减 ¥1,052</span> · <span style="color:var(--pri-d);font-weight:800">净 GMV ¥284.49 万</span> = 2,846,000 − 1,052</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">shopping_cart</span>订单数</div>
+          <div class="kpi-v">1,842<small> 单</small></div>
+          <div class="kpi-d up"><span class="mi">trending_up</span>+18.6% vs 上周</div>
+          <div class="kpi-spark"><i></i><i></i><i class="hi"></i><i></i><i class="hi"></i><i class="hi"></i><i class="hi"></i></div>
+          <div class="kpi-sub">新客 62% · 复购 38%</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">fact_check</span>核销率</div>
+          <div class="kpi-v">86.4<small>%</small></div>
+          <div class="kpi-d up"><span class="mi">trending_up</span>+2.1pp vs 上周</div>
+          <div class="kpi-spark"><i></i><i class="hi"></i><i></i><i></i><i class="hi"></i><i class="hi"></i><i class="hi"></i></div>
+          <div class="kpi-sub">部分核销 8% · 全核销 78% · 未使用 14%</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">autorenew</span>复购率（30 日）</div>
+          <div class="kpi-v">23.7<small>%</small></div>
+          <div class="kpi-d up"><span class="mi">trending_up</span>+1.4pp vs 上月</div>
+          <div class="kpi-spark"><i></i><i></i><i class="hi"></i><i class="hi"></i><i></i><i class="hi"></i><i class="hi"></i></div>
+          <div class="kpi-sub">平均复购间隔 48 天</div>
+        </div>
+      </div>
+
+      <!-- 双列 -->
+      <div class="grid2">
+        <!-- 主题分布 -->
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">palette</span>六主题净 GMV 占比<small>按订单所属产品的 theme_key · 扣退款冲减后</small></div>
+            <div class="panel-act" onclick="showToast('查看主题运营详细报表')">详细报表 <span class="mi">chevron_right</span></div>
+          </div>
+          <div class="panel-b">
+            <div class="theme-chart">
+              <div class="pie" id="pie">
+                <div class="pie-center">
+                  <div class="pie-v">¥284.49w</div>
+                  <div class="pie-l">本周净 GMV</div>
+                </div>
+              </div>
+              <div class="theme-list" id="themeList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 商家排行 -->
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">leaderboard</span>商家本周排行</div>
+            <div class="panel-act" onclick="showToast('切换排序方式：净 GMV / 核销率 / 评分')"><span class="mi">sort</span>按净 GMV</div>
+          </div>
+          <div class="panel-b">
+            <div class="rank" id="rank"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 客群场景 -->
+      <div class="panel" style="margin-bottom:22px">
+        <div class="panel-h">
+          <div class="panel-t"><span class="mi">groups</span>五大客群场景占比<small>按订单出行人结构 + 套餐场景标签自动分类</small></div>
+          <div class="panel-act" onclick="showToast('查看客群详细画像')">详细画像 <span class="mi">chevron_right</span></div>
+        </div>
+        <div class="panel-b">
+          <div class="sc-grid" id="scGrid"></div>
+        </div>
+      </div>
+
+      <!-- 双列 -->
+      <div class="grid2">
+        <!-- 目的地热力 -->
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">place</span>目的地热力 TOP 8</div>
+            <div class="panel-act" onclick="showToast('查看全部目的地')">全部 <span class="mi">chevron_right</span></div>
+          </div>
+          <div class="panel-b">
+            <div class="dest" id="dest"></div>
+          </div>
+        </div>
+
+        <!-- 实时订单流 -->
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">bolt</span>实时订单流<small>最近 30 分钟</small></div>
+            <div class="panel-act"><span class="mi" style="color:var(--ok)">fiber_manual_record</span> 实时</div>
+          </div>
+          <div class="panel-b">
+            <div class="stream" id="stream"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 待处理 -->
+      <div class="panel">
+        <div class="panel-h">
+          <div class="panel-t"><span class="mi">priority_high</span>待处理事项</div>
+          <div class="panel-act" onclick="showToast('查看全部待办')">全部 <span class="mi">chevron_right</span></div>
+        </div>
+        <div class="panel-b">
+          <div class="todo">
+            <div class="td" onclick="showToast('进入商家审核')">
+              <div class="td-ic" style="background:linear-gradient(135deg,#F59E0B,#D97706)"><span class="mi">verified_user</span></div>
+              <div class="td-v">3</div>
+              <div class="td-l">商家资质待审核</div>
+              <div class="td-d">新入驻商家 2 家 · 资质变更 1 家 · 平均等待 1.2 天</div>
+            </div>
+            <div class="td" onclick="showToast('进入退款仲裁')">
+              <div class="td-ic" style="background:linear-gradient(135deg,#DC2626,#991B1B)"><span class="mi">gavel</span></div>
+              <div class="td-v">1</div>
+              <div class="td-l">退款仲裁待处理</div>
+              <div class="td-d">部分核销退款纠纷 · 等待平台裁定 · 已超 24 小时</div>
+            </div>
+            <div class="td" onclick="showToast('进入资源项审核')">
+              <div class="td-ic" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8)"><span class="mi">category</span></div>
+              <div class="td-v">5</div>
+              <div class="td-l">资源项待审核</div>
+              <div class="td-d">商家新提交 5 项资源 · 含证照核验</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const THEMES=[
+  {k:'forest',n:'山林',sw:'#12897C',pct:28,gmv:'79.7w',up:'+26%'},
+  {k:'ocean',n:'海洋',sw:'#0E86C4',pct:22,gmv:'62.6w',up:'+31%'},
+  {k:'city',n:'城市',sw:'#5A5BD0',pct:18,gmv:'51.2w',up:'+12%'},
+  {k:'heritage',n:'古镇',sw:'#8A5A3B',pct:14,gmv:'39.8w',up:'+8%'},
+  {k:'grassland',n:'草原',sw:'#6FA22E',pct:11,gmv:'31.3w',up:'-5%'},
+  {k:'snow',n:'雪域温泉',sw:'#4C7FA8',pct:7,gmv:'19.9w',up:'+18%'}
+];
+const MERCHANTS=[
+  {n:'海隅·石屋民宿',mid:'B-0032',c:['#0E86C4','#0A6291'],tag:'海洋',gmv:'¥32.4w',rate:'4.9',orders:142},
+  {n:'云景·山居',mid:'B-0018',c:['#12897C','#0C6B61'],tag:'山林',gmv:'¥28.7w',rate:'4.9',orders:118},
+  {n:'竹里馆·山野厨房',mid:'B-0019',c:['#12897C','#0C6B61'],tag:'山林',gmv:'¥24.3w',rate:'4.8',orders:156},
+  {n:'承志堂·古宅民宿',mid:'B-0087',c:['#8A5A3B','#6B4229'],tag:'古镇',gmv:'¥19.8w',rate:'4.9',orders:78},
+  {n:'外滩·江景酒店',mid:'B-0301',c:['#5A5BD0','#413FA8'],tag:'城市',gmv:'¥18.6w',rate:'4.9',orders:92},
+  {n:'星空营地',mid:'B-0112',c:['#6FA22E','#547C20'],tag:'草原',gmv:'¥15.2w',rate:'4.9',orders:34},
+  {n:'老陈船队',mid:'B-0031',c:['#0E86C4','#0A6291'],tag:'海洋',gmv:'¥13.4w',rate:'4.8',orders:86},
+  {n:'雪场酒店',mid:'B-0204',c:['#4C7FA8','#35607F'],tag:'雪域',gmv:'¥11.2w',rate:'4.8',orders:22}
+];
+const SCENES=[
+  {n:'家庭亲子',ic:'family_restroom',c:['#FFB27A','#FF8148'],v:'38%',l:'702 单',d:'+5.2%',cls:'up'},
+  {n:'情侣自由行',ic:'favorite',c:['#FFA0BC','#F2648C'],v:'27%',l:'498 单',d:'+3.1%',cls:'up'},
+  {n:'公司团建',ic:'apartment',c:['#7FB4E8','#4A82C4'],v:'18%',l:'332 单',d:'-2.4%',cls:'down'},
+  {n:'定制小团',ic:'diamond',c:['#B39BE8','#7C63C8'],v:'11%',l:'203 单',d:'+8.7%',cls:'up'},
+  {n:'企业福利',ic:'redeem',c:['#F5CE72','#E0A62E'],v:'6%',l:'107 单',d:'+1.8%',cls:'up'}
+];
+const DESTS=[
+  {n:'莫干山',tag:'山林',c:['#12897C','#0C6B61'],ic:'filter_hdr',v:'¥58.4w',orders:'386 单',rate:'92%'},
+  {n:'东极岛',tag:'海洋',c:['#0E86C4','#0A6291'],ic:'sailing',v:'¥42.1w',orders:'268 单',rate:'88%'},
+  {n:'上海外滩',tag:'城市',c:['#5A5BD0','#413FA8'],ic:'location_city',v:'¥38.7w',orders:'198 单',rate:'91%'},
+  {n:'宏村',tag:'古镇',c:['#8A5A3B','#6B4229'],ic:'temple_buddhist',v:'¥28.6w',orders:'164 单',rate:'86%'},
+  {n:'呼伦贝尔',tag:'草原',c:['#6FA22E','#547C20'],ic:'park',v:'¥24.8w',orders:'142 单',rate:'84%'},
+  {n:'嵊泗列岛',tag:'海洋',c:['#0E86C4','#0A6291'],ic:'beach_access',v:'¥21.3w',orders:'128 单',rate:'89%'},
+  {n:'长白山',tag:'雪域',c:['#4C7FA8','#35607F'],ic:'ac_unit',v:'¥18.4w',orders:'96 单',rate:'90%'},
+  {n:'安吉',tag:'山林',c:['#12897C','#0C6B61'],ic:'forest',v:'¥16.2w',orders:'112 单',rate:'87%'}
+];
+const STREAM=[
+  {t:1,ic:'hotel',c:['#0E86C4','#0A6291'],n:'东极岛听海两日 · 海景石屋大床房',m:'张** · 2 成人 1 儿童 · 海洋主题',v:'¥1,580',tg:'2 分钟前'},
+  {t:2,ic:'filter_hdr',c:['#12897C','#0C6B61'],n:'莫干山云端两日 · 山谷家庭套房',m:'王** · 2 大 1 小 · 山林主题',v:'¥2,100',tg:'5 分钟前'},
+  {t:3,ic:'location_city',c:['#5A5BD0','#413FA8'],n:'上海屋顶周末两日 · 江景套房',m:'李** · 2 成人 · 城市主题',v:'¥1,980',tg:'8 分钟前'},
+  {t:4,ic:'temple_buddhist',c:['#8A5A3B','#6B4229'],n:'徽州古村慢活三日 · 天井大床房',m:'陈** · 2 成人 · 古镇主题',v:'¥2,280',tg:'12 分钟前'},
+  {t:5,ic:'park',c:['#6FA22E','#547C20'],n:'呼伦贝尔草原四日 · 蒙古包',m:'张** · 团建 22 人 · 草原主题',v:'¥14,960',tg:'18 分钟前'},
+  {t:6,ic:'sailing',c:['#0E86C4','#0A6291'],n:'嵊泗列岛亲子赶海三日',m:'周** · 2 大 1 小 · 海洋主题',v:'¥2,080',tg:'22 分钟前'},
+  {t:7,ic:'ac_unit',c:['#4C7FA8','#35607F'],n:'长白山雪季三日 · 雪场标准房',m:'吴** · 2 成人 · 雪域主题',v:'¥2,880',tg:'28 分钟前'}
+];
+const $=id=>document.getElementById(id);
+
+function renderPie(){
+  let angle=0,parts=[];
+  THEMES.forEach(t=>{
+    const pct=t.pct/100*360;
+    parts.push(`${t.sw} ${angle}deg ${angle+pct}deg`);
+    angle+=pct;
+  });
+  $('pie').style.background=`conic-gradient(${parts.join(',')})`;
+  $('themeList').innerHTML=THEMES.map(t=>`
+    <div class="thm-r" onclick="showToast('查看「${t.n}」主题详细运营数据')">
+      <div class="thm-sw" style="background:${t.sw}"></div>
+      <div class="thm-n">${t.n}</div>
+      <div class="thm-bar"><i style="width:${t.pct*2.5}%;background:${t.sw}"></i></div>
+      <div class="thm-pct">${t.pct}%</div>
+      <div style="font-size:10px;color:${t.up.includes('+')?'var(--ok)':'var(--err)'};font-weight:800;min-width:40px;text-align:right">${t.up}</div>
+    </div>`).join('');
+}
+function renderRank(){
+  $('rank').innerHTML=MERCHANTS.map((m,i)=>`
+    <div class="rk" onclick="showToast('查看商家「${m.n}」详情')">
+      <div class="rk-pos ${i<3?['t1','t2','t3'][i]:'other'}">${i+1}</div>
+      <div class="rk-av" style="background:linear-gradient(135deg,${m.c[0]},${m.c[1]})">${m.n[0]}</div>
+      <div class="rk-b">
+        <div class="rk-n">${m.n}<span class="rk-tag" style="background:${m.c[0]}22;color:${m.c[1]}">${m.tag}</span></div>
+        <div class="rk-m">${m.mid} · ${m.orders} 单 · 核销率 ${m.rate}</div>
+      </div>
+      <div class="rk-r">
+        <div class="rk-v">${m.gmv}</div>
+        <div class="rk-sub">本周 GMV</div>
+      </div>
+    </div>`).join('');
+}
+function renderScenes(){
+  $('scGrid').innerHTML=SCENES.map(s=>`
+    <div class="sc" onclick="showToast('查看「${s.n}」客群画像')">
+      <div class="sc-ic" style="background:linear-gradient(135deg,${s.c[0]},${s.c[1]})"><span class="mi">${s.ic}</span></div>
+      <div class="sc-v">${s.v}</div>
+      <div class="sc-l">${s.n} · ${s.l}</div>
+      <div class="sc-d ${s.cls}">${s.cls==='up'?'↑':'↓'} ${s.d}</div>
+    </div>`).join('');
+}
+function renderDest(){
+  $('dest').innerHTML=DESTS.map(d=>`
+    <div class="dst" onclick="showToast('查看目的地「${d.n}」运营数据')">
+      <div class="dst-ic" style="background:linear-gradient(135deg,${d.c[0]},${d.c[1]})"><span class="mi">${d.ic}</span></div>
+      <div class="dst-b">
+        <div class="dst-n">${d.n}<small>${d.tag}</small></div>
+        <div class="dst-m">${d.orders} · 核销率 ${d.rate}</div>
+      </div>
+      <div class="dst-r">
+        <div class="dst-v">${d.v}</div>
+        <div class="dst-sub">本周 GMV</div>
+      </div>
+    </div>`).join('');
+}
+function renderStream(){
+  $('stream').innerHTML=STREAM.map(s=>`
+    <div class="st" style="border-left-color:${s.c[0]}" onclick="showToast('查看订单详情')">
+      <div class="st-ic" style="background:linear-gradient(135deg,${s.c[0]},${s.c[1]})"><span class="mi">${s.ic}</span></div>
+      <div class="st-b"><div class="st-t">${s.n}</div><div class="st-m">${s.m}</div></div>
+      <div>
+        <div class="st-r">+${s.v}</div>
+        <div class="st-tg">${s.tg}</div>
+      </div>
+    </div>`).join('');
+}
+function showToast(x){const el=$('toast');el.textContent=x;el.className='toast show';clearTimeout(window._tt);window._tt=setTimeout(()=>el.className='toast',2000);}
+renderPie();renderRank();renderScenes();renderDest();renderStream();
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+
+<script>
+
+(function(){
+  var h=document.getElementById('yxKpiHint');
+  if(h&&document.querySelector('.kpis'))document.querySelector('.kpis').appendChild(h);
+  YX.next('今天该做什么（按风险排序）',[
+    {label:'🔴 超时仲裁 1 单 → 去裁定',fn:function(){YX.toast('打开 A5 · 部分核销退款纠纷已超 24 小时','err');}},
+    {label:'🟠 库存告警 1 项 → 查配额',fn:function(){YX.toast('打开 A12 · Σ软配额 7 > 共享池 6，只告警不阻断');}},
+    {label:'🟡 待审商家 3 家',fn:function(){YX.toast('打开 A3 · 按提交时间排序');}},
+    {label:'🟡 待发布主题 1 套',fn:function(){YX.toast('打开 A10 · 草原色值已定稿，校验可放行','ok');}}
+  ]);
+})();
+
+</script>
+
+<!-- yx-prod-A1-NORTH -->
+
+<div class="yx-north" id="yxNorth">
+  <div class="yx-north-h"><span class="mi">north_east</span>北极星指标（产品目标，不是财务口径）</div>
+  <div class="yx-north-g">
+    <div class="yx-nk"><div class="yx-nk-t">履约无摩擦率</div><div class="yx-nk-v">92.4%<small>+3.1pt</small></div><div class="yx-nk-d">到店无需人工介入 / 应急码 / 仲裁的订单占比</div></div>
+    <div class="yx-nk"><div class="yx-nk-t">90 天复购与推荐率</div><div class="yx-nk-v">18.7%<small>+1.8pt</small></div><div class="yx-nk-d">低频高端生意的真实增长，替代 GMV 走量冲动</div></div>
+  </div>
+  <div class="yx-north-n"><b>净 GMV 是财务口径，不是产品目标。</b>下方经营数字继续按 <code>decision-defaults-v3.json</code> 出（GMV 不回冲 / 单列冲减 / 环比用净 GMV）；但「这个产品成没成」只看上面两个数。看板的职责是<b>决策工位</b>：每个数字旁边要有谁、多久之内、去哪处理。</div>
+</div>
+
+<script>
+
+(function(){
+  var n=document.getElementById('yxNorth');
+  var k=document.querySelector('.kpis')||document.querySelector('.panel');
+  if(n&&k&&k.parentNode)k.parentNode.insertBefore(n,k);
+})();
+
+</script>
+</body>
+</html>

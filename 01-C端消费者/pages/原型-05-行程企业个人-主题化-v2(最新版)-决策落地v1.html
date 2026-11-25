@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · 行程助手 / 企业专区 / 个人中心（主题化 v2）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+/* —— 六套主题 + 中性骨架（与发现页 v2 一致）—— */
+:root{--card:#FFFFFF;--tx:#1B2E2C;--tx2:#5E7370;--tx3:#9BAEAB;--line:#E8EFEE;--line2:#F2F6F5;--r-sm:10px;--r-md:16px;--r-lg:22px;--r-full:999px;--sh-s:0 2px 10px rgba(27,46,44,.05);--sh-m:0 6px 22px rgba(27,46,44,.08);--sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',Roboto,sans-serif}
+[data-theme="neutral"]{--pri:#4A5D59;--pri-d:#33423F;--pri-l:#EDF1F0;--pri-xl:#F6F8F7;--acc:#FF6B4A;--acc-l:#FFEFEB;--acc2:#F2A93B;--bg:#F4F6F5;--sh-l:0 10px 28px rgba(27,46,44,.12);--g1a:#E2E7E5;--g1b:#B9C4C1;--g1c:#8D9C99;--g2a:#EDE7DE;--g2b:#CFC3B2;--g2c:#A3937F;--g3a:#E0E6E4;--g3b:#B4C1BD;--g3c:#889994;--g4a:#E6E9EC;--g4b:#BCC5CD;--g4c:#909BA5}
+[data-theme="ocean"]{--pri:#0E86C4;--pri-d:#0A6291;--pri-l:#E3F1FA;--pri-xl:#F2F9FD;--acc:#FF7A59;--acc-l:#FFF0EB;--acc2:#FFB648;--sh-l:0 10px 28px rgba(14,134,196,.20);--g1a:#8FE0F0;--g1b:#2E9BD4;--g1c:#14689E;--g2a:#FFE2B0;--g2b:#FFA96B;--g2c:#F0805A;--g3a:#A8E8DC;--g3b:#4FBFAE;--g3c:#2A8A80;--g4a:#BFD9F2;--g4b:#6E9FD0;--g4c:#3F6E9E}
+[data-theme="forest"]{--pri:#12897C;--pri-d:#0C6B61;--pri-l:#E4F2F0;--pri-xl:#F1F8F7;--acc:#FF7A59;--acc-l:#FFF0EB;--acc2:#FFB648;--sh-l:0 10px 28px rgba(18,137,124,.18);--g1a:#C6E8B0;--g1b:#6FBF7F;--g1c:#2E8B57;--g2a:#A8E0C8;--g2b:#4FB894;--g2c:#1E8367;--g3a:#FFE0B2;--g3b:#FFAE6B;--g3c:#E08A4A;--g4a:#D8E8C0;--g4b:#93C07A;--g4c:#5A8C46}
+[data-theme="heritage"]{--pri:#8A5A3B;--pri-d:#6B4229;--pri-l:#F4EAE2;--pri-xl:#FBF6F1;--acc:#C0453A;--acc-l:#FCEDEB;--acc2:#D8A24A;--sh-l:0 10px 28px rgba(138,90,59,.18);--g1a:#E8DCCB;--g1b:#BFA78A;--g1c:#8A6F52;--g2a:#D9CBB8;--g2b:#A98F6E;--g2c:#6E5842;--g3a:#E5C9A8;--g3b:#C9976A;--g3c:#9A6742;--g4a:#DCD6CC;--g4b:#9E968A;--g4c:#6B6459}
+[data-theme="grassland"]{--pri:#6FA22E;--pri-d:#547C20;--pri-l:#EDF5E1;--pri-xl:#F6FAF0;--acc:#F2873D;--acc-l:#FFF2E6;--acc2:#E8C33C;--sh-l:0 10px 28px rgba(111,162,46,.20);--g1a:#DCF0A8;--g1b:#93C85A;--g1c:#5A9430;--g2a:#BFE8F5;--g2b:#79C0DC;--g2c:#3F8FB0;--g3a:#FFE9A8;--g3b:#FFC65C;--g3c:#E09A2E;--g4a:#E8F2C0;--g4b:#B5D483;--g4c:#7CA84E}
+[data-theme="snow"]{--pri:#4C7FA8;--pri-d:#35607F;--pri-l:#E8F1F8;--pri-xl:#F4F9FC;--acc:#E8734A;--acc-l:#FCEEE8;--acc2:#7FC4D8;--sh-l:0 10px 28px rgba(76,127,168,.20);--g1a:#F0F7FC;--g1b:#BDD8EA;--g1c:#7FA8C8;--g2a:#E4EEF6;--g2b:#A9C6DC;--g2c:#6E92B0;--g3a:#FFE0D0;--g3b:#F5A882;--g3c:#D4764E;--g4a:#EDF4FA;--g4b:#C2D8E8;--g4c:#8AAAC4}
+[data-theme="city"]{--pri:#5A5BD0;--pri-d:#413FA8;--pri-l:#ECECFB;--pri-xl:#F6F6FD;--acc:#FF5C8A;--acc-l:#FFEDF3;--acc2:#FFB648;--sh-l:0 10px 28px rgba(90,91,208,.20);--g1a:#CFCFFF;--g1b:#8A8AF0;--g1c:#5A5BD0;--g2a:#FFD3E2;--g2b:#FF92B4;--g2c:#E05A82;--g3a:#FFE3B8;--g3b:#FFBE6B;--g3c:#E0913A;--g4a:#C9D8F5;--g4b:#8AA6E0;--g4c:#5A78C0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#dfe3e2;color:var(--tx);line-height:1.55;-webkit-font-smoothing:antialiased}
+.mi{font-family:'Material Icons'}
+.g1{background:linear-gradient(160deg,var(--g1a),var(--g1b) 52%,var(--g1c))}
+.g2{background:linear-gradient(160deg,var(--g2a),var(--g2b) 50%,var(--g2c))}
+.g3{background:linear-gradient(160deg,var(--g3a),var(--g3b) 50%,var(--g3c))}
+.g4{background:linear-gradient(160deg,var(--g4a),var(--g4b) 52%,var(--g4c))}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;box-shadow:0 0 40px rgba(0,0,0,.12)}
+.page{display:none}.page.on{display:block;padding-bottom:66px}
+
+/* 顶部导航 */
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;position:sticky;top:0;z-index:40}
+.nav-t{font-size:17px;font-weight:800;letter-spacing:-.01em}
+.nav-r{display:flex;gap:8px}
+.nav-ic{width:34px;height:34px;border-radius:50%;background:var(--line2);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.nav-ic .mi{font-size:18px;color:var(--tx2)}
+
+/* 底部 Tab */
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:375px;display:flex;background:#fff;border-top:1px solid var(--line);padding:8px 0 10px;z-index:60}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:var(--tx3);font-weight:700;cursor:pointer}
+.tab .mi{font-size:22px}
+.tab.on{color:var(--pri)}
+.tab.on span{font-weight:800}
+
+/* ===== 行程：今日概览卡 ===== */
+.today-card{margin:14px 16px 0;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-m);position:relative}
+.tc-img{height:140px;position:relative;display:flex;align-items:center;justify-content:center}
+.tc-img .mi{font-size:48px;color:rgba(255,255,255,.45);position:relative;z-index:2}
+.tc-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.5))}
+.tc-badge{position:absolute;top:12px;left:14px;z-index:3;display:flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(255,255,255,.92);border-radius:var(--r-full);font-size:9px;font-weight:800;color:var(--pri-d)}
+.tc-badge i{width:8px;height:8px;border-radius:50%;display:block}
+.tc-prog{position:absolute;bottom:14px;left:16px;right:16px;z-index:3;display:flex;align-items:center;gap:10px}
+.tc-prog-bar{flex:1;height:4px;background:rgba(255,255,255,.4);border-radius:2px;overflow:hidden}
+.tc-prog-bar i{display:block;height:100%;width:33%;background:var(--acc);border-radius:2px}
+.tc-prog-t{font-size:10px;font-weight:800;color:#fff;white-space:nowrap}
+.tc-body{padding:14px 16px}
+.tc-t{font-size:15px;font-weight:800}
+.tc-m{display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--tx2);font-weight:600}
+.tc-m span{display:flex;align-items:center;gap:4px}
+.tc-m .mi{font-size:13px;color:var(--tx3)}
+.tc-weather{margin-top:12px;padding:10px;background:var(--line2);border-radius:var(--r-sm);display:flex;align-items:center;gap:10px}
+.tc-weather .mi{font-size:22px;color:var(--acc2)}
+.tc-weather b{font-size:13px;font-weight:800}
+.tc-weather small{font-size:10px;color:var(--tx3);font-weight:600;margin-left:auto}
+
+/* Day选择条 */
+.daybar{display:flex;gap:8px;overflow-x:auto;padding:14px 16px 8px;scrollbar-width:none}
+.daybar::-webkit-scrollbar{display:none}
+.dayc{flex:0 0 58px;padding:9px 0;text-align:center;border:1.5px solid var(--line);border-radius:var(--r-sm);background:#fff;cursor:pointer;transition:.15s}
+.dayc.on{border-color:var(--pri);background:var(--pri-l)}
+.dayc-w{font-size:9px;color:var(--tx3);font-weight:600}
+.dayc-d{font-size:13px;font-weight:800;margin-top:2px}
+.dayc-s{font-size:8.5px;color:var(--tx2);margin-top:2px;font-weight:600}
+
+/* 时间轴 */
+.tl{padding:8px 16px 0}
+.tli{display:flex;gap:14px;padding-bottom:14px;position:relative}
+.tli::before{content:'';position:absolute;left:24px;top:34px;width:1px;height:calc(100% - 34px);background:var(--line)}
+.tli:last-child::before{display:none}
+.tli-t{width:49px;flex-shrink:0;text-align:right;padding-top:4px}
+.tli-h{font-size:13px;color:var(--tx2);font-weight:700}
+.tli.done .tli-h{color:var(--tx3)}
+.tli.now .tli-h{color:var(--acc)}
+.tli-dot{width:9px;height:9px;border-radius:50%;background:var(--line2);margin:8px 0 0 auto;border:1.5px solid var(--line)}
+.tli.done .tli-dot{background:var(--ok);border-color:var(--ok)}
+.tli.now .tli-dot{background:var(--acc);border-color:var(--acc);box-shadow:0 0 0 4px var(--acc-l)}
+.tli-c{flex:1;padding-bottom:12px;min-width:0}
+.tcard{background:#fff;border-radius:var(--r-md);overflow:hidden;box-shadow:var(--sh-s);border:1px solid var(--line)}
+.tli.done .tcard{opacity:.6}
+.tli.now .tcard{border-color:var(--acc);border-width:1.5px}
+.tc-img2{height:80px;position:relative;display:flex;align-items:center;justify-content:center}
+.tc-img2 .mi{font-size:24px;color:rgba(255,255,255,.5);position:relative;z-index:2}
+.tc-img2::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.3))}
+.tc-st{position:absolute;top:8px;right:8px;z-index:3;padding:3px 8px;border-radius:var(--r-full);font-size:8.5px;font-weight:800;backdrop-filter:blur(6px)}
+.tc-st.done{background:rgba(22,163,74,.85);color:#fff}
+.tc-st.now{background:var(--acc);color:#fff}
+.tc-st.wait{background:rgba(13,16,20,.55);color:#fff;border:1px solid var(--line)}
+.tc-b2{padding:12px 14px}
+.tc-t2{font-size:13px;font-weight:800}
+.tc-d2{font-size:10.5px;color:var(--tx2);margin-top:5px;line-height:1.6;font-weight:600}
+.tc-m2{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:9.5px;color:var(--tx3);font-weight:600;flex-wrap:wrap}
+.tc-m2 .mi{font-size:12px}
+.tc-f2{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.mini{padding:6px 11px;border-radius:var(--r-full);font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;background:var(--line2);color:var(--tx2);transition:.15s}
+.mini:hover{background:var(--pri-l);color:var(--pri-d)}
+.mini .mi{font-size:13px}
+.mini.pri{background:var(--pri);color:#fff}
+
+/* 管家条 */
+.butler{margin:8px 16px 20px;padding:13px 14px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);display:flex;align-items:center;gap:12px}
+.butler-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#12897C,#0C6B61);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.butler-av .mi{font-size:19px;color:#fff}
+.butler-b{flex:1}
+.butler-n{font-size:12.5px;font-weight:800}
+.butler-d{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.butler-btn{padding:8px 14px;background:var(--pri);color:#fff;font-size:11px;font-weight:700;border-radius:var(--r-full);cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.butler-btn .mi{font-size:14px}
+
+/* ===== 行程：空态 ===== */
+.empty-trip{padding:50px 30px;text-align:center}
+.empty-ic{width:72px;height:72px;border-radius:50%;background:var(--line2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.empty-ic .mi{font-size:36px;color:var(--tx3)}
+.empty-t{font-size:16px;font-weight:800}
+.empty-d{font-size:12px;color:var(--tx2);margin-top:8px;font-weight:600;line-height:1.7}
+.empty-cta{margin-top:20px;padding:13px;background:var(--pri);color:#fff;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.empty-cta .mi{font-size:16px}
+
+/* 猜你喜欢 */
+.guess{padding:0 16px 20px}
+.guess-h{font-size:13px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.guess-h .mi{font-size:16px;color:var(--acc)}
+.guess-list{display:flex;flex-direction:column;gap:10px}
+.guess-card{display:flex;align-items:center;gap:12px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);padding:12px;cursor:pointer;border:1px solid var(--line)}
+.guess-img{width:64px;height:64px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.guess-img .mi{font-size:24px;color:rgba(255,255,255,.6);position:relative;z-index:2}
+.guess-b{flex:1;min-width:0}
+.guess-n{font-size:12.5px;font-weight:800;line-height:1.4}
+.guess-d{font-size:10px;color:var(--tx3);margin-top:4px;font-weight:600}
+.guess-p{font-size:14px;font-weight:800;color:var(--acc);flex-shrink:0}
+
+/* ===== 企业：入口区 ===== */
+.ent-hero{margin:14px 16px 0;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-m);position:relative;height:130px}
+.ent-hero-img{height:100%;position:relative;display:flex;align-items:center;justify-content:center}
+.ent-hero-img .mi{font-size:44px;color:rgba(255,255,255,.4);position:relative;z-index:2}
+.ent-hero-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.5))}
+.ent-hero-b{position:absolute;left:16px;bottom:14px;z-index:3}
+.ent-hero-k{font-size:9px;font-weight:800;color:#fff;letter-spacing:.12em;opacity:.85}
+.ent-hero-t{font-size:18px;font-weight:800;color:#fff;margin-top:4px}
+
+.ent-entry{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;margin-top:14px}
+.ent-card{background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);padding:16px;cursor:pointer;transition:.15s;border:1px solid var(--line)}
+.ent-card:hover{transform:translateY(-2px);box-shadow:var(--sh-m)}
+.ent-card-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.ent-card-ic .mi{font-size:20px;color:#fff}
+.ent-card-n{font-size:13px;font-weight:800}
+.ent-card-d{font-size:10px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.5}
+
+/* 企业订单 */
+.ent-orders{padding:18px 16px 0}
+.ent-sec-h{font-size:13px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.ent-sec-h .mi{font-size:16px;color:var(--pri)}
+.ent-sec-h small{margin-left:auto;font-size:10px;color:var(--tx3);font-weight:600}
+.ent-order{background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);padding:14px;margin-bottom:10px;cursor:pointer;border-left:3px solid var(--pri)}
+.ent-order-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ent-order-n{font-size:12.5px;font-weight:800}
+.ent-order-st{font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;background:var(--warn-l);color:var(--warn)}
+.ent-order-m{font-size:10.5px;color:var(--tx2);font-weight:600;display:flex;gap:12px;flex-wrap:wrap}
+.ent-order-m span{display:flex;align-items:center;gap:3px}
+.ent-order-m .mi{font-size:12px;color:var(--tx3)}
+
+/* 企业权益 */
+.ent-benefits{padding:18px 16px 0}
+.ent-benefit{display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);margin-bottom:8px;border:1px solid var(--line)}
+.ent-ben-ic{width:36px;height:36px;border-radius:10px;background:var(--pri-l);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ent-ben-ic .mi{font-size:17px;color:var(--pri-d)}
+.ent-ben-n{font-size:12.5px;font-weight:700;flex:1}
+.ent-ben-d{font-size:10px;color:var(--tx3);font-weight:600;margin-top:2px}
+
+/* 企业表单 */
+.ent-form{margin:18px 16px 0;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);padding:16px;border:1px solid var(--line)}
+.ent-form-t{font-size:13px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.ent-form-t .mi{font-size:16px;color:var(--pri)}
+.ent-field{margin-bottom:13px}
+.ent-field label{display:block;font-size:10.5px;color:var(--tx3);margin-bottom:6px;font-weight:600}
+.ent-field input,.ent-field select,.ent-field textarea{width:100%;padding:10px 13px;background:var(--line2);border:1px solid var(--line);border-radius:var(--r-sm);font-size:12px;font-family:var(--sans);color:var(--tx);outline:none}
+.ent-field input:focus,.ent-field select:focus{border-color:var(--pri);background:#fff}
+.ent-field textarea{resize:none;line-height:1.6}
+.ent-range{display:flex;gap:7px;flex-wrap:wrap}
+.ent-range span{padding:6px 11px;border:1.5px solid var(--line);border-radius:var(--r-full);font-size:11px;font-weight:700;color:var(--tx2);cursor:pointer;background:#fff}
+.ent-range span.on{border-color:var(--pri);color:var(--pri-d);background:var(--pri-l)}
+.ent-submit{margin-top:6px;padding:13px;background:var(--pri);color:#fff;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;text-align:center}
+
+/* ===== 个人：近期出行 ===== */
+.me-hero{padding:22px 16px 18px;background:linear-gradient(135deg,#2B5FE0,#4E7FEF);color:#fff;border-radius:0 0 var(--r-lg) var(--r-lg)}
+.me-top{display:flex;align-items:center;gap:14px}
+.me-av{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid rgba(255,255,255,.3)}
+.me-av .mi{font-size:26px;color:#fff}
+.me-n{font-size:18px;font-weight:800}
+.me-lv{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:3px 9px;background:rgba(255,255,255,.2);border-radius:var(--r-full);font-size:9.5px;font-weight:800}
+.me-lv .mi{font-size:12px}
+.me-id{font-size:10px;opacity:.8;margin-top:5px;font-weight:600}
+.me-growth{margin-top:16px}
+.me-growth-t{display:flex;justify-content:space-between;font-size:10px;opacity:.85;font-weight:600}
+.me-growth-b{height:4px;background:rgba(255,255,255,.25);border-radius:2px;margin-top:7px;overflow:hidden}
+.me-growth-b i{display:block;height:100%;width:64%;background:#fff;border-radius:2px}
+
+/* 近期出行卡 */
+.near-trip{margin:14px 16px 0;background:#fff;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-m)}
+.near-img{height:100px;position:relative;display:flex;align-items:center;justify-content:center}
+.near-img .mi{font-size:38px;color:rgba(255,255,255,.45);position:relative;z-index:2}
+.near-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.45))}
+.near-badge{position:absolute;top:12px;left:14px;z-index:3;padding:4px 10px;background:rgba(255,255,255,.92);border-radius:var(--r-full);font-size:9px;font-weight:800;color:var(--pri-d)}
+.near-badge i{width:8px;height:8px;border-radius:50%;display:block;margin-right:4px}
+.near-body{padding:13px 16px}
+.near-t{font-size:14px;font-weight:800}
+.near-m{display:flex;gap:12px;margin-top:7px;font-size:10.5px;color:var(--tx2);font-weight:600}
+.near-m span{display:flex;align-items:center;gap:4px}
+.near-m .mi{font-size:12px;color:var(--tx3)}
+.near-countdown{margin-top:10px;padding:8px 12px;background:var(--acc-l);border-radius:var(--r-sm);font-size:10.5px;font-weight:700;color:var(--acc);display:flex;align-items:center;gap:6px}
+.near-countdown .mi{font-size:14px}
+
+/* 资产区 */
+.assets{display:flex;margin:14px 16px 0;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);overflow:hidden}
+.asset{flex:1;text-align:center;padding:14px 6px;border-right:1px solid var(--line);cursor:pointer;transition:.15s}
+.asset:hover{background:var(--pri-xl)}
+.asset:last-child{border-right:none}
+.asset-v{font-size:18px;font-weight:800;color:var(--pri-d);line-height:1}
+.asset-v small{font-size:10px;font-weight:600;color:var(--tx3)}
+.asset-l{font-size:9.5px;color:var(--tx3);margin-top:6px;font-weight:600}
+
+/* 订单快捷 */
+.ostrip{margin:14px 16px 0;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);overflow:hidden}
+.ostrip-h{display:flex;align-items:center;justify-content:space-between;padding:13px 16px 11px;border-bottom:1px solid var(--line)}
+.ostrip-t{font-size:13px;font-weight:800}
+.ostrip-a{font-size:11px;color:var(--pri);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:3px}
+.ostrip-a .mi{font-size:14px}
+.ostrip-g{display:flex;padding:14px 0}
+.ostrip-i{flex:1;text-align:center;cursor:pointer;position:relative}
+.ostrip-i .mi{font-size:22px;color:var(--tx2)}
+.ostrip-i div{font-size:10px;color:var(--tx3);margin-top:7px;font-weight:600}
+.ostrip-i b{position:absolute;top:-4px;left:56%;padding:0 5px;background:var(--acc);color:#fff;font-size:9px;border-radius:8px;font-weight:700}
+
+/* 列表 */
+.list{margin:14px 16px 0;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);overflow:hidden}
+.li{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line2);cursor:pointer;transition:.12s}
+.li:hover{background:var(--pri-xl)}
+.li:last-child{border-bottom:none}
+.li-ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.li-ic .mi{font-size:17px;color:#fff}
+.li-b{flex:1;min-width:0}
+.li-n{font-size:12.5px;font-weight:700}
+.li-d{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.li-r{font-size:10.5px;color:var(--tx3);display:flex;align-items:center;gap:3px}
+.li-r .mi{font-size:15px}
+
+/* 出行人 */
+.paxrow{display:flex;align-items:center;gap:11px;padding:13px 16px;border-bottom:1px solid var(--line2)}
+.paxrow:last-child{border-bottom:none}
+.pax-av{width:34px;height:34px;border-radius:50%;background:var(--line2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pax-av .mi{font-size:17px;color:var(--tx2)}
+.pax-b{flex:1}
+.pax-n{font-size:12.5px;font-weight:700}
+.pax-m{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.pax-badge{padding:1px 6px;border-radius:4px;font-size:8.5px;font-weight:800;margin-left:6px}
+.pax-badge.a{background:var(--pri-l);color:var(--pri-d)}
+.pax-badge.c{background:var(--acc-l);color:var(--acc)}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(27,46,44,.92);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;max-width:320px}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app" data-theme="neutral">
+
+<!-- ============ 行程助手 ============ -->
+<div class="page on" id="pgTrip">
+  <div class="navbar"><div class="nav-t">行程助手</div><div class="nav-r"><div class="nav-ic" onclick="showToast('消息通知')"><span class="mi">notifications_none</span></div></div></div>
+
+  <!-- 今日概览卡 -->
+  <div class="today-card" data-theme="forest">
+    <div class="tc-img g2">
+      <span class="mi">forest</span>
+      <div class="tc-badge"><i style="background:#12897C"></i>山林 · 莫干山云端两日</div>
+      <div class="tc-prog"><div class="tc-prog-bar"><i></i></div><div class="tc-prog-t">已核销 2/9 项</div></div>
+    </div>
+    <div class="tc-body">
+      <div class="tc-t">今天 Day1 · 10月1日 · 晴 22℃</div>
+      <div class="tc-m"><span><span class="mi">group</span>2大1小</span><span><span class="mi">calendar_today</span>10/01-10/02</span></div>
+      <div class="tc-weather"><span class="mi">wb_sunny</span><b>22℃ 多云转晴</b><small>日落 17:42 · 适合观星</small></div>
+    </div>
+  </div>
+
+  <!-- Day选择条 -->
+  <div class="daybar">
+    <div class="dayc on" onclick="showToast('Day1')"><div class="dayc-w">周四</div><div class="dayc-d">Day1</div><div class="dayc-s">10/01</div></div>
+    <div class="dayc" onclick="showToast('Day2')"><div class="dayc-w">周五</div><div class="dayc-d">Day2</div><div class="dayc-s">10/02</div></div>
+    <div class="dayc" style="flex:0 0 72px" onclick="showToast('历史行程')"><div class="dayc-w">历史</div><div class="dayc-d">全部</div><div class="dayc-s">4次</div></div>
+  </div>
+
+  <!-- 时间轴 -->
+  <div class="tl">
+    <div class="tli done">
+      <div class="tli-t"><div class="tli-h">09:30</div><div class="tli-dot"></div></div>
+      <div class="tli-c"><div class="tcard">
+        <div class="tc-img2 g1"><span class="mi">local_taxi</span><span class="tc-st done">已核销</span></div>
+        <div class="tc-b2"><div class="tc-t2">高铁站专车接站</div><div class="tc-d2">王师傅 · 7座商务车 · 已备儿童座椅</div><div class="tc-m2"><span class="mi">storefront</span>云栖出行<span class="mi">schedule</span>车程45分钟</div></div>
+      </div></div>
+    </div>
+    <div class="tli done">
+      <div class="tli-t"><div class="tli-h">12:00</div><div class="tli-dot"></div></div>
+      <div class="tli-c"><div class="tcard">
+        <div class="tc-img2 g2"><span class="mi">restaurant</span><span class="tc-st done">已核销</span></div>
+        <div class="tc-b2"><div class="tc-t2">山野午餐 · 八道时令</div><div class="tc-d2">已备注虾过敏 · 儿童餐已安排</div><div class="tc-m2"><span class="mi">storefront</span>竹里馆<span class="mi">place</span>0.8km</div></div>
+      </div></div>
+    </div>
+    <div class="tli now">
+      <div class="tli-t"><div class="tli-h">15:00</div><div class="tli-dot"></div></div>
+      <div class="tli-c"><div class="tcard">
+        <div class="tc-img2 g3"><span class="mi">hiking</span><span class="tc-st now">即将开始</span></div>
+        <div class="tc-b2"><div class="tc-t2">溪谷徒步 · 向导随行</div><div class="tc-d2">民宿大堂集合 · 全程3公里低强度 · 含饮用水与茶歇</div><div class="tc-m2"><span class="mi">storefront</span>山野向导俱乐部<span class="mi">hiking</span>强度低</div><div class="tc-f2"><span class="mini pri" onclick="showToast('出示核销码')"><span class="mi">qr_code_2</span>核销码</span><span class="mini" onclick="showToast('导航')"><span class="mi">near_me</span>导航</span></div></div>
+      </div></div>
+    </div>
+    <div class="tli">
+      <div class="tli-t"><div class="tli-h">19:00</div><div class="tli-dot"></div></div>
+      <div class="tli-c"><div class="tcard">
+        <div class="tc-img2 g2"><span class="mi">local_fire_department</span><span class="tc-st wait">需预约</span></div>
+        <div class="tc-b2"><div class="tc-t2">星空围炉晚宴</div><div class="tc-d2" style="color:var(--acc)">尚未预约 · 现在预约还来得及</div><div class="tc-m2"><span class="mi">storefront</span>竹里馆<span class="mi">restaurant</span>8道菜+桂花酒</div><div class="tc-f2"><span class="mini pri" onclick="showToast('打开预约')"><span class="mi">event_available</span>立即预约</span><span class="mini" onclick="showToast('管家代约')"><span class="mi">support_agent</span>管家代约</span></div></div>
+      </div></div>
+    </div>
+    <div class="tli">
+      <div class="tli-t"><div class="tli-h">21:00</div><div class="tli-dot"></div></div>
+      <div class="tli-c"><div class="tcard">
+        <div class="tc-img2 g4"><span class="mi">hotel</span><span class="tc-st wait">待入住</span></div>
+        <div class="tc-b2"><div class="tc-t2">入住 云景·山居 云海大床房</div><div class="tc-d2">14:00后可办理 · 已加儿童床 · 次日12:00前退房</div><div class="tc-m2"><span class="mi">storefront</span>云景·山居<span class="mi">place</span>1.0km</div><div class="tc-f2"><span class="mini pri" onclick="showToast('入住码')"><span class="mi">qr_code_2</span>入住码</span><span class="mini" onclick="showToast('导航')"><span class="mi">near_me</span>导航</span></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- 管家 -->
+  <div class="butler">
+    <div class="butler-av"><span class="mi">person</span></div>
+    <div class="butler-b"><div class="butler-n">小林 · 你的行程管家</div><div class="butler-d">全程跟进，预约/改期/临时需求都可以找我</div></div>
+    <div class="butler-btn" onclick="showToast('呼叫管家')"><span class="mi">call</span>呼叫</div>
+  </div>
+
+  <!-- 演示：空态切换 -->
+  <div style="padding:0 16px 20px;text-align:center">
+    <div style="font-size:10px;color:var(--tx3);font-weight:600;margin-bottom:10px">演示：切换行程状态</div>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <div class="mini" onclick="showToast('有行程 · 当前状态')"><span class="mi">timeline</span>有行程</div>
+      <div class="mini" onclick="toggleEmptyTrip()"><span class="mi">travel_explore</span>无行程</div>
+    </div>
+  </div>
+</div>
+
+<!-- 行程空态 -->
+<div class="page" id="pgTripEmpty">
+  <div class="navbar"><div class="nav-t">行程助手</div><div class="nav-r"><div class="nav-ic" onclick="showToast('消息通知')"><span class="mi">notifications_none</span></div></div></div>
+  <div class="empty-trip">
+    <div class="empty-ic"><span class="mi">travel_explore</span></div>
+    <div class="empty-t">还没有行程</div>
+    <div class="empty-d">发现一个度假套餐，开启你的旅程<br>管家会帮你安排好一切</div>
+    <div class="empty-cta" onclick="showToast('跳转发现页')"><span class="mi">explore</span>去发现更多度假产品</div>
+  </div>
+  <div class="guess">
+    <div class="guess-h"><span class="mi">autorenew</span>猜你喜欢</div>
+    <div class="guess-list">
+      <div class="guess-card" data-theme="ocean" onclick="showToast('进入东极岛听海两日')"><div class="guess-img g1"><span class="mi">sailing</span></div><div class="guess-b"><div class="guess-n">东极岛听海两日</div><div class="guess-d">海洋 · 含船票 · 4.9分</div></div><div class="guess-p">¥1,580</div></div>
+      <div class="guess-card" data-theme="forest" onclick="showToast('进入莫干山云端两日')"><div class="guess-img g2"><span class="mi">filter_hdr</span></div><div class="guess-b"><div class="guess-n">莫干山云端两日</div><div class="guess-d">山林 · 9项服务 · 4.9分</div></div><div class="guess-p">¥1,680</div></div>
+      <div class="guess-card" data-theme="grassland" onclick="showToast('进入呼伦贝尔草原四日')"><div class="guess-img g3"><span class="mi">park</span></div><div class="guess-b"><div class="guess-n">呼伦贝尔草原四日</div><div class="guess-d">草原 · 越野车 · 4.9分</div></div><div class="guess-p">¥3,280</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 企业专区 ============ -->
+<div class="page" id="pgEnt">
+  <div class="navbar"><div class="nav-t">企业专区</div><div class="nav-r"><div class="nav-ic" onclick="showToast('联系企业顾问')"><span class="mi">support_agent</span></div></div></div>
+
+  <!-- 入口Hero -->
+  <div class="ent-hero">
+    <div class="ent-hero-img g2"><span class="mi">apartment</span></div>
+    <div class="ent-hero-b"><div class="ent-hero-k">FOR BUSINESS</div><div class="ent-hero-t">把团队出行交给一个二维码</div></div>
+  </div>
+
+  <!-- 三种方案入口 -->
+  <div class="ent-entry">
+    <div class="ent-card" onclick="showToast('进入团建定制表单')">
+      <div class="ent-card-ic" style="background:linear-gradient(135deg,#12897C,#0C6B61)"><span class="mi">groups</span></div>
+      <div class="ent-card-n">团建定制</div>
+      <div class="ent-card-d">10-200人<br>会议+拓展+晚宴+住宿</div>
+    </div>
+    <div class="ent-card" onclick="showToast('进入企业福利采购')">
+      <div class="ent-card-ic" style="background:linear-gradient(135deg,#C9952B,#A87B1E)"><span class="mi">redeem</span></div>
+      <div class="ent-card-n">福利礼品卡 <span style="font-size:9px;color:var(--warn);font-weight:800">PREP 态 · 备案中</span></div>
+      <div class="ent-card-d">批量采购额度<br>员工自选套餐兑换</div>
+    </div>
+    <div class="ent-card" onclick="showToast('进入高端商务接待')" style="grid-column:span 2">
+      <div class="ent-card-ic" style="background:linear-gradient(135deg,#5A5BD0,#413FA8)"><span class="mi">diamond</span></div>
+      <div class="ent-card-n">高端商务接待</div>
+      <div class="ent-card-d">私享小团与包场，客户接待与董事会出行 · 专属管家全程跟进</div>
+    </div>
+  </div>
+
+  <!-- 进行中的订单 -->
+  <div class="ent-orders">
+    <div class="ent-sec-h"><span class="mi">receipt_long</span>进行中的订单<small>2 个</small></div>
+    <div class="ent-order" onclick="showToast('进入携程团建详情')">
+      <div class="ent-order-h"><div class="ent-order-n">携程旅行 · 2026年度团建</div><div class="ent-order-st">待确认</div></div>
+      <div class="ent-order-m"><span><span class="mi">group</span>45人</span><span><span class="mi">date_range</span>11/22</span><span><span class="mi">money</span>¥8万</span></div>
+    </div>
+    <div class="ent-order" onclick="showToast('礼品卡已定方向：单用途卡备案 + 资金存管 · 法务定性与备案回执生效前不可兑换')" style="border-left-color:var(--gold)">
+      <div class="ent-order-h"><div class="ent-order-n">华为技术 · 员工福利礼品卡</div><div class="ent-order-st" style="background:var(--gold-l);color:var(--gold)">进行中</div></div>
+      <div class="ent-order-m"><span><span class="mi">group</span>500人</span><span><span class="mi">money</span>¥20万</span><span><span class="mi">card_giftcard</span>3批</span></div>
+    </div>
+  </div>
+
+  <!-- 企业客户权益 -->
+  <div class="ent-benefits">
+    <div class="ent-sec-h"><span class="mi">verified</span>企业客户权益</div>
+    <div class="ent-benefit"><div class="ent-ben-ic"><span class="mi">support_agent</span></div><div class="ent-ben-n">专属管家</div><div class="ent-ben-d">1对1跟进，7×12小时响应</div></div>
+    <div class="ent-benefit"><div class="ent-ben-ic"><span class="mi">account_balance_wallet</span></div><div class="ent-ben-n">对公结算</div><div class="ent-ben-d">月结账期，支持银行转账</div></div>
+    <div class="ent-benefit"><div class="ent-ben-ic"><span class="mi">description</span></div><div class="ent-ben-n">批量发票</div><div class="ent-ben-d">增值税专票，月底自动对账</div></div>
+    <div class="ent-benefit"><div class="ent-ben-ic"><span class="mi">stars</span></div><div class="ent-ben-n">VIP折扣</div><div class="ent-ben-d">企业客户专享9折，定制方案优先排期</div></div>
+  </div>
+
+  <!-- 提交需求表单 -->
+  <div class="ent-form">
+    <div class="ent-form-t"><span class="mi">edit</span>提交团建需求</div>
+    <div class="ent-field"><label>企业名称 *</label><input value="杭州云栖网络科技有限公司"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="ent-field"><label>参与人数 *</label><select><option>20-30人</option><option>10-20人</option><option>30-50人</option><option>50人以上</option></select></div>
+      <div class="ent-field"><label>预算（人均）*</label><select><option>¥600-1,000</option><option>¥1,000-1,500</option><option>¥1,500-2,500</option><option>¥2,500以上</option></select></div>
+    </div>
+    <div class="ent-field"><label>出行日期 *</label><input type="date" value="2026-11-08"></div>
+    <div class="ent-field"><label>需要的环节（多选）</label><div class="ent-range"><span class="on" onclick="rg(this)">住宿</span><span class="on" onclick="rg(this)">团队晚宴</span><span class="on" onclick="rg(this)">会议场地</span><span onclick="rg(this)">户外拓展</span><span onclick="rg(this)">接送包车</span><span onclick="rg(this)">摄影跟拍</span></div></div>
+    <div class="ent-field"><label>其他要求</label><textarea rows="2">需要投影和无线麦，有3位同事带家属小孩。</textarea></div>
+    <div class="ent-field" style="margin-bottom:0"><label>联系人/手机 *</label><input value="张明远 138****6721"></div>
+    <div class="ent-submit" onclick="showToast('需求已提交<br>管家24小时内联系你')">提交需求，获取定制方案</div>
+  </div>
+</div>
+
+<!-- ============ 个人中心 ============ -->
+<div class="page" id="pgMe">
+  <div class="navbar"><div class="nav-t">我的</div><div class="nav-r"><div class="nav-ic" onclick="showToast('设置')"><span class="mi">settings</span></div></div></div>
+
+  <!-- 用户信息 -->
+  <div class="me-hero">
+    <div class="me-top">
+      <div class="me-av"><span class="mi">person</span></div>
+      <div style="flex:1">
+        <div class="me-n">张明远</div>
+        <div class="me-lv"><span class="mi">diamond</span>山岚会员 · LV3</div>
+        <div class="me-id">ID 8842 6721 · 已出行4次 · 累计6天</div>
+      </div>
+    </div>
+    <div class="me-growth">
+      <div class="me-growth-t"><span>距LV4还差1,720成长值</span><span>2,280/4,000</span></div>
+      <div class="me-growth-b"><i></i></div>
+    </div>
+  </div>
+
+  <!-- 近期出行卡 -->
+  <div class="near-trip" data-theme="forest">
+    <div class="near-img g2"><span class="mi">filter_hdr</span><div class="near-badge"><i style="background:#12897C"></i>山林</div></div>
+    <div class="near-body">
+      <div class="near-t">莫干山云端两日</div>
+      <div class="near-m"><span><span class="mi">date_range</span>11/15-11/16</span><span><span class="mi">group</span>2大1小</span></div>
+      <div class="near-countdown"><span class="mi">access_time</span>还有 8 天出发 · 2 项服务待预约</div>
+    </div>
+  </div>
+
+  <!-- 资产区 -->
+  <div class="assets">
+    <div class="asset" onclick="showToast('查看优惠券')"><div class="asset-v">3<small>张</small></div><div class="asset-l">优惠券</div></div>
+    <div class="asset" onclick="showToast('查看礼品卡额度')"><div class="asset-v">800<small>元</small></div><div class="asset-l">福利额度</div></div>
+    <div class="asset" onclick="showToast('进入积分中心')"><div class="asset-v">2,280</div><div class="asset-l">积分</div></div>
+    <div class="asset" onclick="showToast('查看收藏')"><div class="asset-v">12</div><div class="asset-l">收藏</div></div>
+  </div>
+
+  <!-- 订单快捷 -->
+  <div class="ostrip">
+    <div class="ostrip-h"><div class="ostrip-t">我的订单</div><div class="ostrip-a" onclick="showToast('全部订单')">全部 <span class="mi">chevron_right</span></div></div>
+    <div class="ostrip-g">
+      <div class="ostrip-i" onclick="showToast('待支付')"><span class="mi">hourglass_bottom</span><b>1</b><div>待支付</div></div>
+      <div class="ostrip-i" onclick="showToast('待使用')"><span class="mi">qr_code_2</span><b>3</b><div>待使用</div></div>
+      <div class="ostrip-i" onclick="showToast('待预约')"><span class="mi">event_busy</span><b>2</b><div>待预约</div></div>
+      <div class="ostrip-i" onclick="showToast('待评价')"><span class="mi">rate_review</span><div>待评价</div></div>
+      <div class="ostrip-i" onclick="showToast('退款售后')"><span class="mi">currency_yen</span><b>1</b><div>退款</div></div>
+    </div>
+  </div>
+
+  <!-- 常用出行人 -->
+  <div class="list">
+    <div class="ostrip-h" style="border-bottom:1px solid var(--line)"><div class="ostrip-t">常用出行人</div><div class="ostrip-a" onclick="showToast('添加出行人')">添加 <span class="mi">chevron_right</span></div></div>
+    <div class="paxrow"><div class="pax-av"><span class="mi">person</span></div><div class="pax-b"><div class="pax-n">张明远<span class="pax-badge a">本人</span></div><div class="pax-m">身份证 · 138****6721</div></div></div>
+    <div class="paxrow"><div class="pax-av"><span class="mi">person</span></div><div class="pax-b"><div class="pax-n">李思</div><div class="pax-m">成人 · 身份证</div></div></div>
+    <div class="paxrow"><div class="pax-av"><span class="mi">child_care</span></div><div class="pax-b"><div class="pax-n">张小满<span class="pax-badge c">儿童</span></div><div class="pax-m">6岁 · 2020-03出生 · 影响床型与餐标</div></div></div>
+  </div>
+
+  <!-- 功能列表 -->
+  <div class="list">
+    <div class="li" onclick="showToast('我的核销凭证')"><div class="li-ic" style="background:var(--pri-l)"><span class="mi" style="color:var(--pri-d)">qr_code_2</span></div><div class="li-b"><div class="li-n">我的核销凭证</div><div class="li-d">10张待使用 · 最近10/01出行</div></div><div class="li-r">查看 <span class="mi">chevron_right</span></div></div>
+    <div class="li" onclick="showToast('行程助手')"><div class="li-ic" style="background:#E4F2F0"><span class="mi" style="color:#0C6B61">timeline</span></div><div class="li-b"><div class="li-n">行程助手</div><div class="li-d">1趟行程进行中</div></div><div class="li-r">打开 <span class="mi">chevron_right</span></div></div>
+    <div class="li" onclick="showToast('企业福利')"><div class="li-ic" style="background:#FBF6E9"><span class="mi" style="color:#A87B1E">business_center</span></div><div class="li-b"><div class="li-n">企业福利与团建</div><div class="li-d">可用额度¥800 · 1个企业订单</div></div><div class="li-r">进入 <span class="mi">chevron_right</span></div></div>
+    <div class="li" onclick="showToast('发票管理')"><div class="li-ic" style="background:var(--line2)"><span class="mi" style="color:var(--tx2)">receipt_long</span></div><div class="li-b"><div class="li-n">发票管理</div><div class="li-d">1张待开具</div></div><div class="li-r"><span class="mi">chevron_right</span></div></div>
+    <div class="li" onclick="showToast('我的收藏')"><div class="li-ic" style="background:var(--line2)"><span class="mi" style="color:var(--tx2)">favorite_border</span></div><div class="li-b"><div class="li-n">收藏与足迹</div><div class="li-d">12个收藏 · 28条浏览</div></div><div class="li-r"><span class="mi">chevron_right</span></div></div>
+    <div class="li" onclick="showToast('我的内容')"><div class="li-ic" style="background:var(--line2)"><span class="mi" style="color:var(--tx2)">auto_stories</span></div><div class="li-b"><div class="li-n">我的游记与评价</div><div class="li-d">已发布2篇 · 获赞431</div></div><div class="li-r"><span class="mi">chevron_right</span></div></div>
+    <div class="li" onclick="showToast('帮助与客服')"><div class="li-ic" style="background:var(--line2)"><span class="mi" style="color:var(--tx2)">support_agent</span></div><div class="li-b"><div class="li-n">帮助与客服</div><div class="li-d">常见问题 · 联系管家 · 投诉建议</div></div><div class="li-r"><span class="mi">chevron_right</span></div></div>
+    <div class="li" onclick="showToast('设置')"><div class="li-ic" style="background:var(--line2)"><span class="mi" style="color:var(--tx2)">settings</span></div><div class="li-b"><div class="li-n">设置</div><div class="li-d">消息通知 · 隐私 · 关于</div></div><div class="li-r"><span class="mi">chevron_right</span></div></div>
+  </div>
+</div>
+
+<!-- 底部 Tab -->
+<div class="tabbar">
+  <div class="tab" onclick="showToast('切换到发现')"><span class="mi">explore</span><span>发现</span></div>
+  <div class="tab on" id="tTrip" onclick="sw('pgTrip','tTrip')"><span class="mi">timeline</span><span>行程</span></div>
+  <div class="tab" id="tEnt" onclick="sw('pgEnt','tEnt')"><span class="mi">business_center</span><span>企业</span></div>
+  <div class="tab" id="tMe" onclick="sw('pgMe','tMe')"><span class="mi">person_outline</span><span>我的</span></div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+function showToast(m){var t=document.getElementById('toast');t.innerHTML=m.replace(/<br>/g,'<br>');t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove('show')},2200);}
+function sw(pg,tb){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on')});document.getElementById(pg).classList.add('on');document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on')});document.getElementById(tb).classList.add('on');window.scrollTo(0,0);}
+function rg(el){el.classList.toggle('on');}
+function toggleEmptyTrip(){document.getElementById('pgTrip').classList.remove('on');document.getElementById('pgTripEmpty').classList.add('on');window.scrollTo(0,0);}
+</script>
+</body>
+</html>

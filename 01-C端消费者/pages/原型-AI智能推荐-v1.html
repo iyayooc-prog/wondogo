@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · AI 智能推荐</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{--card:#FFFFFF;--tx:#1B2E2C;--tx2:#5E7370;--tx3:#9BAEAB;--line:#E8EFEE;--line2:#F2F6F5;--r-sm:10px;--r-md:16px;--r-lg:22px;--r-full:999px;--sh-s:0 2px 10px rgba(27,46,44,.05);--sh-m:0 6px 22px rgba(27,46,44,.08);--sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',Roboto,sans-serif}
+[data-theme="neutral"]{--pri:#4A5D59;--pri-d:#33423F;--pri-l:#EDF1F0;--pri-xl:#F6F8F7;--acc:#FF6B4A;--acc-l:#FFEFEB;--acc2:#F2A93B;--bg:#F4F6F5;--sh-l:0 10px 28px rgba(27,46,44,.12);--g1a:#E2E7E5;--g1b:#B9C4C1;--g1c:#8D9C99;--g2a:#EDE7DE;--g2b:#CFC3B2;--g2c:#A3937F;--g3a:#E0E6E4;--g3b:#B4C1BD;--g3c:#889994;--g4a:#E6E9EC;--g4b:#BCC5CD;--g4c:#909BA5}
+[data-theme="ocean"]{--pri:#0E86C4;--pri-d:#0A6291;--pri-l:#E3F1FA;--pri-xl:#F2F9FD;--acc:#FF7A59;--acc-l:#FFF0EB;--acc2:#FFB648;--g1a:#8FE0F0;--g1b:#2E9BD4;--g1c:#14689E;--g2a:#FFE2B0;--g2b:#FFA96B;--g2c:#F0805A;--g3a:#A8E8DC;--g3b:#4FBFAE;--g3c:#2A8A80;--g4a:#BFD9F2;--g4b:#6E9FD0;--g4c:#3F6E9E}
+[data-theme="forest"]{--pri:#12897C;--pri-d:#0C6B61;--pri-l:#E4F2F0;--pri-xl:#F1F8F7;--acc:#FF7A59;--acc-l:#FFF0EB;--acc2:#FFB648;--g1a:#C6E8B0;--g1b:#6FBF7F;--g1c:#2E8B57;--g2a:#A8E0C8;--g2b:#4FB894;--g2c:#1E8367;--g3a:#FFE0B2;--g3b:#FFAE6B;--g3c:#E08A4A;--g4a:#D8E8C0;--g4b:#93C07A;--g4c:#5A8C46}
+[data-theme="heritage"]{--pri:#8A5A3B;--pri-d:#6B4229;--pri-l:#F4EAE2;--pri-xl:#FBF6F1;--acc:#C0453A;--acc-l:#FCEDEB;--acc2:#D8A24A;--g1a:#E8DCCB;--g1b:#BFA78A;--g1c:#8A6F52;--g2a:#D9CBB8;--g2b:#A98F6E;--g2c:#6E5842;--g3a:#E5C9A8;--g3b:#C9976A;--g3c:#9A6742;--g4a:#DCD6CC;--g4b:#9E968A;--g4c:#6B6459}
+[data-theme="grassland"]{--pri:#6FA22E;--pri-d:#547C20;--pri-l:#EDF5E1;--pri-xl:#F6FAF0;--acc:#D9701F;--acc-d:#C2410C;--acc-l:#FFF2E6;--acc2:#E8C33C;--g1a:#DCF0A8;--g1b:#93C85A;--g1c:#5A9430;--g2a:#BFE8F5;--g2b:#79C0DC;--g2c:#3F8FB0;--g3a:#FFE9A8;--g3b:#FFC65C;--g3c:#E09A2E;--g4a:#E8F2C0;--g4b:#B5D483;--g4c:#7CA84E}
+[data-theme="snow"]{--pri:#4C7FA8;--pri-d:#35607F;--pri-l:#E8F1F8;--pri-xl:#F4F9FC;--acc:#E8734A;--acc-l:#FCEEE8;--acc2:#7FC4D8;--g1a:#F0F7FC;--g1b:#BDD8EA;--g1c:#7FA8C8;--g2a:#E4EEF6;--g2b:#A9C6DC;--g2c:#6E92B0;--g3a:#FFE0D0;--g3b:#F5A882;--g3c:#D4764E;--g4a:#EDF4FA;--g4b:#C2D8E8;--g4c:#8AAAC4}
+[data-theme="city"]{--pri:#5A5BD0;--pri-d:#413FA8;--pri-l:#ECECFB;--pri-xl:#F6F6FD;--acc:#FF5C8A;--acc-l:#FFEDF3;--acc2:#FFB648;--g1a:#CFCFFF;--g1b:#8A8AF0;--g1c:#5A5BD0;--g2a:#FFD3E2;--g2b:#FF92B4;--g2c:#E05A82;--g3a:#FFE3B8;--g3b:#FFBE6B;--g3c:#E0913A;--g4a:#C9D8F5;--g4b:#8AA6E0;--g4c:#5A78C0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#dfe3e2;color:var(--tx);line-height:1.55;-webkit-font-smoothing:antialiased}
+.mi{font-family:'Material Icons'}
+.g1{background:linear-gradient(160deg,var(--g1a),var(--g1b) 52%,var(--g1c))}
+.g2{background:linear-gradient(160deg,var(--g2a),var(--g2b) 50%,var(--g2c))}
+.g3{background:linear-gradient(160deg,var(--g3a),var(--g3b) 50%,var(--g3c))}
+.g4{background:linear-gradient(160deg,var(--g4a),var(--g4b) 52%,var(--g4c))}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;box-shadow:0 0 40px rgba(0,0,0,.12)}
+
+/* 场景Tab */
+.scene-tabs{display:flex;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.scene-tabs::-webkit-scrollbar{display:none}
+.scene-tab{flex-shrink:0;padding:13px 16px;font-size:12.5px;font-weight:700;color:var(--tx3);cursor:pointer;position:relative;white-space:nowrap;transition:.15s}
+.scene-tab.on{color:var(--pri-d);font-weight:800}
+.scene-tab.on::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--pri);border-radius:2px}
+
+.scene{display:none;padding-bottom:30px}
+.scene.on{display:block}
+
+/* 通用卡片 */
+.card{background:#fff;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-m);cursor:pointer;margin-bottom:12px}
+.card-img{height:170px;position:relative;display:flex;align-items:center;justify-content:center}
+.card-img .mi{font-size:42px;color:rgba(255,255,255,.45);position:relative;z-index:2}
+.card-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.35))}
+.card-badge{position:absolute;top:12px;left:14px;z-index:3;padding:4px 10px;background:rgba(255,255,255,.92);border-radius:var(--r-full);font-size:9px;font-weight:800;color:var(--pri-d)}
+.card-badge i{width:8px;height:8px;border-radius:50%;display:block;margin-right:4px}
+.card-body{padding:14px 16px}
+.card-t{font-size:15px;font-weight:800;line-height:1.4}
+.card-inc{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.card-inc i{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;background:var(--pri-xl);border-radius:var(--r-sm);font-size:9.5px;color:var(--pri-d);font-style:normal;font-weight:700}
+.card-inc i .mi{font-size:13px}
+.card-sub{font-size:11px;color:var(--tx2);margin-top:10px;line-height:1.6}
+.card-price{display:flex;align-items:flex-end;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.card-p{font-size:20px;font-weight:800;color:var(--acc);line-height:1.1}
+.card-p small{font-size:11px;font-weight:700;color:var(--tx3)}
+.card-meta{text-align:right}
+.card-star{font-size:11px;font-weight:800;color:var(--acc2);display:flex;align-items:center;gap:2px;justify-content:flex-end}
+.card-star .mi{font-size:13px}
+.card-star small{color:var(--tx3);font-weight:600;font-size:9px}
+.card-sold{font-size:9.5px;color:var(--tx3);margin-top:3px;font-weight:600}
+
+/* ===== 场景1：语义搜索 ===== */
+.search-area{padding:16px}
+.search-bar{display:flex;align-items:center;gap:8px;background:#fff;border-radius:var(--r-full);padding:12px 16px;box-shadow:var(--sh-s);cursor:pointer}
+.search-bar .mi{font-size:18px;color:var(--pri)}
+.search-bar input{flex:1;background:transparent;border:none;outline:none;font-size:13px;font-family:var(--sans);color:var(--tx)}
+.search-bar input::placeholder{color:var(--tx3)}
+.search-go{font-size:11px;font-weight:800;color:#fff;background:var(--pri);padding:6px 13px;border-radius:var(--r-full)}
+
+.compare-box{margin-top:14px;padding:14px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s)}
+.compare-t{font-size:11px;font-weight:800;color:var(--tx3);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.compare-t .mi{font-size:14px}
+.compare-row{display:flex;gap:10px;margin-bottom:10px}
+.compare-cell{flex:1;padding:12px;border-radius:var(--r-sm);font-size:10.5px;font-weight:600;line-height:1.6}
+.compare-cell.old{background:var(--line2);color:var(--tx3)}
+.compare-cell.new{background:var(--pri-l);color:var(--pri-d)}
+.compare-cell b{display:block;font-size:11px;margin-bottom:4px}
+
+.ai-result{margin-top:12px;padding:14px;background:linear-gradient(135deg,var(--pri-l),#fff);border-radius:var(--r-md);border-left:3px solid var(--pri)}
+.ai-r-h{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ai-r-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#12897C,#0C6B61);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-r-av .mi{font-size:16px;color:#fff}
+.ai-r-n{font-size:12px;font-weight:800}
+.ai-r-tag{padding:1px 6px;border-radius:4px;font-size:8px;font-weight:800;background:var(--acc-l);color:var(--acc);margin-left:6px}
+.ai-r-text{font-size:11.5px;font-weight:600;color:var(--tx2);line-height:1.7}
+.ai-r-text b{color:var(--tx);font-weight:800}
+
+/* ===== 场景2：首页动态楼层 ===== */
+.profile-box{margin:14px 16px;padding:14px;background:linear-gradient(135deg,#2B5FE0,#4E7FEF);border-radius:var(--r-lg);color:#fff}
+.profile-h{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.profile-ic{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center}
+.profile-ic .mi{font-size:17px;color:#fff}
+.profile-t{font-size:13px;font-weight:800}
+.profile-d{font-size:10px;opacity:.85;margin-top:2px;font-weight:600}
+.profile-tags{display:flex;flex-wrap:wrap;gap:6px}
+.profile-tag{padding:4px 9px;background:rgba(255,255,255,.2);border-radius:var(--r-full);font-size:9.5px;font-weight:700}
+.profile-tag b{font-size:11px}
+
+.floor{margin:0 16px 14px;padding:15px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s)}
+.floor-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.floor-t{font-size:14px;font-weight:800;display:flex;align-items:center;gap:7px}
+.floor-t .mi{font-size:17px;color:var(--pri)}
+.floor-rank{font-size:9px;font-weight:800;color:var(--acc);padding:2px 7px;background:var(--acc-l);border-radius:var(--r-full)}
+.floor-rank.auto{background:var(--pri-l);color:var(--pri-d)}
+.floor-d{font-size:10px;color:var(--tx3);margin-top:4px;font-weight:600}
+.fcards{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none}
+.fcards::-webkit-scrollbar{display:none}
+.fc{flex:0 0 130px;cursor:pointer;background:var(--card);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--sh-s)}
+.fc-img{height:88px;position:relative;display:flex;align-items:center;justify-content:center}
+.fc-img .mi{font-size:25px;color:rgba(255,255,255,.7);position:relative;z-index:2}
+.fc-tag{position:absolute;top:6px;left:6px;z-index:2;padding:2px 7px;background:rgba(255,255,255,.94);border-radius:var(--r-full);font-size:8.5px;font-weight:800;color:var(--pri-d)}
+.fc-b{padding:9px 10px}
+.fc-t{font-size:11px;font-weight:800;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fc-p{font-size:13px;font-weight:800;color:var(--acc);margin-top:5px}
+.fc-p small{font-size:8.5px;color:var(--tx3);font-weight:600;margin-left:2px}
+
+/* ===== 场景3：详情页互补推荐 ===== */
+.detail-hero{height:220px;position:relative;display:flex;align-items:center;justify-content:center}
+.detail-hero .mi{font-size:60px;color:rgba(255,255,255,.4);position:relative;z-index:2}
+.detail-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.4))}
+.detail-badge{position:absolute;top:14px;left:16px;z-index:3;padding:4px 10px;background:rgba(255,255,255,.92);border-radius:var(--r-full);font-size:9px;font-weight:800;color:var(--pri-d)}
+.detail-body{padding:16px}
+.detail-t{font-size:18px;font-weight:800;line-height:1.4}
+.detail-inc{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.detail-inc i{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;background:var(--pri-xl);border-radius:var(--r-sm);font-size:9.5px;color:var(--pri-d);font-style:normal;font-weight:700}
+.detail-inc i .mi{font-size:13px}
+.detail-price{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);display:flex;align-items:flex-end;justify-content:space-between}
+.detail-p{font-size:24px;font-weight:800;color:var(--acc)}
+.detail-p small{font-size:12px;font-weight:700;color:var(--tx3)}
+
+.ai-complement{margin:14px 16px;padding:14px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);border-left:3px solid var(--acc)}
+.ac-h{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ac-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#12897C,#0C6B61);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ac-av .mi{font-size:15px;color:#fff}
+.ac-n{font-size:12px;font-weight:800}
+.ac-tag{padding:1px 6px;border-radius:4px;font-size:8px;font-weight:800;background:var(--acc-l);color:var(--acc);margin-left:6px}
+.ac-text{font-size:11.5px;font-weight:600;color:var(--tx2);line-height:1.7}
+.ac-text b{color:var(--tx);font-weight:800}
+
+.comp-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--line2);border-radius:var(--r-md);margin-top:10px}
+.comp-img{width:56px;height:56px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.comp-img .mi{font-size:22px;color:rgba(255,255,255,.7);position:relative;z-index:2}
+.comp-b{flex:1;min-width:0}
+.comp-n{font-size:12px;font-weight:800}
+.comp-d{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.comp-r{text-align:right;flex-shrink:0}
+.comp-p{font-size:13px;font-weight:800;color:var(--acc)}
+.comp-add{padding:5px 12px;border-radius:var(--r-full);font-size:10px;font-weight:800;cursor:pointer;background:var(--pri);color:#fff;margin-top:4px}
+
+/* ===== 场景4：猜你喜欢 ===== */
+.guess-h{padding:16px 16px 10px;font-size:13px;font-weight:800;display:flex;align-items:center;gap:6px}
+.guess-h .mi{font-size:16px;color:var(--acc)}
+.guess-h small{font-size:10px;color:var(--tx3);font-weight:600;margin-left:auto}
+.guess-card{margin:0 16px 12px;background:#fff;border-radius:var(--r-md);overflow:hidden;box-shadow:var(--sh-s);cursor:pointer}
+.guess-img{height:130px;position:relative;display:flex;align-items:center;justify-content:center}
+.guess-img .mi{font-size:36px;color:rgba(255,255,255,.45);position:relative;z-index:2}
+.guess-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.35))}
+.guess-badge{position:absolute;top:10px;left:12px;z-index:3;padding:3px 9px;background:rgba(255,255,255,.92);border-radius:var(--r-full);font-size:8.5px;font-weight:800;color:var(--pri-d)}
+.guess-ai-tip{position:absolute;bottom:10px;left:12px;z-index:3;font-size:8.5px;font-weight:700;color:rgba(255,255,255,.95);background:rgba(0,0,0,.35);padding:3px 8px;border-radius:var(--r-full);backdrop-filter:blur(4px)}
+.guess-body{padding:13px 15px}
+.guess-t{font-size:13px;font-weight:800;line-height:1.4}
+.guess-d{font-size:10.5px;color:var(--tx3);margin-top:5px;font-weight:600}
+.guess-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.guess-p{font-size:15px;font-weight:800;color:var(--acc)}
+.guess-p small{font-size:9px;color:var(--tx3);font-weight:600}
+.guess-star{font-size:10px;font-weight:800;color:var(--acc2);display:flex;align-items:center;gap:2px}
+.guess-star .mi{font-size:12px}
+
+/* AI思考动画 */
+.thinking{padding:12px 16px;display:flex;align-items:center;gap:8px}
+.thinking .mi{font-size:18px;color:var(--pri);animation:spin 2s linear infinite}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.thinking span{font-size:11px;color:var(--tx3);font-weight:600}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(27,46,44,.92);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;max-width:320px}
+.toast.show{opacity:1}
+/* AI悬浮球 + 底部Tab + 空状态 */
+.fab{position:fixed;bottom:85px;right:16px;width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 28px rgba(255,107,74,.45);border:3px solid rgba(255,255,255,.6);z-index:80;transition:.3s;animation:fabPulse 2.5s infinite}
+.fab .mi{font-size:30px;color:#fff}
+.fab::before{content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--acc);opacity:.4;animation:fabRing 2.5s infinite}
+@keyframes fabPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes fabRing{0%{transform:scale(1);opacity:.3}100%{transform:scale(1.4);opacity:0}}
+.fab.hide{transform:scale(0);opacity:0}
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:375px;display:flex;background:#fff;border-top:1px solid var(--line);padding:8px 0 10px;z-index:60}
+.tabbar .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:var(--tx3);font-weight:700;cursor:pointer}
+.tabbar .tab .mi{font-size:22px}
+.tabbar .tab.on{color:var(--pri)}
+.tabbar .tab.on span{font-weight:800}
+.empty{padding:50px 30px;text-align:center}
+.empty-ic{width:72px;height:72px;border-radius:50%;background:var(--line2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.empty-ic .mi{font-size:36px;color:var(--tx3)}
+.empty-t{font-size:16px;font-weight:800}
+.empty-d{font-size:12px;color:var(--tx2);margin-top:8px;font-weight:600;line-height:1.7}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+</style>
+</head>
+<body>
+<div class="app" data-theme="neutral">
+
+<!-- 场景Tab -->
+<div class="scene-tabs">
+  <div class="scene-tab on" onclick="loadScene('search')">语义搜索</div>
+  <div class="scene-tab" onclick="loadScene('home')">首页推荐</div>
+  <div class="scene-tab" onclick="loadScene('detail')">详情推荐</div>
+  <div class="scene-tab" onclick="loadScene('guess')">猜你喜欢</div>
+</div>
+
+<!-- 场景1：语义搜索 -->
+<div class="scene on" id="scene-search">
+  <div class="search-area">
+    <div class="search-bar" onclick="showToast('输入搜索内容')">
+      <span class="mi">autorenew</span>
+      <input id="searchInput" value="我想去海边放松两天" oninput="onSearch()">
+      <span class="search-go" onclick="onSearch()">AI搜索</span>
+    </div>
+
+    <!-- 传统 vs AI 对比 -->
+    <div class="compare-box">
+      <div class="compare-t"><span class="mi">compare_arrow</span>传统搜索 vs AI语义搜索</div>
+      <div class="compare-row">
+        <div class="compare-cell old"><b>传统关键词匹配</b>搜索"海边" → 返回含"海"字的套餐<br>不理解"放松""两天"等需求</div>
+        <div class="compare-cell new"><b>AI 语义理解</b>理解"海边+放松+两天" → 推荐东极岛听海两日<br>考虑预算、天数、舒适度</div>
+      </div>
+    </div>
+
+    <!-- AI 推荐结果 -->
+    <div class="ai-result">
+      <div class="ai-r-h"><div class="ai-r-av"><span class="mi">auto_awesome</span></div><div class="ai-r-n">AI 推荐<span class="ai-r-tag">AI</span></div></div>
+      <div class="ai-r-text">理解了你的需求：<b>海边 · 放松 · 两天</b>。为你推荐 3 个最匹配的套餐：</div>
+    </div>
+
+    <div style="margin-top:12px">
+      <div class="card" data-theme="ocean" onclick="showToast('进入东极岛听海两日')">
+        <div class="card-img g1"><span class="mi">waves</span><div class="card-badge"><i style="background:#0E86C4"></i>海洋</div></div>
+        <div class="card-body">
+          <div class="card-t">东极岛听海两日</div>
+          <div class="card-inc"><i><span class="mi">hotel</span>海景房</i><i><span class="mi">restaurant</span>海鲜2餐</i><i><span class="mi">beach_access</span>赶海日出</i></div>
+          <div class="card-sub">把两天交给海，潮声当闹钟 · 含船票与向导 · 行程轻松适合放松</div>
+          <div class="card-price"><div class="card-p">¥1,580<small>起</small></div><div class="card-meta"><div class="card-star"><span class="mi">star</span>4.9 <small>326条</small></div><div class="card-sold">已售 326</div></div></div>
+        </div>
+      </div>
+      <div class="card" data-theme="city" onclick="showToast('进入上海屋顶周末两日')">
+        <div class="card-img g2"><span class="mi">location_city</span><div class="card-badge"><i style="background:#5A5BD0"></i>城市</div></div>
+        <div class="card-body">
+          <div class="card-t">上海屋顶周末两日</div>
+          <div class="card-inc"><i><span class="mi">hotel</span>精品酒店</i><i><span class="mi">restaurant</span>2餐</i><i><span class="mi">cocktail_bar</span>屋顶酒吧</i></div>
+          <div class="card-sub">把城市过成假期 · 从屋顶的黄昏开始 · 行程自由度高</div>
+          <div class="card-price"><div class="card-p">¥1,980<small>起</small></div><div class="card-meta"><div class="card-star"><span class="mi">star</span>4.8 <small>72条</small></div><div class="card-sold">已售 72</div></div></div>
+        </div>
+      </div>
+      <div class="card" data-theme="grassland" onclick="showToast('进入呼伦贝尔草原四日')">
+        <div class="card-img g3"><span class="mi">park</span><div class="card-badge"><i style="background:#6FA22E"></i>草原</div></div>
+        <div class="card-body">
+          <div class="card-t">呼伦贝尔草原四日</div>
+          <div class="card-inc"><i><span class="mi">local_taxi</span>越野车</i><i><span class="mi">restaurant</span>烤全羊</i><i><span class="mi">horse</span>骑马</i></div>
+          <div class="card-sub">把车停下，让草原接管视线 · 含油费向导 · 行程较满</div>
+          <div class="card-price"><div class="card-p">¥3,280<small>起</small></div><div class="card-meta"><div class="card-star"><span class="mi">star</span>4.9 <small>156条</small></div><div class="card-sold">已售 156</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-result" style="margin-top:14px">
+      <div class="ai-r-text">💡 <b>为什么推荐这些？</b><br>· 东极岛：海边+两天+行程轻松，最匹配<br>· 上海屋顶：城市度假+放松，适合不想坐船的用户<br>· 呼伦贝尔：草原放松，但行程较满，标注了差异</div>
+    </div>
+  </div>
+</div>
+
+<!-- 场景2：首页动态楼层 -->
+<div class="scene" id="scene-home">
+  <div class="profile-box">
+    <div class="profile-h">
+      <div class="profile-ic"><span class="mi">person</span></div>
+      <div>
+        <div class="profile-t">张明远 · AI 用户画像</div>
+        <div class="profile-d">基于历史订单、收藏、浏览行为生成</div>
+      </div>
+    </div>
+    <div class="profile-tags">
+      <div class="profile-tag"><b>亲子</b> · 历史2次</div>
+      <div class="profile-tag"><b>山林</b> · 偏好主题</div>
+      <div class="profile-tag"><b>预算</b> ¥1,500-2,500</div>
+      <div class="profile-tag"><b>收藏</b> 东极岛</div>
+      <div class="profile-tag"><b>近期浏览</b> 草原套餐5个</div>
+    </div>
+  </div>
+
+  <div style="padding:0 16px 10px;font-size:10px;color:var(--tx3);font-weight:600;text-align:center">AI 根据画像动态排序首页楼层 · 与传统固定楼层对比</div>
+
+  <!-- 楼层1：草原（高意向） -->
+  <div class="floor" onclick="showToast('进入草原专题')">
+    <div class="floor-h"><div><div class="floor-t"><span class="mi">park</span>草原度假</div><div class="floor-d">你最近浏览了5个草原套餐</div></div><div class="floor-rank auto">AI排序 #1</div></div>
+    <div class="fcards">
+      <div class="fc" data-theme="grassland"><div class="fc-img g3"><span class="mi">park</span><div class="fc-tag">草原</div></div><div class="fc-b"><div class="fc-t">呼伦贝尔草原四日</div><div class="fc-p">¥3,280<small>/人</small></div></div></div>
+      <div class="fc" data-theme="grassland"><div class="fc-img g4"><span class="mi">nights_stay</span><div class="fc-tag">星空帐篷</div></div><div class="fc-b"><div class="fc-t">草原星空帐篷两日</div><div class="fc-p">¥1,880<small>/2人</small></div></div></div>
+    </div>
+  </div>
+
+  <!-- 楼层2：亲子（历史偏好） -->
+  <div class="floor" onclick="showToast('进入亲子专题')">
+    <div class="floor-h"><div><div class="floor-t"><span class="mi">child_care</span>带娃不累 · 亲子度假</div><div class="floor-d">你历史出行2次为亲子</div></div><div class="floor-rank auto">AI排序 #2</div></div>
+    <div class="fcards">
+      <div class="fc" data-theme="forest"><div class="fc-img g2"><span class="mi">child_care</span><div class="fc-tag">亲子</div></div><div class="fc-b"><div class="fc-t">莫干山云海亲子两日</div><div class="fc-p">¥1,680<small>/2大1小</small></div></div></div>
+      <div class="fc" data-theme="snow"><div class="fc-img g1"><span class="mi">downhill_skiing</span><div class="fc-tag">亲子滑雪</div></div><div class="fc-b"><div class="fc-t">长白山亲子滑雪三日</div><div class="fc-p">¥3,180<small>/2大1小</small></div></div></div>
+    </div>
+  </div>
+
+  <!-- 楼层3：东极岛（收藏过） -->
+  <div class="floor" onclick="showToast('进入东极岛')">
+    <div class="floor-h"><div><div class="floor-t"><span class="mi">waves</span>收藏推荐</div><div class="floor-d">你收藏过东极岛听海两日</div></div><div class="floor-rank auto">AI排序 #3</div></div>
+    <div class="fcards">
+      <div class="fc" data-theme="ocean"><div class="fc-img g1"><span class="mi">sailing</span><div class="fc-tag">海洋</div></div><div class="fc-b"><div class="fc-t">东极岛听海两日</div><div class="fc-p">¥1,580<small>/2人</small></div></div></div>
+    </div>
+  </div>
+
+  <!-- 楼层4：热门（传统排序） -->
+  <div class="floor" onclick="showToast('进入热门推荐')">
+    <div class="floor-h"><div><div class="floor-t"><span class="mi">trending_up</span>热门推荐</div><div class="floor-d">传统排序 · 按销量</div></div><div class="floor-rank">传统 #4</div></div>
+    <div class="fcards">
+      <div class="fc" data-theme="heritage"><div class="fc-img g2"><span class="mi">temple_buddhist</span><div class="fc-tag">古镇</div></div><div class="fc-b"><div class="fc-t">徽州古村慢活三日</div><div class="fc-p">¥2,280<small>/2人</small></div></div></div>
+      <div class="fc" data-theme="city"><div class="fc-img g3"><span class="mi">location_city</span><div class="fc-tag">城市</div></div><div class="fc-b"><div class="fc-t">上海屋顶周末两日</div><div class="fc-p">¥1,980<small>/2人</small></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 场景3：详情页互补推荐 -->
+<div class="scene" id="scene-detail">
+  <!-- 详情头部 -->
+  <div class="detail-hero g2" data-theme="forest">
+    <span class="mi">filter_hdr</span>
+    <div class="detail-badge"><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#12897C;margin-right:4px"></i>山林</div>
+  </div>
+  <div class="detail-body">
+    <div class="detail-t">莫干山云端两日</div>
+    <div class="detail-inc"><i><span class="mi">hotel</span>山居1晚</i><i><span class="mi">restaurant</span>4餐</i><i><span class="mi">hiking</span>溪谷徒步</i><i><span class="mi">local_taxi</span>专车接送</i></div>
+    <div class="detail-price"><div class="detail-p">¥1,680<small>起/2人</small></div><div style="font-size:11px;color:var(--tx3);font-weight:600">已售 326 · ★4.9</div></div>
+  </div>
+
+  <!-- AI 互补推荐 -->
+  <div class="ai-complement">
+    <div class="ac-h"><div class="ac-av"><span class="mi">auto_awesome</span></div><div class="ac-n">AI 互补推荐<span class="ac-tag">AI</span></div></div>
+    <div class="ac-text">这个套餐 <b>不含</b> 晚餐和额外玩乐项目。AI 检测到你的历史偏好，推荐以下加购项：</div>
+
+    <div class="comp-item" onclick="showToast('加入加购')">
+      <div class="comp-img g2"><span class="mi">local_fire_department</span></div>
+      <div class="comp-b"><div class="comp-n">星空围炉晚宴</div><div class="comp-d">竹里馆 · 8道菜+桂花酒 · 需预约</div></div>
+      <div class="comp-r"><div class="comp-p">+¥460</div><div class="comp-add">加购</div></div>
+    </div>
+
+    <div class="comp-item" onclick="showToast('加入加购')">
+      <div class="comp-img g3"><span class="mi">photo_camera</span></div>
+      <div class="comp-b"><div class="comp-n">星空摄影跟拍</div><div class="comp-d">90分钟 · 精修15张 · 独立摄影师</div></div>
+      <div class="comp-r"><div class="comp-p">+¥380</div><div class="comp-add">加购</div></div>
+    </div>
+
+    <div class="comp-item" onclick="showToast('加入加购')">
+      <div class="comp-img g4"><span class="mi">spa</span></div>
+      <div class="comp-b"><div class="comp-n">山居SPA体验</div><div class="comp-d">云景·山居 · 60分钟 · 含茶点</div></div>
+      <div class="comp-r"><div class="comp-p">+¥280</div><div class="comp-add">加购</div></div>
+    </div>
+
+    <div class="ac-text" style="margin-top:10px;padding:10px;background:var(--line2);border-radius:var(--r-sm)">
+      💡 <b>AI 说明</b>：套餐本身已含午餐和徒步，但不含晚餐。你上次出行点了围炉晚宴，这次也推荐。SPA 是你收藏过的商家提供的。
+    </div>
+  </div>
+
+  <!-- 其他套餐推荐 -->
+  <div style="padding:14px 16px 0;font-size:13px;font-weight:800">同类推荐</div>
+  <div style="padding:0 16px">
+    <div class="card" data-theme="forest" onclick="showToast('进入莫干山云海亲子两日')">
+      <div class="card-img g2"><span class="mi">cottage</span><div class="card-badge"><i style="background:#12897C"></i>山林</div></div>
+      <div class="card-body">
+        <div class="card-t">莫干山云海亲子两日</div>
+        <div class="card-inc"><i><span class="mi">hotel</span>山居1晚</i><i><span class="mi">restaurant</span>3正餐</i><i><span class="mi">hiking</span>溪谷徒步</i></div>
+        <div class="card-sub">亲子版 · 含儿童餐 · 适合3岁+</div>
+        <div class="card-price"><div class="card-p">¥1,680<small>/2大1小</small></div><div class="card-meta"><div class="card-star"><span class="mi">star</span>4.9</div></div></div>
+      </div>
+    </div>
+    <div class="card" data-theme="heritage" onclick="showToast('进入徽州古村慢活三日')">
+      <div class="card-img g3"><span class="mi">temple_buddhist</span><div class="card-badge"><i style="background:#8A5A3B"></i>古镇</div></div>
+      <div class="card-body">
+        <div class="card-t">徽州古村慢活三日</div>
+        <div class="card-inc"><i><span class="mi">hotel</span>古宅2晚</i><i><span class="mi">restaurant</span>徽菜</i><i><span class="mi">brush</span>非遗手作</i></div>
+        <div class="card-sub">白墙黛瓦之间 · 3天慢生活 · 手作可带走</div>
+        <div class="card-price"><div class="card-p">¥2,280<small>起</small></div><div class="card-meta"><div class="card-star"><span class="mi">star</span>4.8</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 场景4：猜你喜欢 -->
+<div class="scene" id="scene-guess">
+  <div class="guess-h"><span class="mi">autorenew</span>猜你喜欢<small>AI 基于你的行为推荐</small></div>
+
+  <div class="guess-card" data-theme="grassland" onclick="showToast('进入呼伦贝尔草原四日')">
+    <div class="guess-img g3"><span class="mi">park</span><div class="guess-badge"><i style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#6FA22E;margin-right:3px"></i>草原</div><div class="guess-ai-tip">最近浏览5次 · 高意向</div></div>
+    <div class="guess-body">
+      <div class="guess-t">呼伦贝尔草原四日</div>
+      <div class="guess-d">越野车+烤全羊+骑马+星空帐篷</div>
+      <div class="guess-row"><div class="guess-p">¥3,280<small>起</small></div><div class="guess-star"><span class="mi">star</span>4.9</div></div>
+    </div>
+  </div>
+
+  <div class="guess-card" data-theme="ocean" onclick="showToast('进入东极岛听海两日')">
+    <div class="guess-img g1"><span class="mi">sailing</span><div class="guess-badge"><i style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#0E86C4;margin-right:3px"></i>海洋</div><div class="guess-ai-tip">已收藏 · 待下单</div></div>
+    <div class="guess-body">
+      <div class="guess-t">东极岛听海两日</div>
+      <div class="guess-d">海景房+海鲜+赶海日出</div>
+      <div class="guess-row"><div class="guess-p">¥1,580<small>起</small></div><div class="guess-star"><span class="mi">star</span>4.9</div></div>
+    </div>
+  </div>
+
+  <div class="guess-card" data-theme="forest" onclick="showToast('进入莫干山云端两日')">
+    <div class="guess-img g2"><span class="mi">filter_hdr</span><div class="guess-badge"><i style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#12897C;margin-right:3px"></i>山林</div><div class="guess-ai-tip">历史出行2次 · 偏好主题</div></div>
+    <div class="guess-body">
+      <div class="guess-t">莫干山云端两日</div>
+      <div class="guess-d">住宿+4餐+溪谷徒步+围炉晚宴</div>
+      <div class="guess-row"><div class="guess-p">¥1,680<small>起</small></div><div class="guess-star"><span class="mi">star</span>4.9</div></div>
+    </div>
+  </div>
+
+  <div class="guess-card" data-theme="snow" onclick="showToast('进入长白山雪季三日')">
+    <div class="guess-img g4"><span class="mi">ac_unit</span><div class="guess-badge"><i style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#4C7FA8;margin-right:3px"></i>雪域</div><div class="guess-ai-tip">季节推荐 · 11月最佳</div></div>
+    <div class="guess-body">
+      <div class="guess-t">长白山雪季三日</div>
+      <div class="guess-d">雪场+温泉+雪具+雪地摩托</div>
+      <div class="guess-row"><div class="guess-p">¥2,880<small>起</small></div><div class="guess-star"><span class="mi">star</span>4.9</div></div>
+    </div>
+  </div>
+
+  <div style="padding:14px 16px 30px">
+    <div class="ai-result" style="margin-top:0">
+      <div class="ai-r-h"><div class="ai-r-av"><span class="mi">auto_awesome</span></div><div class="ai-r-n">AI 推荐逻辑<span class="ai-r-tag">AI</span></div></div>
+      <div class="ai-r-text">
+        💡 <b>为什么推荐这些？</b><br>
+        · 呼伦贝尔：你最近3天浏览了5次草原套餐，高意向<br>
+        · 东极岛：你已收藏但未下单，转化概率高<br>
+        · 莫干山：你历史出行2次为山林主题，偏好匹配<br>
+        · 长白山：11月是雪季最佳时期，季节性推荐
+      </div>
+    </div>
+  </div>
+
+  <!-- AI悬浮球 -->
+  <div class="fab" onclick="showToast('唤起AI管家')"><span class="mi">auto_awesome</span></div>
+
+  <!-- 底部Tab -->
+  <div class="tabbar">
+    <div class="tab" onclick="showToast('返回发现')"><span class="mi">explore</span><span>发现</span></div>
+    <div class="tab" onclick="showToast('进入行程')"><span class="mi">timeline</span><span>行程</span></div>
+    <div class="tab" onclick="showToast('进入企业')"><span class="mi">business_center</span><span>企业</span></div>
+    <div class="tab" onclick="showToast('进入我的')"><span class="mi">person_outline</span><span>我的</span></div>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+<script>
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2400)}
+function loadScene(scene){
+  document.querySelectorAll('.scene-tab').forEach(function(t){t.classList.remove('on')});
+  event.currentTarget.classList.add('on');
+  document.querySelectorAll('.scene').forEach(function(s){s.classList.remove('on')});
+  document.getElementById('scene-'+scene).classList.add('on');
+}
+function onSearch(){
+  var v=document.getElementById('searchInput').value.trim();
+  if(v.length>0){showToast('AI 正在理解: "'+v+'"')}
+}
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+</body>
+</html>

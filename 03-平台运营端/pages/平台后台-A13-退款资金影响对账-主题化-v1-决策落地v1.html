@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>云栖度假 · 平台后台 · 退款资金影响对账（A9）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{--bg:#F3F5F7;--card:#fff;--tx:#1A2138;--tx2:#5B6477;--tx3:#9BA3B5;--line:#E5E9EF;--line2:#F0F3F7;--pri:#2B5FE0;--pri-d:#1E48B8;--pri-l:#EEF2FE;--ok:#16A34A;--ok-l:#ECFDF5;--warn:#D97706;--warn-l:#FFF7ED;--err:#DC2626;--err-l:#FEF2F2;--gold:#C9952B;--r-sm:6px;--r-md:10px;--r-lg:14px;--sh:0 1px 3px rgba(26,33,56,.06),0 1px 2px rgba(26,33,56,.04);--sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}.mi{font-family:'Material Icons'}
+.side{background:#1A2138;color:#C5CCDE;padding:20px 14px;display:flex;flex-direction:column;gap:3px}
+.brand{display:flex;align-items:center;gap:8px;padding:6px 10px 22px;color:#fff;font-weight:800;font-size:15px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px}
+.brand .mi{font-size:20px;color:#4E7FEF}.brand small{font-size:9px;font-weight:600;letter-spacing:.1em;color:#6C7690;margin-left:4px}
+.nav{font-size:10.5px;font-weight:700;letter-spacing:.08em;color:#6C7690;padding:14px 10px 6px}
+.sit{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+.sit .mi{font-size:18px;color:#8993A8}.sit:hover{background:rgba(255,255,255,.05);color:#fff}
+.sit.on{background:linear-gradient(90deg,#2B5FE0,rgba(43,95,224,.3));color:#fff}.sit.on .mi{color:#fff}
+.sit b{margin-left:auto;padding:1px 6px;background:var(--err);color:#fff;font-size:9px;border-radius:8px;font-weight:700}
+.sfoot{margin-top:auto;padding:12px 10px 0;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:#8993A8;display:flex;align-items:center;gap:8px}
+.sfoot-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4E7FEF,#2B5FE0);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px}
+.main{display:flex;flex-direction:column;min-width:0}
+.top{height:62px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.bread{font-size:12.5px;color:var(--tx3);font-weight:600;display:flex;align-items:center;gap:6px}.bread .mi{font-size:14px}.bread b{color:var(--tx);font-weight:800}
+.top-r{display:flex;align-items:center;gap:14px;margin-left:auto}.top-ic{position:relative;cursor:pointer}.top-ic .mi{font-size:20px;color:var(--tx2)}
+.top-ic b{position:absolute;top:-4px;right:-6px;padding:0 5px;background:var(--err);color:#fff;font-size:9px;border-radius:8px;font-weight:800}
+.page{padding:24px 28px 40px;max-width:1520px;width:100%}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:14px}
+.pt{font-size:22px;font-weight:800;letter-spacing:-.015em}.ps{font-size:12px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.6}
+.ph-r{display:flex;gap:10px;align-items:center}
+.btn{padding:9px 17px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;transition:.15s;font-family:var(--sans)}
+.btn .mi{font-size:16px}.btn-pri{background:var(--pri);color:#fff}.btn-pri:hover{background:var(--pri-d)}
+.btn-sec{background:#fff;color:var(--tx2);border-color:var(--line)}.btn-sec:hover{border-color:var(--pri);color:var(--pri-d)}
+.orderbar{display:flex;align-items:center;gap:14px;background:#fff;border-radius:var(--r-lg);padding:15px 18px;box-shadow:var(--sh);margin-bottom:18px;flex-wrap:wrap;border-left:4px solid #12897C}
+.oi{flex:1;min-width:150px}.oi-k{font-size:9.5px;color:var(--tx3);font-weight:700;letter-spacing:.05em}.oi-v{font-size:13px;font-weight:800;margin-top:4px}
+.seg{display:inline-flex;gap:4px;background:var(--line2);padding:3px;border-radius:8px;flex-wrap:wrap}
+.seg button{border:none;background:transparent;font-family:var(--sans);font-size:10.5px;font-weight:800;color:var(--tx2);padding:6px 10px;border-radius:6px;cursor:pointer;transition:.15s;white-space:nowrap}
+.seg button.on{background:#fff;color:var(--pri-d);box-shadow:var(--sh)}
+.seg button.on.warn{color:var(--warn)}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.impact{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden}
+.impact-h{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800}
+.impact-h .mi{font-size:17px}.impact-h .who{margin-left:auto;font-size:9.5px;color:var(--tx3);font-weight:700}
+.impact-b{padding:14px 16px}
+.big{font-size:26px;font-weight:800;letter-spacing:-.025em;line-height:1.1}.big small{font-size:12px;color:var(--tx3);font-weight:700}
+.big.neg{color:var(--err)}.big.pos{color:var(--ok)}.big.keep{color:var(--gold)}
+.line{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line2);font-size:10.5px;font-weight:600;color:var(--tx2)}
+.line:last-child{border-bottom:none}.line b{color:var(--tx);font-weight:800;font-variant-numeric:tabular-nums}
+.layout{display:grid;grid-template-columns:1fr 350px;gap:18px}
+.panel{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden;margin-bottom:18px}
+.panel-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:#FAFBFD}
+.panel-t{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:7px}.panel-t .mi{font-size:17px;color:var(--pri)}
+.panel-t small{font-size:10px;color:var(--tx3);font-weight:600;margin-left:4px}
+.panel-b{padding:16px 18px}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:9.5px;font-weight:800;white-space:nowrap}
+.tag.ok{background:var(--ok-l);color:var(--ok)}.tag.warn{background:var(--warn-l);color:var(--warn)}.tag.err{background:var(--err-l);color:var(--err)}.tag.pri{background:var(--pri-l);color:var(--pri-d)}.tag.gold{background:#FBF3E2;color:var(--gold)}
+.chain{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;background:var(--pri-xl);border-radius:var(--r-md);margin-bottom:14px}
+.chain .node{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 12px;text-align:center;min-width:88px}
+.chain .node-k{font-size:9px;color:var(--tx3);font-weight:700}.chain .node-v{font-size:15px;font-weight:800;margin-top:3px;font-variant-numeric:tabular-nums}
+.chain .op{font-size:15px;font-weight:800;color:var(--pri)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{text-align:left;padding:9px 7px;background:var(--line2);color:var(--tx3);font-weight:800;font-size:9.5px;white-space:nowrap}
+td{padding:10px 7px;border-bottom:1px solid var(--line2);font-weight:600;vertical-align:middle}tr:last-child td{border-bottom:none}
+.num{font-weight:800;font-variant-numeric:tabular-nums}
+.check{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--line2);font-size:11px;font-weight:700}
+.check:last-child{border-bottom:none}.check .mi{font-size:16px}.check .mi.ok{color:var(--ok)}.check .mi.bad{color:var(--err)}
+.check-r{margin-left:auto;font-size:10px;font-weight:800;color:var(--tx2);font-variant-numeric:tabular-nums}
+.alertbox{background:var(--err-l);border:1px solid #FECACA;border-radius:var(--r-md);padding:12px 14px;font-size:10.5px;line-height:1.8;color:var(--tx2);font-weight:600;margin-top:14px}
+.alertbox b{color:var(--err)}
+.note{font-size:10.5px;color:var(--tx3);line-height:1.85;font-weight:600;padding-top:12px;margin-top:12px;border-top:1px dashed var(--line)}
+.note b{color:var(--tx2)}
+.rulebox{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.rulebox:last-child{border-bottom:none}
+.rule-l{font-size:11px;font-weight:800}.rule-d{font-size:9.5px;color:var(--tx3);font-weight:600;margin-top:3px;max-width:230px;line-height:1.6}
+.toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,20px);background:#1A2138;color:#fff;padding:11px 20px;border-radius:9px;font-size:12px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:99}.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* decision v3 - confirmed rules strip */
+.dstrip{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;margin-bottom:14px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;font-size:10.5px;color:#14532D;font-weight:700;line-height:1.85}
+.dstrip>.mi{font-size:18px;flex-shrink:0;color:#15803D}
+.dstrip b{color:#166534}
+.dstrip .dstrip-t{font-size:11px;font-weight:800;letter-spacing:.02em}
+.dstrip .dstrip-x{color:#166534;font-weight:600}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="mi">travel_explore</span>云栖度假<small>PLATFORM</small></div>
+    <div class="nav">经营</div>
+    <div class="sit"><span class="mi">dashboard</span>数据看板</div>
+    <div class="sit"><span class="mi">inventory_2</span>套餐组货工具</div>
+    <div class="sit"><span class="mi">verified_user</span>商家审核</div>
+    <div class="sit"><span class="mi">article</span>内容与首页 CMS</div>
+    <div class="nav">履约与资金</div>
+    <div class="sit"><span class="mi">gavel</span>订单仲裁</div>
+    <div class="sit"><span class="mi">grid_view</span>库存占用与配额</div>
+    <div class="sit on"><span class="mi">receipt_long</span>退款资金对账<b>1</b></div>
+    <div class="sit"><span class="mi">payments</span>分账权限配置</div>
+    <div class="sit"><span class="mi">local_activity</span>营销中心</div>
+    <div class="sit"><span class="mi">card_giftcard</span>企业采购与礼品卡</div>
+    <div class="nav">系统</div>
+    <div class="sit"><span class="mi">palette</span>主题库维护</div>
+    <div class="sfoot"><div class="sfoot-av">财</div>周敏 · 平台财务</div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="bread"><span class="mi">home</span> 平台后台 <span class="mi">chevron_right</span> 订单仲裁 <span class="mi">chevron_right</span> <b>退款资金影响对账</b></div>
+      <div class="top-r"><div class="top-ic"><span class="mi">notifications</span><b>1</b></div></div>
+    </div>
+
+    <div class="page">
+      <!-- DECISION_V3_APPLIED -->
+<div class="dstrip"><span class="mi">gavel</span><div><div class="dstrip-t">决策 2 / 3 / 5 已拍板 · 本页口径基准</div><div class="dstrip-x"><b>下单锁价</b>（ORDER_CREATED，非支付成功） · <b>券按 scope 分摊</b>（PACKAGE 摊整个套餐 / ITEM 算该项目） · <b>GMV 不回冲、单列退款冲减、环比用净 GMV</b>。已履约部分不冲回，未履约部分对应佣金同步冲回。</div></div></div>
+
+      <div class="ph">
+        <div><div class="pt">一笔退款的三方影响</div><div class="ps">补断点 2 / 4 / 5 · 决策 2 / 3 / 5 全部已拍板</div></div>
+        <div class="ph-r">
+          <button class="btn btn-sec" onclick="toast('已查看该对象的完整变更链 · 操作日志 L3 留存 3 年')"><span class="mi">history</span>变更链</button>
+          <button class="btn btn-pri" onclick="toast('对账单已导出 · 口径：净 GMV（不回冲）')"><span class="mi">download</span>导出对账单</button>
+        </div>
+      </div>
+
+      <div class="orderbar">
+        <div class="oi"><div class="oi-k">订单号</div><div class="oi-v">YQ2026100900188</div></div>
+        <div class="oi"><div class="oi-k">产品 / 主题</div><div class="oi-v">莫干山云端两日 · <span style="color:#12897C">山林 forest</span></div></div>
+        <div class="oi"><div class="oi-k">用户 / 商家</div><div class="oi-v">张明远 · 竹里馆 B-0032</div></div>
+        <div class="oi"><div class="oi-k">裁定结果</div><div class="oi-v">部分支持 · 已裁定</div></div>
+        <div class="oi"><div class="oi-k">锁价时间</div><div class="oi-v" id="lockAt">2026-10-09 10:22:31</div></div>
+        <span class="tag pri">8 张子券冻结后解冻</span>
+      </div>
+
+      <div class="three" id="three"></div>
+
+      <div class="layout">
+        <div>
+          <div class="panel">
+            <div class="panel-h"><div class="panel-t"><span class="mi">calculate</span>退款计算链条<small>全局唯一公式 · 来自下单时价格快照</small></div><span class="tag pri">决策 2</span></div>
+            <div class="panel-b">
+              <div class="chain">
+                <div class="node"><div class="node-k">订单实付</div><div class="node-v">¥1,940</div></div>
+                <span class="op">−</span>
+                <div class="node"><div class="node-k">已核销供货价</div><div class="node-v">¥740</div></div>
+                <span class="op">×</span>
+                <div class="node"><div class="node-k">加价系数</div><div class="node-v">1.2</div></div>
+                <span class="op">=</span>
+                <div class="node" style="border-color:var(--warn)"><div class="node-k">扣除</div><div class="node-v" style="color:var(--warn)">¥888</div></div>
+                <span class="op">→</span>
+                <div class="node" style="border-color:var(--err);background:var(--err-l)"><div class="node-k">实退用户</div><div class="node-v" style="color:var(--err)">¥1,052</div></div>
+              </div>
+              <table>
+                <thead><tr><th>已核销子券</th><th>资源项</th><th>归属商家</th><th>供货价快照</th><th>×1.2 扣除</th><th>核销时间</th></tr></thead>
+                <tbody>
+                  <tr><td>VC-0032-05</td><td>星空围炉晚宴</td><td>竹里馆 B-0032</td><td class="num">¥460</td><td class="num" style="color:var(--warn)">¥552</td><td>10-15 19:30</td></tr>
+                  <tr><td>VC-0032-02</td><td>山野午餐</td><td>竹里馆 B-0032</td><td class="num">¥280</td><td class="num" style="color:var(--warn)">¥336</td><td>10-16 12:30（存疑）</td></tr>
+                  <tr style="background:var(--line2)"><td colspan="3"><b>合计</b></td><td class="num"><b>¥740</b></td><td class="num" style="color:var(--err)"><b>¥888</b></td><td></td></tr>
+                </tbody>
+              </table>
+              <div class="note" id="priceNote"><b>✅ 决策 2 已拍板：锁价时点 = 下单（ORDER_CREATED），不是支付成功。</b>提交订单瞬间写 PriceSnapshot，<b>已下单未支付、已支付未核销、仲裁中订单一律读该快照</b>；商家此后把山野午餐供货价从 ¥280 改成 ¥320，本单仍按 ¥280 结算，差额由平台承担。改价只影响之后新下的单，超时取消后重新下单按新价。</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-h"><div class="panel-t"><span class="mi">account_tree</span>分账明细联动<small>切换券成本承担方实时重算</small></div><span class="tag gold">决策 3</span></div>
+            <div class="panel-b">
+              <table>
+                <thead><tr><th>资金项</th><th>口径</th><th>金额</th><th>说明</th></tr></thead>
+                <tbody id="splitBody"></tbody>
+              </table>
+              <div class="note">✅ <b>决策 3 已拍板：按券适用范围决定分摊维度。</b> <code>coupon_scope=PACKAGE</code>（套餐可用）→ 券成本按套餐内各资源项供货价占比分摊到整个套餐（A/B 6:4）；<code>coupon_scope=ITEM</code>（单项目可用）→ 成本全额算该项目所属商家，其他商家不承担。<code>cost_bearer</code> 决定谁出钱，<b>分摊（谁出钱）与归集（A1 ROI 算到哪个对象）分离</b>，无论谁出钱 A1 一律按归集对象取净佣金口径。礼品卡额度抵扣不参与券成本分摊；退款按同一 scope+bearer 反向冲回。</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-h"><div class="panel-t"><span class="mi">verified</span>四方金额对齐校验<small>上线前逐条验</small></div><span class="tag pri">断点 4</span></div>
+            <div class="panel-b"><div id="checks"></div>
+              <div class="note" style="background:var(--ok-l);border-color:#BBF7D0"><b>✅ 决策 5 已拍板 · 业内口径对齐：</b>GMV 成交总额不因退款改写历史值；退款单列「退款冲减」科目冲减当期口径；环比 / 同比 / 主题占比 / 活动 ROI 全用净 GMV。CAS 14 要求销售退回在发生时冲减当期收入、不追溯改写历史；2025 年天猫已把北极星指标改为「剔除退款后的 GMV」。<b>冲减只针对未履约部分</b>：已核销子券对应服务已完成控制权转移，加价 ¥148 属已赚对价不退还；未履约部分退款时对应佣金同步冲回。</div>
+              <div class="alertbox"><b>发现既有原型文案不一致：</b>A5「裁定理由」文本框写「仅扣除 ¥460 × 1.2 = ¥552，剩余 ¥1,388 退还用户」，与同页最终裁定金额 <b>¥1,052</b> 矛盾。建议以通知中心 C 端口径为准统一修订：实付 ¥1,940 − ¥740 × 1.2 = ¥888 → 实退 ¥1,052，平台佣金 ¥148 不退。</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel">
+            <div class="panel-h"><div class="panel-t"><span class="mi">tune</span>三项待拍板口径<small>切换即对账重算</small></div></div>
+            <div class="panel-b" id="rules"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-h"><div class="panel-t"><span class="mi">monitoring</span>A1 看板影响预览</div></div>
+            <div class="panel-b"><div id="board"></div>
+              <div class="note" id="boardNote"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-h"><div class="panel-t"><span class="mi">hub</span>裁定提交五步事务</div></div>
+            <div class="panel-b">
+              <div style="font-size:10.5px;line-height:2;font-weight:600;color:var(--tx2)">
+                <div>① 退款原路退回用户 <b style="color:var(--ok)">✓</b></div>
+                <div>② 商家待结算款扣减 ¥1,052 <b style="color:var(--ok)">✓</b></div>
+                <div>③ 写入退款冲减流水 <b style="color:var(--ok)">✓</b></div>
+                <div>④ 剩余 8 张子券解冻 / 作废 <b style="color:var(--ok)">✓</b></div>
+                <div>⑤ 三端通知（用户 / 商家 / 平台）<b style="color:var(--ok)">✓</b></div>
+              </div>
+              <div class="note">五步必须同事务或可补偿，<b>不允许只做 ①②</b>。埋点层还会校验四处金额相等，不等即告警。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const S={gmv:'OFFSET',lock:'ORDER',bearer:'PLATFORM'};
+const GMV_FEN=280000000,REFUND=1052,COMMISSION=148,COUPON=100;
+const RULE_DEFS=[
+ {k:'gmv',t:'退款记账口径',d:'决策 5 · 影响 A1 环比与主题占比',opts:[['OFFSET','不回冲 · 单列冲减'],['REVERSE','回冲 GMV']]},
+ {k:'lock',t:'锁价时点',d:'决策 2 · 影响 M5 / A5 / A7 取价',opts:[['ORDER','下单'],['PAY','支付成功'],['WRITEOFF','核销']]},
+ {k:'bearer',t:'券成本承担方',d:'决策 3 · 影响 A6 / A7 / M5 / A1',opts:[['PLATFORM','平台承担'],['MERCHANT','商家承担'],['PROPORTIONAL','按供货价占比']]}
+];
+const $=id=>document.getElementById(id);
+const yuan=n=>'¥'+Number(n).toLocaleString('zh-CN');
+function toast(t){const e=$('toast');e.textContent=t;e.className='toast show';clearTimeout(window._t);window._t=setTimeout(()=>e.className='toast',2600)}
+function renderRules(){
+ const DEF={gmv:'OFFSET',lock:'ORDER',bearer:'PLATFORM'};
+ $('rules').innerHTML=RULE_DEFS.map(r=>`<div class="rulebox"><div><div class="rule-l">${r.t}</div><div class="rule-d">${r.d}</div></div><div class="seg">${r.opts.map(([v,n])=>`<button class="${S[r.k]===v?'on':''} ${S[r.k]!==DEF[r.k]&&S[r.k]===v?'warn':''}" onclick="setRule('${r.k}','${v}')">${n}</button>`).join('')}</div></div>`).join('');
+}
+function setRule(k,v){S[k]=v;renderAll();toast('已切换口径：'+RULE_DEFS.find(r=>r.k===k).opts.find(o=>o[0]===v)[1]+'，全页重算')}
+function couponSplit(){
+ if(S.bearer==='PLATFORM')return {platform:COUPON,merchant:0,a:0,b:0};
+ if(S.bearer==='MERCHANT')return {platform:0,merchant:COUPON,a:COUPON,b:0};
+ return {platform:0,merchant:COUPON,a:60,b:40};
+}
+function renderThree(){
+ const cs=couponSplit(),net=S.gmv==='OFFSET'?GMV_FEN/100-REFUND:GMV_FEN/100-REFUND;
+ $('three').innerHTML=`
+  <div class="impact"><div class="impact-h"><span class="mi" style="color:var(--err)">person</span>用户侧<span class="who">C 端退款通知</span></div><div class="impact-b">
+   <div class="big neg">-${yuan(REFUND)}</div>
+   <div class="line"><span>退款渠道</span><b>原路退回 · 1-3 个工作日</b></div>
+   <div class="line"><span>计算依据</span><b>¥1,940 − ¥740 × 1.2</b></div>
+   <div class="line"><span>券状态</span><b>剩余 8 张已解冻</b></div>
+  </div></div>
+  <div class="impact"><div class="impact-h"><span class="mi" style="color:var(--warn)">storefront</span>商家侧<span class="who">M5 订单结算</span></div><div class="impact-b">
+   <div class="big neg">-${yuan(REFUND)}</div>
+   <div class="line"><span>待结算款变动</span><b style="color:var(--err)">−¥1,052</b></div>
+   <div class="line"><span>券成本承担</span><b>${cs.merchant? '-'+yuan(cs.merchant):'¥0（平台承担）'}</b></div>
+   <div class="line"><span>结算周期</span><b>T+7 · 预计 10-17</b></div>
+  </div></div>
+  <div class="impact"><div class="impact-h"><span class="mi" style="color:var(--gold)">account_balance</span>平台侧<span class="who">A7 分账 / A1 看板</span></div><div class="impact-b">
+   <div class="big keep">+${yuan(COMMISSION)}</div>
+   <div class="line"><span>平台佣金</span><b>¥148 不退还</b></div>
+   <div class="line"><span>券成本吸收</span><b>${cs.platform? '-'+yuan(cs.platform):'¥0'}</b></div>
+   <div class="line"><span>退款冲减</span><b>${yuan(REFUND)}（单列科目）</b></div>
+  </div></div>`;
+}
+function renderSplit(){
+ const cs=couponSplit();
+ const rows=[
+  ['售卖价（实付）','下单时快照',yuan(1940),'不随改价变化'],
+  ['Σ 供货价快照','下单时锁价 · 9 项资源',yuan(1380),'A7 分账公式入参'],
+  ['平台佣金（12.5%）','售卖价 − Σ供货价',yuan(560),'已确认部分退款时不退还 ¥148'],
+  ['券面额','双 11 山林 8.5 折 · 上限 ¥300',yuan(COUPON),'承担方：'+RULE_DEFS[2].opts.find(o=>o[0]===S.bearer)[1]],
+  ['平台承担券成本','从佣金中扣','-'+yuan(cs.platform),cs.platform?'净佣金减少':'商家券，平台不吸收'],
+  ['商家 A 承担','PACKAGE 券 · 供货价占比 60%','-'+yuan(cs.a),cs.a?'按快照占比分摊（PACKAGE）':'—'],
+  ['商家 B 承担','PACKAGE 券 · 供货价占比 40%','-'+yuan(cs.b),cs.b?'按快照占比分摊（PACKAGE）':'—'],
+  ['退款扣减','实退用户',"-"+yuan(REFUND),'从商家待结算款扣'],
+  ['平台佣金留存','不退还部分','+'+yuan(COMMISSION),'计入平台侧账目']
+ ];
+ $('splitBody').innerHTML=rows.map((r,i)=>`<tr ${i>=4?'style="background:var(--pri-xl)"':''}><td><b>${r[0]}</b></td><td style="color:var(--tx3)">${r[1]}</td><td class="num" style="color:${r[2][0]==='-'?'var(--err)':(r[2][0]==='+'?'var(--ok)':'var(--tx)')}">${r[2]}</td><td style="color:var(--tx3);font-size:10px">${r[3]}</td></tr>`).join('');
+}
+function renderChecks(){
+ const bad=S.gmv==='REVERSE';
+ const items=[
+  ['A5 订单仲裁 · 最终裁定',yuan(REFUND),true],
+  ['M5 商家结算 · 待结算款扣减','−'+yuan(REFUND),true],
+  ['C 端退款到账通知 · 实退',yuan(REFUND),true],
+  ['A1 看板 · 退款冲减流水',bad?'GMV 已回冲，无冲减科目':yuan(REFUND),!bad],
+  ['A5 裁定理由文案 · 自洽性','写作 ¥1,388，与 ¥1,052 矛盾',false]
+ ];
+ $('checks').innerHTML=items.map(([n,v,ok])=>`<div class="check"><span class="mi ${ok?'ok':'bad'}">${ok?'check_circle':'error'}</span><span>${n}</span><span class="check-r" style="color:${ok?'var(--ok)':'var(--err)'}">${v}</span></div>`).join('');
+}
+function renderBoard(){
+ const net=GMV_FEN/100-REFUND,rev=GMV_FEN/100-REFUND;
+ const rows=[
+  ['GMV（成交口径）',yuan(GMV_FEN/100),S.gmv==='REVERSE'?yuan(rev):yuan(GMV_FEN/100)],
+  ['退款冲减',yuan(REFUND),S.gmv==='REVERSE'?'—（直接冲掉）':yuan(REFUND)],
+  ['净 GMV（环比用）',yuan(net),yuan(rev)],
+  ['六主题占比','按净额归集',S.gmv==='REVERSE'?'历史报表被改写':'稳定不跳变']
+ ];
+ $('board').innerHTML=rows.map(r=>`<div class="line"><span>${r[0]}</span><b>${r[1]} → ${r[2]}</b></div>`).join('');
+ $('boardNote').innerHTML=S.gmv==='OFFSET'
+  ? '<b>建议默认值：GMV 不回冲，单列「退款冲减」。</b>回冲会让历史报表被未来事件改写，六主题占比、商家排行、运营绩效每周自己漂。所有环比 / 同比 / 主题占比一律用净 GMV。'
+  : '<b>备选口径：退款回冲 GMV。</b>好处是看板只有一个数，代价是历史成交事实被改写、环比失真、主题占比跳变，且平台佣金 ¥148 的去向难以解释。';
+}
+function renderLock(){
+ const map={ORDER:'下单',PAY:'支付成功',WRITEOFF:'核销'};
+ const desc={
+  ORDER:'下单即锁价：未支付订单也锁住库存与价格；商家在用户搁置 15 分钟期间调价，差额由平台承担。',
+  PAY:'支付成功时锁价（建议默认值）：未支付订单按最新价重算并在 P5 提示；已支付未核销、仲裁中订单一律读支付时快照，改价差额由平台承担。',
+  WRITEOFF:'核销时锁价：已付款订单的应结金额一直浮动到履约当天，商家可在此前任意改价，财务无法出账。'
+ };
+ $('lockAt').textContent=S.lock==='PAY'?'2026-10-09 10:22:31':(S.lock==='ORDER'?'2026-10-09 10:20:05':'2026-10-15 19:30:00');
+ $('priceNote').innerHTML='<b>锁价时点 = '+map[S.lock]+'。</b>'+desc[S.lock]+' 所有结算 / 仲裁 / 分账查询禁止回读 ResourceItem.supply_price。';
+}
+function renderAll(){renderRules();renderThree();renderSplit();renderChecks();renderBoard();renderLock()}
+renderAll();
+</script>
+</body>
+</html>

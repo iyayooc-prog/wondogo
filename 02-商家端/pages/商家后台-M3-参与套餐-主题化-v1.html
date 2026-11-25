@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · 商家端 · 参与套餐（M3）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E1217; --bg2:#161B22; --bg3:#1F262F; --bg4:#283039;
+  --card:#1F262F; --card2:#283039;
+  --tx:#E8ECF1; --tx2:#A3ACBA; --tx3:#6B7585;
+  --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.05);
+  --ok:#22C55E; --ok-l:#14532D;
+  --warn:#F59E0B; --warn-l:#422006;
+  --err:#EF4444; --err-l:#450A0A;
+  --r-sm:8px; --r-md:14px; --r-lg:18px; --r-full:999px;
+  --sh:0 4px 14px rgba(0,0,0,.35); --sh-m:0 8px 26px rgba(0,0,0,.4);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif;
+  --ease:cubic-bezier(.22,.75,.28,1);
+}
+[data-vtheme="ocean"]{--vt:#0E86C4;--vt-d:#0A6291;--vt-l:#E3F1FA;--vt-xl:rgba(14,134,196,.14);--g1a:#8FE0F0;--g1b:#2E9BD4;--g1c:#14689E}
+[data-vtheme="forest"]{--vt:#12897C;--vt-d:#0C6B61;--vt-l:#E4F2F0;--vt-xl:rgba(18,137,124,.14);--g1a:#C6E8B0;--g1b:#6FBF7F;--g1c:#2E8B57}
+[data-vtheme="heritage"]{--vt:#8A5A3B;--vt-d:#6B4229;--vt-l:#F4EAE2;--vt-xl:rgba(138,90,59,.14);--g1a:#E8DCCB;--g1b:#BFA78A;--g1c:#8A6F52}
+[data-vtheme="grassland"]{--vt:#6FA22E;--vt-d:#547C20;--vt-l:#EDF5E1;--vt-xl:rgba(111,162,46,.14);--g1a:#DCF0A8;--g1b:#93C85A;--g1c:#5A9430}
+[data-vtheme="snow"]{--vt:#4C7FA8;--vt-d:#35607F;--vt-l:#E8F1F8;--vt-xl:rgba(76,127,168,.14);--g1a:#F0F7FC;--g1b:#BDD8EA;--g1c:#7FA8C8}
+[data-vtheme="city"]{--vt:#5A5BD0;--vt-d:#413FA8;--vt-l:#ECECFB;--vt-xl:rgba(90,91,208,.14);--g1a:#CFCFFF;--g1b:#8A8AF0;--g1c:#5A5BD0}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#000;color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;padding-bottom:66px;box-shadow:0 0 40px rgba(0,0,0,.6)}
+.mi{font-family:'Material Icons'}
+.g1{background:linear-gradient(160deg,var(--g1a),var(--g1b) 52%,var(--g1c))}
+
+.idbar{background:var(--bg2);padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:11px}
+.id-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#3B4554,#283039);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff}
+.id-b{flex:1;min-width:0}
+.id-n{font-size:13px;font-weight:800}
+.id-m{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600;display:flex;align-items:center;gap:4px}
+.id-m i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block}
+.id-ic{width:32px;height:32px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.id-ic .mi{font-size:17px;color:var(--tx2)}
+
+.navbar{position:sticky;top:0;z-index:40;background:rgba(14,18,23,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:13px 16px;display:flex;align-items:center;gap:12px}
+.navbar .mi.back{font-size:20px;cursor:pointer;color:var(--tx)}
+.navbar-t{flex:1;font-size:15px;font-weight:800}
+
+/* 总览卡 */
+.overview{margin:14px;background:linear-gradient(135deg,var(--bg3),var(--bg4));border-radius:var(--r-lg);padding:18px;box-shadow:var(--sh);border:1px solid var(--line)}
+.ov-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ov-t{font-size:11px;font-weight:800;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase}
+.ov-a{font-size:10px;color:var(--tx3);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:3px}
+.ov-a .mi{font-size:13px}
+.ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ov-cell{background:var(--bg2);padding:13px;border-radius:var(--r-sm)}
+.ov-k{font-size:9.5px;font-weight:700;color:var(--tx3);letter-spacing:.04em}
+.ov-v{font-size:21px;font-weight:800;margin-top:6px;letter-spacing:-.02em;line-height:1}
+.ov-v small{font-size:10px;font-weight:700;color:var(--tx3)}
+.ov-d{display:flex;align-items:center;gap:3px;margin-top:7px;font-size:10px;font-weight:800}
+.ov-d .mi{font-size:12px}
+.ov-d.up{color:var(--ok)}.ov-d.down{color:var(--err)}.ov-d.flat{color:var(--tx3)}
+
+/* 筛选 */
+.filter{padding:0 14px 10px;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none}
+.filter::-webkit-scrollbar{display:none}
+.f-chip{flex-shrink:0;padding:6px 13px;border-radius:var(--r-full);background:var(--card);font-size:10.5px;font-weight:800;color:var(--tx2);cursor:pointer;border:1.5px solid transparent;transition:.18s;display:flex;align-items:center;gap:5px}
+.f-chip .mi{font-size:13px}
+.f-chip.on{background:var(--bg3);border-color:var(--ok);color:var(--ok)}
+.f-chip i{width:9px;height:9px;border-radius:50%;display:block}
+
+/* 主题分布条 */
+.theme-bar{margin:0 14px 14px;padding:13px 15px;background:var(--card);border-radius:var(--r-md);box-shadow:var(--sh)}
+.tb-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.tb-t{font-size:11px;font-weight:800;color:var(--tx2)}
+.tb-a{font-size:10px;color:var(--tx3);font-weight:700;cursor:pointer}
+.tb-stack{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:1px}
+.tb-seg{flex-shrink:0;cursor:pointer;transition:.2s}
+.tb-seg:hover{filter:brightness(1.2)}
+.tb-leg{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.tb-leg span{font-size:9.5px;font-weight:700;color:var(--tx3);display:flex;align-items:center;gap:4px}
+.tb-leg i{width:8px;height:8px;border-radius:2px;display:block}
+
+/* 套餐列表 */
+.pkg-list{padding:0 14px 14px}
+.pkg{background:var(--card);border-radius:var(--r-lg);margin-bottom:11px;box-shadow:var(--sh);overflow:hidden;cursor:pointer;transition:.22s;border-top:3px solid var(--vt)}
+.pkg:hover{transform:translateY(-2px);box-shadow:var(--sh-m)}
+.pkg-h{padding:14px;display:flex;gap:12px;align-items:center}
+.pkg-img{width:56px;height:56px;border-radius:12px;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pkg-img .mi{font-size:24px;color:rgba(255,255,255,.8);position:relative;z-index:2}
+.pkg-tk{position:absolute;bottom:0;left:0;right:0;padding:1.5px 0;background:rgba(0,0,0,.5);backdrop-filter:blur(3px);font-size:6.5px;font-weight:800;color:#fff;text-align:center;letter-spacing:.05em;z-index:3}
+.pkg-b{flex:1;min-width:0}
+.pkg-t{font-size:13.5px;font-weight:800;letter-spacing:-.01em;line-height:1.4}
+.pkg-m{font-size:10px;color:var(--tx3);margin-top:4px;font-weight:600;line-height:1.55;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.pkg-m i{padding:1px 6px;border-radius:4px;font-style:normal;font-weight:800;background:var(--bg3);color:var(--tx2);font-size:8.5px}
+.pkg-r{flex-shrink:0;text-align:right}
+.pkg-p{font-size:14px;font-weight:800;color:var(--tx)}
+.pkg-p small{font-size:9.5px;color:var(--tx3);font-weight:600;display:block;margin-top:2px}
+.pkg-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 14px 13px;border-top:1px solid var(--line2)}
+.pkg-s{padding:9px 0;text-align:center}
+.pkg-s-v{font-size:12.5px;font-weight:800;color:var(--tx)}
+.pkg-s-k{font-size:8.5px;color:var(--tx3);margin-top:2px;font-weight:700}
+.pkg-ft{display:flex;gap:7px;padding:0 14px 13px}
+.pkg-btn{flex:1;padding:8px;border-radius:7px;background:var(--bg3);text-align:center;font-size:11px;font-weight:800;cursor:pointer;color:var(--tx2);display:flex;align-items:center;justify-content:center;gap:4px}
+.pkg-btn .mi{font-size:14px}
+.pkg-btn.pri{background:var(--vt,#6B7585);color:#fff}
+
+/* 详情页 */
+.detail-h{padding:20px 16px;background:linear-gradient(180deg,var(--vt-xl),transparent);border-top:3px solid var(--vt);position:relative}
+.detail-k{font-size:9px;font-weight:800;letter-spacing:.22em;color:var(--vt);text-transform:uppercase;display:flex;align-items:center;gap:5px}
+.detail-k i{width:8px;height:8px;border-radius:50%;background:var(--vt);display:block}
+.detail-n{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-top:10px;line-height:1.35}
+.detail-m{font-size:11px;color:var(--tx2);margin-top:9px;line-height:1.8;font-weight:600}
+
+.sec{padding:16px 14px 8px}
+.sec-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-t{font-size:12px;font-weight:800;letter-spacing:.04em;display:flex;align-items:center;gap:6px}
+.sec-t .mi{font-size:15px;color:var(--vt)}
+.sec-a{font-size:10.5px;color:var(--tx3);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:2px}
+.sec-a .mi{font-size:14px}
+
+/* 我的资源项在该套餐中 */
+.my-res{background:var(--card);border-radius:var(--r-md);box-shadow:var(--sh);overflow:hidden}
+.mr{display:flex;gap:11px;padding:12px 14px;border-bottom:1px solid var(--line2)}
+.mr:last-child{border-bottom:none}
+.mr-ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mr-ic .mi{font-size:17px;color:#fff}
+.mr-b{flex:1;min-width:0}
+.mr-t{font-size:12px;font-weight:800}
+.mr-d{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.mr-r{text-align:right;flex-shrink:0}
+.mr-p{font-size:12.5px;font-weight:800;color:var(--tx)}
+.mr-sub{font-size:9px;color:var(--tx3);margin-top:2px;font-weight:600}
+
+/* 销量趋势 */
+.sales{background:var(--card);border-radius:var(--r-md);box-shadow:var(--sh);padding:15px}
+.sales-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sales-t{font-size:12px;font-weight:800}
+.sales-a{font-size:10.5px;color:var(--tx3);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:3px}
+.sales-a .mi{font-size:13px}
+.chart{display:flex;align-items:flex-end;gap:5px;height:80px;padding-bottom:18px;position:relative;border-bottom:1px solid var(--line)}
+.chart::before{content:'';position:absolute;bottom:16px;left:0;right:0;height:1px;border-top:1px dashed var(--line)}
+.bar{flex:1;background:var(--vt,#6B7585);border-radius:3px 3px 0 0;position:relative;cursor:pointer;transition:.2s;min-height:4px}
+.bar.today{filter:brightness(1.4)}
+.bar:hover{filter:brightness(1.25)}
+.bar-tip{position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);background:var(--bg4);color:#fff;padding:2px 6px;border-radius:3px;font-size:8.5px;font-weight:800;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s}
+.bar:hover .bar-tip{opacity:1}
+.chart-l{display:flex;gap:5px;margin-top:6px}
+.chart-l div{flex:1;text-align:center;font-size:8.5px;color:var(--tx3);font-weight:700}
+
+/* 评价摘要 */
+.rev{background:var(--card);border-radius:var(--r-md);box-shadow:var(--sh);padding:15px}
+.rev-h{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.rev-score{font-size:32px;font-weight:800;color:var(--ok);letter-spacing:-.03em;line-height:1}
+.rev-b{flex:1}
+.rev-stars{display:flex;gap:1px;margin-bottom:3px}
+.rev-stars .mi{font-size:13px;color:var(--warn)}
+.rev-t{font-size:10.5px;font-weight:700;color:var(--tx2)}
+.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.rev-c{padding:9px;background:var(--bg2);border-radius:var(--r-sm);text-align:center;cursor:pointer;transition:.18s}
+.rev-c:hover{background:var(--bg3)}
+.rev-c-v{font-size:15px;font-weight:800}
+.rev-c-k{font-size:9px;color:var(--tx3);margin-top:2px;font-weight:700}
+
+/* 运营备注 */
+.note{background:var(--card);border-radius:var(--r-md);box-shadow:var(--sh);padding:14px}
+.note-t{font-size:11px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.note-t .mi{font-size:14px;color:var(--warn)}
+.note-p{font-size:11px;color:var(--tx2);line-height:1.8;font-weight:600}
+.note-m{font-size:9.5px;color:var(--tx3);margin-top:9px;font-weight:600;padding-top:9px;border-top:1px dashed var(--line);display:flex;justify-content:space-between}
+
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:375px;display:flex;background:var(--bg2);border-top:1px solid var(--line);padding:8px 0 10px;z-index:50}
+.tabbar .tab2{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:var(--tx3);font-weight:700;cursor:pointer}
+.tabbar .tab2 .mi{font-size:22px}
+.tabbar .tab2.on{color:var(--ok)}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(34,197,94,.94);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;box-shadow:0 4px 16px rgba(34,197,94,.35);max-width:290px}
+.toast.show{opacity:1}
+.toast.warn{background:var(--warn);box-shadow:0 4px 16px rgba(245,158,11,.35)}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+
+/* yx-prod-M3-POOL */
+
+.yx-sim{margin:8px 12px 12px;padding:14px 15px;background:#fff;border:1px solid #E5E7EB;border-left:3px solid #12897C;border-radius:10px}
+.yx-sim-h{font-size:12px;font-weight:800;color:#0E6B62;display:flex;gap:7px;align-items:center}
+.yx-sim-h .mi{font-size:19px}
+.yx-sim-s{font-size:10px;color:#6B7280;line-height:1.8;margin-top:5px;font-weight:600}
+.yx-sim-c{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.yx-sim-c label{font-size:10.5px;color:#475569;font-weight:700}
+.yx-sim-c input{width:64px;padding:6px 8px;border:1px solid #D1D5DB;border-radius:6px;font-size:11px;font-weight:800;font-family:inherit}
+.yx-sim-c button{padding:7px 12px;border:1px solid #12897C;background:#12897C;color:#fff;border-radius:7px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-sim-r{margin-top:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.yx-sr{background:#F8FAFC;border:1px solid #E8EBE8;border-radius:8px;padding:9px;text-align:center}
+.yx-sr b{display:block;font-size:15px;font-weight:800;color:#1F2937}
+.yx-sr span{font-size:9px;color:#9CA3AF;font-weight:700;display:block;margin-top:3px}
+.yx-sim-n{margin-top:10px;font-size:10px;color:#6B7280;line-height:1.85;font-weight:600;border-top:1px solid #E8EBE8;padding-top:9px}
+.yx-sim-n b{color:#9A3412}
+.yx-fly{margin-top:9px;padding:9px 11px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;font-size:10px;color:#7C2D12;line-height:1.85;font-weight:700}
+@media (max-width:640px){.yx-sim-r{grid-template-columns:repeat(2,1fr)}}
+
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="idbar">
+    <div class="id-av">竹</div>
+    <div class="id-b">
+      <div class="id-n">竹里馆 · 山野厨房</div>
+      <div class="id-m"><i></i>营业中 · B-0032 · 评分 4.9</div>
+    </div>
+    <div class="id-ic" onclick="showToast('消息中心')"><span class="mi">notifications_none</span></div>
+    <div class="id-ic" onclick="showToast('商家设置')"><span class="mi">settings</span></div>
+  </div>
+
+  <!-- 列表视图 -->
+  <div id="vList">
+    <div class="navbar">
+      <span class="mi back" onclick="showToast('返回经营看板')">arrow_back</span>
+      <div class="navbar-t">我参与的套餐</div>
+    </div>
+
+    <!-- 总览 -->
+    <div class="overview">
+      <div class="ov-h">
+        <div class="ov-t">你参与的套餐总览</div>
+        <div class="ov-a" onclick="showToast('查看详细分析')"><span class="mi">insights</span>详细</div>
+      </div>
+      <div class="ov-grid">
+        <div class="ov-cell">
+          <div class="ov-k">参与的套餐总数</div>
+          <div class="ov-v">6<small> 个</small></div>
+          <div class="ov-d up"><span class="mi">trending_up</span>较上月 +2</div>
+        </div>
+        <div class="ov-cell">
+          <div class="ov-k">本周贡献收入</div>
+          <div class="ov-v">¥8.4<small>万</small></div>
+          <div class="ov-d up"><span class="mi">trending_up</span>+22% vs 上周</div>
+        </div>
+        <div class="ov-cell">
+          <div class="ov-k">本周核销单数</div>
+          <div class="ov-v">86<small> 单</small></div>
+          <div class="ov-d up"><span class="mi">trending_up</span>+18%</div>
+        </div>
+        <div class="ov-cell">
+          <div class="ov-k">平均评分</div>
+          <div class="ov-v">4.9</div>
+          <div class="ov-d flat"><span class="mi">trending_flat</span>持平</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主题分布 -->
+    <div class="theme-bar">
+      <div class="tb-h">
+        <div class="tb-t">按主题分布</div>
+        <div class="tb-a" onclick="showToast('查看主题运营详情')">详情</div>
+      </div>
+      <div class="tb-stack">
+        <div class="tb-seg" style="width:33%;background:#12897C" onclick="pickFilter('forest')"></div>
+        <div class="tb-seg" style="width:17%;background:#8A5A3B" onclick="pickFilter('heritage')"></div>
+        <div class="tb-seg" style="width:33%;background:#6FA22E" onclick="pickFilter('grassland')"></div>
+        <div class="tb-seg" style="width:17%;background:#4C7FA8" onclick="pickFilter('snow')"></div>
+      </div>
+      <div class="tb-leg">
+        <span><i style="background:#12897C"></i>山林 2</span>
+        <span><i style="background:#8A5A3B"></i>古镇 1</span>
+        <span><i style="background:#6FA22E"></i>草原 2</span>
+        <span><i style="background:#4C7FA8"></i>雪域 1</span>
+      </div>
+    </div>
+
+    <!-- 筛选 -->
+    <div class="filter" id="filterBar">
+      <div class="f-chip on" data-f="all" onclick="pickChip(this)"><span class="mi">apps</span>全部 6</div>
+      <div class="f-chip" data-f="forest" onclick="pickChip(this)"><i style="background:#12897C"></i>山林</div>
+      <div class="f-chip" data-f="heritage" onclick="pickChip(this)"><i style="background:#8A5A3B"></i>古镇</div>
+      <div class="f-chip" data-f="grassland" onclick="pickChip(this)"><i style="background:#6FA22E"></i>草原</div>
+      <div class="f-chip" data-f="snow" onclick="pickChip(this)"><i style="background:#4C7FA8"></i>雪域</div>
+      <div class="f-chip" data-f="hot" onclick="pickChip(this)"><span class="mi">whatshot</span>热销</div>
+      <div class="f-chip" data-f="paused" onclick="pickChip(this)"><span class="mi">pause_circle</span>已暂停</div>
+    </div>
+
+    <!-- 套餐列表 -->
+    <div class="pkg-list" id="pkgList"></div>
+  </div>
+
+  <!-- 详情视图 -->
+  <div id="vDetail" style="display:none">
+    <div class="navbar">
+      <span class="mi back" onclick="backList()">arrow_back</span>
+      <div class="navbar-t" id="detT">套餐详情</div>
+      <span class="mi" style="font-size:20px;cursor:pointer;color:var(--tx)" onclick="showToast('联系平台运营调整供货价')">more_horiz</span>
+    </div>
+
+    <div class="detail-h" id="detH" data-vtheme="forest">
+      <div class="detail-k"><i></i><span id="detK">山林主题 · FOREST</span></div>
+      <div class="detail-n" id="detN">莫干山云端两日</div>
+      <div class="detail-m" id="detM">固定套餐 · 2 天 1 晚 · 平台运营组货 · 你提供 3 项餐饮服务</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h">
+        <div class="sec-t"><span class="mi">inventory_2</span>你的资源项在该套餐中</div>
+        <div class="sec-a" onclick="showToast('申请调整供货价')">申请调价</div>
+      </div>
+      <div class="my-res" id="myRes">
+        <div class="mr">
+          <div class="mr-ic" style="background:linear-gradient(135deg,#FFE0B2,#E08A4A)"><span class="mi">restaurant</span></div>
+          <div class="mr-b"><div class="mr-t">山野午餐 · 八道时令</div><div class="mr-d">需预约 · 2 大 1 小餐标 · 平台售 ¥320</div></div>
+          <div class="mr-r"><div class="mr-p">¥280</div><div class="mr-sub">供货价</div></div>
+        </div>
+        <div class="mr">
+          <div class="mr-ic" style="background:linear-gradient(135deg,#FFE0B2,#E08A4A)"><span class="mi">local_fire_department</span></div>
+          <div class="mr-b"><div class="mr-t">星空围炉晚宴</div><div class="mr-d">需预约 · 含自酿桂花酒 · 平台售 ¥520</div></div>
+          <div class="mr-r"><div class="mr-p">¥460</div><div class="mr-sub">供货价</div></div>
+        </div>
+        <div class="mr">
+          <div class="mr-ic" style="background:linear-gradient(135deg,#FFE0B2,#E08A4A)"><span class="mi">local_cafe</span></div>
+          <div class="mr-b"><div class="mr-t">竹林下午茶</div><div class="mr-d">含手冲 + 本地糕点 · 平台售 ¥220</div></div>
+          <div class="mr-r"><div class="mr-p">¥180</div><div class="mr-sub">供货价</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h">
+        <div class="sec-t"><span class="mi">trending_up</span>销量趋势（近 14 天）</div>
+        <div class="sales-a" onclick="showToast('切换：销量 / 收入 / 评分')"><span class="mi">swap_horiz</span>销量</div>
+      </div>
+      <div class="sales">
+        <div class="chart" id="chart"></div>
+        <div class="chart-l" id="chartL"></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h">
+        <div class="sec-t"><span class="mi">rate_review</span>该套餐评价摘要</div>
+        <div class="sec-a" onclick="showToast('查看全部评价')">全部 <span class="mi">chevron_right</span></div>
+      </div>
+      <div class="rev">
+        <div class="rev-h">
+          <div class="rev-score">4.9</div>
+          <div class="rev-b">
+            <div class="rev-stars"><span class="mi">star</span><span class="mi">star</span><span class="mi">star</span><span class="mi">star</span><span class="mi">star</span></div>
+            <div class="rev-t">326 条评价 · 96% 推荐 · 本周 +8</div>
+          </div>
+        </div>
+        <div class="rev-grid">
+          <div class="rev-c" onclick="showToast('查看全部好评')"><div class="rev-c-v" style="color:var(--ok)">318</div><div class="rev-c-k">5 星好评</div></div>
+          <div class="rev-c" onclick="showToast('查看中评')"><div class="rev-c-v">6</div><div class="rev-c-k">3-4 星</div></div>
+          <div class="rev-c" onclick="showToast('查看差评 · 含 1 条待回复')"><div class="rev-c-v" style="color:var(--err)">2</div><div class="rev-c-k">1-2 星</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h">
+        <div class="sec-t"><span class="mi">info</span>运营备注</div>
+        <div class="sec-a" onclick="showToast('联系平台运营')"><span class="mi">chat</span></div>
+      </div>
+      <div class="note">
+        <div class="note-t"><span class="mi">campaign</span>平台通知</div>
+        <div class="note-p">本套餐已被列入"双 11 预热"主会场，10-25 起平台会加投流量。建议提前锁定 10-25 至 11-11 期间的库存与接待能力，避免超售。</div>
+        <div class="note-m">
+          <span>来自：平台运营 · 尹凯</span>
+          <span>2026-10-15 14:22</span>
+        </div>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+  </div>
+
+  <div class="tabbar">
+    <div class="tab2" onclick="showToast('返回经营看板')"><span class="mi">dashboard</span><span>看板</span></div>
+    <div class="tab2" onclick="showToast('进入资源项管理')"><span class="mi">category</span><span>资源</span></div>
+    <div class="tab2 on"><span class="mi">inventory_2</span><span>套餐</span></div>
+    <div class="tab2" onclick="showToast('进入扫码核销台')"><span class="mi">qr_code_scanner</span><span>核销</span></div>
+    <div class="tab2" onclick="showToast('订单结算')"><span class="mi">payments</span><span>结算</span></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const LIB={forest:{n:'山林',sw:'#12897C'},heritage:{n:'古镇',sw:'#8A5A3B'},grassland:{n:'草原',sw:'#6FA22E'},snow:{n:'雪域温泉',sw:'#4C7FA8'}};
+const PKGS=[
+  {th:'forest',ic:'filter_hdr',n:'莫干山云端两日',dest:'湖州 · 莫干山',price:1680,supply:920,myItems:3,soldWeek:42,soldMonth:168,rating:'4.9',gmvWeek:'¥38,640',tag:'热销',paused:false},
+  {th:'forest',ic:'park',n:'安吉竹海亲子三日',dest:'湖州 · 安吉',price:2280,supply:1180,myItems:2,soldWeek:18,soldMonth:68,rating:'4.8',gmvWeek:'¥21,240',tag:'热销',paused:false},
+  {th:'heritage',ic:'temple_buddhist',n:'徽州古村慢活三日',dest:'黄山 · 宏村',price:2280,supply:620,myItems:1,soldWeek:12,soldMonth:58,rating:'4.8',gmvWeek:'¥7,440',tag:'稳定',paused:false},
+  {th:'grassland',ic:'park',n:'呼伦贝尔草原四日',dest:'呼伦贝尔 · 海拉尔',price:3280,supply:420,myItems:1,soldWeek:8,soldMonth:34,rating:'4.9',gmvWeek:'¥3,360',tag:'季节性',paused:false},
+  {th:'grassland',ic:'sports_martial_arts',n:'草原骑马两日体验',dest:'呼伦贝尔 · 草原',price:1580,supply:280,myItems:1,soldWeek:6,soldMonth:22,rating:'4.7',gmvWeek:'¥1,680',tag:'新上',paused:false},
+  {th:'snow',ic:'ac_unit',n:'长白山雪季三日',dest:'长白山 · 二道白河',price:2880,supply:360,myItems:1,soldWeek:0,soldMonth:0,rating:'-',gmvWeek:'¥0',tag:'雪季预热',paused:true}
+];
+const CHART=[8,12,6,14,10,16,12,18,14,22,16,20,24,18];
+
+const $=id=>document.getElementById(id);
+let currentFilter='all';
+
+function renderList(filter){
+  const list=filter&&filter!=='all'?PKGS.filter(p=>{
+    if(filter==='hot')return p.tag==='热销';
+    if(filter==='paused')return p.paused;
+    return p.th===filter;
+  }):PKGS;
+  $('pkgList').innerHTML=list.length?list.map(p=>{
+    const t=LIB[p.th];
+    return `<div class="pkg" data-vtheme="${p.th}" onclick="openDetail('${p.n}','${p.th}')">
+      <div class="pkg-h">
+        <div class="pkg-img g1"><span class="mi">${p.ic}</span><div class="pkg-tk">${t.n}主题</div></div>
+        <div class="pkg-b">
+          <div class="pkg-t">${p.n}</div>
+          <div class="pkg-m">${p.dest}<i>${p.tag}</i>${p.paused?'<i style="background:var(--err-l);color:var(--err)">已暂停</i>':''}</div>
+        </div>
+        <div class="pkg-r">
+          <div class="pkg-p">¥${p.supply}</div>
+          <small>供货价</small>
+        </div>
+      </div>
+      <div class="pkg-stats">
+        <div class="pkg-s"><div class="pkg-s-v">¥${p.price}</div><div class="pkg-s-k">对外价</div></div>
+        <div class="pkg-s"><div class="pkg-s-v">${p.myItems}</div><div class="pkg-s-k">你的资源项</div></div>
+        <div class="pkg-s"><div class="pkg-s-v">${p.soldWeek}</div><div class="pkg-s-k">本周核销</div></div>
+        <div class="pkg-s"><div class="pkg-s-v">${p.rating}</div><div class="pkg-s-k">评分</div></div>
+      </div>
+      <div class="pkg-ft">
+        <div class="pkg-btn" onclick="event.stopPropagation();showToast('查看该套餐完整行程')"><span class="mi">visibility</span>查看</div>
+        <div class="pkg-btn" onclick="event.stopPropagation();showToast('调整你的库存与时段')"><span class="mi">tune</span>调整</div>
+        <div class="pkg-btn pri" onclick="event.stopPropagation();openDetail('${p.n}','${p.th}')"><span class="mi">insights</span>详情</div>
+      </div>
+    </div>`;
+  }).join(''):'<div style="text-align:center;padding:40px;color:var(--tx3);font-size:12px">无匹配的套餐</div>';
+}
+function renderChart(){
+  const max=Math.max(...CHART);
+  $('chart').innerHTML=CHART.map((v,i)=>{
+    const h=Math.max(4,Math.round(v/max*62));
+    return `<div class="bar${i===CHART.length-1?' today':''}" style="height:${h}px"><div class="bar-tip">${v}单</div></div>`;
+  }).join('');
+  $('chartL').innerHTML='14天前,13,12,11,10,9,8,7,6,5,4,3,2,昨天,今天'.split(',').slice(0,14).map((d,i)=>`<div${i===CHART.length-1?' style="color:var(--ok)"':''}>${d}</div>`).join('');
+}
+function pickChip(el){
+  el.parentNode.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  currentFilter=el.dataset.f;
+  renderList(currentFilter);
+}
+function pickFilter(th){
+  document.querySelectorAll('.f-chip').forEach(c=>c.classList.toggle('on',c.dataset.f===th));
+  currentFilter=th;
+  renderList(th);
+  showToast('已筛选「'+LIB[th].n+'」主题');
+}
+function openDetail(name,th){
+  $('vList').style.display='none';
+  $('vDetail').style.display='block';
+  $('detT').textContent=name;
+  $('detH').setAttribute('data-vtheme',th);
+  $('detN').textContent=name;
+  const t=LIB[th];
+  $('detK').textContent=t.n+'主题 · '+th.toUpperCase();
+  renderChart();
+  window.scrollTo(0,0);
+}
+function backList(){
+  $('vDetail').style.display='none';
+  $('vList').style.display='block';
+  window.scrollTo(0,0);
+}
+function showToast(x,t){
+  const el=$('toast');
+  el.textContent=x;
+  el.className='toast show'+(t?' '+t:'');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>el.className='toast',2000);
+}
+renderList('all');
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+
+<!-- yx-prod-M3-POOL -->
+
+<div class="yx-sim" id="yxSim">
+  <div class="yx-sim-h"><span class="mi">calculate</span>我为什么愿意把库存放进共享池</div>
+  <div class="yx-sim-s">平台要求商家交出库存控制权，就必须回答收益问题。改房间数可实时看到入池与自售的差异。</div>
+  <div class="yx-sim-c"><label>放入共享池 <input type="number" id="yxRooms" value="6" min="1" max="20"> 间</label><button type="button" id="yxSimGo">试算收益</button></div>
+  <div class="yx-sim-r" id="yxSimR"></div>
+  <div class="yx-sim-n"><b>退出与补偿：</b>淡季可提前 7 天申请退出共享池；<b>Σ软配额 &gt; 池容量只告警不阻断</b>（共享池是唯一硬约束）；若因平台侧原因造成到店无房，由平台先行赔付并重新安置，不占商家备货损失。<b>核销异常率、备货纠纷、M6 评价</b>联动 A3 审核与 A2 组货曝光权重——履约质量决定入池资格。</div>
+  <div class="yx-fly">供给飞轮起点：敢承诺「到店无房赔付」的前提是供给可控。高端产品的护城河是<b>供给质量</b>，不是流量。</div>
+</div>
+
+<script>
+
+(function(){
+  function calc(){
+    var n=parseInt(document.getElementById('yxRooms').value,10)||6;
+    var occ=Math.min(96,62+n*4.2), settle=Math.round(n*420*0.88), exp=Math.min(99,55+n*5.5), risk=Math.max(1.2,6.8-n*0.4);
+    document.getElementById('yxSimR').innerHTML=
+      '<div class="yx-sr"><b>'+occ.toFixed(0)+'%</b><span>预期入住率（自售 62%）</span></div>'+
+      '<div class="yx-sr"><b>¥'+settle.toLocaleString()+'</b><span>预计结算 / 日</span></div>'+
+      '<div class="yx-sr"><b>+'+exp.toFixed(0)+'</b><span>曝光权重</span></div>'+
+      '<div class="yx-sr"><b>'+risk.toFixed(1)+'%</b><span>空置风险</span></div>';
+    YX.toast('已按 '+n+' 间试算 · 共享池余量实时联动 A12','ok');
+  }
+  var b=document.getElementById('yxSimGo'); if(b)b.onclick=calc;
+  calc();
+  var s=document.getElementById('yxSim');
+  var k=document.querySelector('.kpis')||document.querySelector('.panel');
+  if(s&&k&&k.parentNode)k.parentNode.insertBefore(s,k);
+})();
+
+</script>
+</body>
+</html>

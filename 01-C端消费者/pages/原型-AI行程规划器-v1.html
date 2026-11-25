@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · AI 行程规划器</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{--card:#FFFFFF;--tx:#1B2E2C;--tx2:#5E7370;--tx3:#9BAEAB;--line:#E8EFEE;--line2:#F2F6F5;--r-sm:10px;--r-md:16px;--r-lg:22px;--r-full:999px;--sh-s:0 2px 10px rgba(27,46,44,.05);--sh-m:0 6px 22px rgba(27,46,44,.08);--sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',Roboto,sans-serif}
+[data-theme="neutral"]{--pri:#4A5D59;--pri-d:#33423F;--pri-l:#EDF1F0;--pri-xl:#F6F8F7;--acc:#FF6B4A;--acc-l:#FFEFEB;--acc2:#F2A93B;--bg:#F4F6F5;--sh-l:0 10px 28px rgba(27,46,44,.12);--g1a:#E2E7E5;--g1b:#B9C4C1;--g1c:#8D9C99;--g2a:#EDE7DE;--g2b:#CFC3B2;--g2c:#A3937F;--g3a:#E0E6E4;--g3b:#B4C1BD;--g3c:#889994;--g4a:#E6E9EC;--g4b:#BCC5CD;--g4c:#909BA5}
+[data-theme="ocean"]{--pri:#0E86C4;--pri-d:#0A6291;--pri-l:#E3F1FA;--pri-xl:#F2F9FD;--acc:#FF7A59;--acc-l:#FFF0EB;--acc2:#FFB648;--g1a:#8FE0F0;--g1b:#2E9BD4;--g1c:#14689E;--g2a:#FFE2B0;--g2b:#FFA96B;--g2c:#F0805A;--g3a:#A8E8DC;--g3b:#4FBFAE;--g3c:#2A8A80;--g4a:#BFD9F2;--g4b:#6E9FD0;--g4c:#3F6E9E}
+[data-theme="forest"]{--pri:#12897C;--pri-d:#0C6B61;--pri-l:#E4F2F0;--pri-xl:#F1F8F7;--acc:#FF7A59;--acc-l:#FFF0EB;--acc2:#FFB648;--g1a:#C6E8B0;--g1b:#6FBF7F;--g1c:#2E8B57;--g2a:#A8E0C8;--g2b:#4FB894;--g2c:#1E8367;--g3a:#FFE0B2;--g3b:#FFAE6B;--g3c:#E08A4A;--g4a:#D8E8C0;--g4b:#93C07A;--g4c:#5A8C46}
+[data-theme="grassland"]{--pri:#6FA22E;--pri-d:#547C20;--pri-l:#EDF5E1;--pri-xl:#F6FAF0;--acc:#D9701F;--acc-d:#C2410C;--acc-l:#FFF2E6;--acc2:#E8C33C;--g1a:#DCF0A8;--g1b:#93C85A;--g1c:#5A9430;--g2a:#BFE8F5;--g2b:#79C0DC;--g2c:#3F8FB0;--g3a:#FFE9A8;--g3b:#FFC65C;--g3c:#E09A2E;--g4a:#E8F2C0;--g4b:#B5D483;--g4c:#7CA84E}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#dfe3e2;color:var(--tx);line-height:1.55;-webkit-font-smoothing:antialiased}
+.mi{font-family:'Material Icons'}
+.g1{background:linear-gradient(160deg,var(--g1a),var(--g1b) 52%,var(--g1c))}
+.g2{background:linear-gradient(160deg,var(--g2a),var(--g2b) 50%,var(--g2c))}
+.g3{background:linear-gradient(160deg,var(--g3a),var(--g3b) 50%,var(--g3c))}
+.g4{background:linear-gradient(160deg,var(--g4a),var(--g4b) 52%,var(--g4c))}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;box-shadow:0 0 40px rgba(0,0,0,.12)}
+
+.scene-tabs{display:flex;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.scene-tabs::-webkit-scrollbar{display:none}
+.scene-tab{flex-shrink:0;padding:13px 16px;font-size:12.5px;font-weight:700;color:var(--tx3);cursor:pointer;position:relative;white-space:nowrap;transition:.15s}
+.scene-tab.on{color:var(--pri-d);font-weight:800}
+.scene-tab.on::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--pri);border-radius:2px}
+.scene{display:none;padding-bottom:30px}.scene.on{display:block}
+
+/* 顶部 */
+.topbar{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#fff}
+.top-t{font-size:17px;font-weight:800;flex:1}
+
+/* 场景1：输入需求 */
+.input-area{padding:20px 16px}
+.input-h{font-size:18px;font-weight:800;margin-bottom:6px}
+.input-d{font-size:12px;color:var(--tx3);font-weight:600;margin-bottom:20px;line-height:1.6}
+.input-box{background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);padding:14px;margin-bottom:16px}
+.input-box label{font-size:11px;font-weight:700;color:var(--tx3);margin-bottom:8px;display:block}
+.input-box input,.input-box textarea{width:100%;padding:10px 13px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:13px;font-family:var(--sans);color:var(--tx);outline:none;background:var(--line2)}
+.input-box input:focus,.input-box textarea:focus{border-color:var(--pri);background:#fff}
+.input-box textarea{resize:none;line-height:1.6}
+.quick-tags{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px}
+.quick-tags::-webkit-scrollbar{display:none}
+.qt{flex-shrink:0;padding:8px 14px;border-radius:var(--r-full);background:#fff;font-size:11px;font-weight:700;color:var(--tx2);cursor:pointer;box-shadow:var(--sh-s);transition:.15s;white-space:nowrap}
+.qt:hover{background:var(--pri-l);color:var(--pri-d)}
+.generate-btn{width:100%;padding:15px;background:var(--pri);color:#fff;border-radius:var(--r-md);font-size:14px;font-weight:700;cursor:pointer;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:6px}
+.generate-btn .mi{font-size:18px}
+
+/* 场景2：AI生成行程 */
+.ai-thinking{padding:14px 16px;display:flex;align-items:center;gap:10px}
+.ai-thinking .av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#12897C,#0C6B61);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-thinking .av .mi{font-size:18px;color:#fff}
+.ai-thinking .dots{display:flex;gap:4px}
+.ai-thinking .dots i{width:6px;height:6px;border-radius:50%;background:var(--pri);opacity:.3;animation:thinkBounce 1.2s infinite}
+.ai-thinking .dots i:nth-child(2){animation-delay:.2s}
+.ai-thinking .dots i:nth-child(3){animation-delay:.4s}
+@keyframes thinkBounce{0%,60%,100%{transform:translateY(0);opacity:.3}30%{transform:translateY(-6px);opacity:1}}
+.ai-thinking .t{font-size:12px;font-weight:700;color:var(--tx2)}
+
+.plan-card{margin:14px 16px;background:#fff;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-m)}
+.plan-h{padding:16px 18px;background:linear-gradient(135deg,#12897C,#0C6B61);color:#fff}
+.plan-k{font-size:9px;font-weight:800;letter-spacing:.12em;opacity:.85}
+.plan-t{font-size:18px;font-weight:800;margin-top:5px}
+.plan-d{font-size:11px;opacity:.85;margin-top:5px;font-weight:600}
+.plan-tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.plan-tag{padding:3px 8px;background:rgba(255,255,255,.2);border-radius:4px;font-size:9px;font-weight:700}
+
+.plan-body{padding:16px 18px}
+.plan-sec-t{font-size:12px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.plan-sec-t .mi{font-size:15px;color:var(--pri)}
+
+/* 行程时间轴 */
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-day{padding:10px 12px;background:var(--line2);border-radius:var(--r-sm);margin-bottom:8px}
+.tl-day-h{font-size:11px;font-weight:800;color:var(--pri-d);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.tl-item{display:flex;gap:10px;padding:6px 0}
+.tl-time{width:48px;flex-shrink:0;font-size:10.5px;font-weight:700;color:var(--tx3);padding-top:2px}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--pri);margin:4px 0 0 auto;border:2px solid var(--pri-l)}
+.tl-content{flex:1;font-size:11px;font-weight:600;color:var(--tx2);line-height:1.5}
+.tl-content b{color:var(--tx);font-weight:800}
+
+/* 预算明细 */
+.budget-box{margin-top:14px;padding:14px;background:var(--line2);border-radius:var(--r-md)}
+.budget-t{font-size:11px;font-weight:800;color:var(--tx3);margin-bottom:10px}
+.budget-row{display:flex;justify-content:space-between;font-size:11px;font-weight:600;padding:5px 0;color:var(--tx2)}
+.budget-row b{color:var(--tx)}
+.budget-divider{height:1px;background:var(--line);margin:6px 0}
+.budget-total{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:2px solid var(--line);margin-top:6px}
+.budget-total-l{font-size:12px;font-weight:800}
+.budget-total-v{font-size:20px;font-weight:800;color:var(--acc)}
+.budget-total-v small{font-size:11px;color:var(--tx3);font-weight:600}
+.budget-ok{font-size:9.5px;font-weight:700;color:var(--ok);margin-top:4px}
+
+/* 包含服务 */
+.inc-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.inc-list i{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;background:var(--pri-xl);border-radius:var(--r-sm);font-size:9.5px;color:var(--pri-d);font-style:normal;font-weight:700}
+.inc-list i .mi{font-size:13px}
+
+/* 操作区 */
+.plan-actions{display:flex;gap:10px;padding:14px 16px;border-top:1px solid var(--line)}
+.pa-btn{flex:1;padding:13px;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;border:none;transition:.15s}
+.pa-btn .mi{font-size:16px}
+.pa-btn-pri{background:var(--pri);color:#fff}
+.pa-btn-sec{background:var(--line2);color:var(--tx2)}
+
+/* 场景3：调整需求 */
+.adjust-area{padding:14px 16px}
+.adjust-input{display:flex;gap:8px;margin-bottom:14px}
+.adjust-input input{flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);font-size:13px;font-family:var(--sans);color:var(--tx);outline:none;background:#fff}
+.adjust-input input:focus{border-color:var(--pri)}
+.adjust-send{padding:12px 18px;background:var(--pri);color:#fff;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;flex-shrink:0}
+.adjust-send .mi{font-size:16px}
+.adjust-diff{padding:12px 14px;background:var(--acc-l);border-radius:var(--r-md);border-left:3px solid var(--acc);margin-bottom:14px}
+.adjust-diff-h{font-size:11px;font-weight:800;color:var(--acc);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.adjust-diff-h .mi{font-size:14px}
+.adjust-diff-text{font-size:11.5px;font-weight:600;color:var(--tx2);line-height:1.6}
+.adjust-diff-text b{color:var(--acc);font-weight:800}
+
+/* 场景4：选套餐下单 */
+.pkg-select{padding:14px 16px}
+.pkg-card{margin-bottom:12px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);overflow:hidden;cursor:pointer;border:2px solid transparent;transition:.15s}
+.pkg-card:hover{border-color:var(--pri)}
+.pkg-card.selected{border-color:var(--pri);background:var(--pri-xl)}
+.pkg-img{height:130px;position:relative;display:flex;align-items:center;justify-content:center}
+.pkg-img .mi{font-size:36px;color:rgba(255,255,255,.45);position:relative;z-index:2}
+.pkg-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.35))}
+.pkg-badge{position:absolute;top:10px;left:12px;z-index:3;padding:3px 9px;background:rgba(255,255,255,.92);border-radius:var(--r-full);font-size:8.5px;font-weight:800;color:var(--pri-d)}
+.pkg-body{padding:13px 15px}
+.pkg-n{font-size:13px;font-weight:800}
+.pkg-inc{font-size:10px;color:var(--tx3);margin-top:5px;font-weight:600}
+.pkg-row{display:flex;align-items:center;justify-content:space-between;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line)}
+.pkg-p{font-size:15px;font-weight:800;color:var(--acc)}
+.pkg-p small{font-size:9px;color:var(--tx3);font-weight:600}
+.pkg-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pkg-check.on{background:var(--pri);border-color:var(--pri)}
+.pkg-check.on .mi{font-size:14px;color:#fff}
+
+.order-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:375px;padding:12px 16px;background:#fff;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;z-index:50}
+.order-total{flex:1}
+.order-total-l{font-size:10px;color:var(--tx3);font-weight:600}
+.order-total-v{font-size:18px;font-weight:800;color:var(--acc)}
+.order-btn{padding:13px 24px;background:var(--pri);color:#fff;border-radius:var(--r-md);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
+.order-btn .mi{font-size:17px}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(27,46,44,.92);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;max-width:320px}
+.toast.show{opacity:1}
+/* AI悬浮球 + 底部Tab + 空状态 */
+.fab{position:fixed;bottom:85px;right:16px;width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 28px rgba(255,107,74,.45);border:3px solid rgba(255,255,255,.6);z-index:80;transition:.3s;animation:fabPulse 2.5s infinite}
+.fab .mi{font-size:30px;color:#fff}
+.fab::before{content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--acc);opacity:.4;animation:fabRing 2.5s infinite}
+@keyframes fabPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes fabRing{0%{transform:scale(1);opacity:.3}100%{transform:scale(1.4);opacity:0}}
+.fab.hide{transform:scale(0);opacity:0}
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:375px;display:flex;background:#fff;border-top:1px solid var(--line);padding:8px 0 10px;z-index:60}
+.tabbar .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:var(--tx3);font-weight:700;cursor:pointer}
+.tabbar .tab .mi{font-size:22px}
+.tabbar .tab.on{color:var(--pri)}
+.tabbar .tab.on span{font-weight:800}
+.empty{padding:50px 30px;text-align:center}
+.empty-ic{width:72px;height:72px;border-radius:50%;background:var(--line2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.empty-ic .mi{font-size:36px;color:var(--tx3)}
+.empty-t{font-size:16px;font-weight:800}
+.empty-d{font-size:12px;color:var(--tx2);margin-top:8px;font-weight:600;line-height:1.7}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+</style>
+</head>
+<body>
+<div class="app" data-theme="neutral">
+
+<!-- 场景Tab -->
+<div class="scene-tabs">
+  <div class="scene-tab on" onclick="loadScene('input')">输入需求</div>
+  <div class="scene-tab" onclick="loadScene('generate')">AI生成行程</div>
+  <div class="scene-tab" onclick="loadScene('adjust')">调整需求</div>
+  <div class="scene-tab" onclick="loadScene('order')">选套餐下单</div>
+</div>
+
+<!-- 场景1：输入需求 -->
+<div class="scene on" id="scene-input">
+  <div class="topbar"><div class="top-t">AI 行程规划器</div></div>
+  <div class="input-area">
+    <div class="input-h">说一句话，AI 帮你规划行程</div>
+    <div class="input-d">不需要搜索和对比，告诉 AI 你的想法，它帮你安排一切</div>
+    <div class="input-box">
+      <label>你的需求</label>
+      <textarea rows="3" placeholder="如：我想11月中旬去莫干山，3天2晚，带5岁孩子，预算5000，喜欢自然风光...">我想11月中旬去莫干山，3天2晚，带5岁孩子，预算5000，喜欢自然风光</textarea>
+    </div>
+    <label style="font-size:11px;font-weight:700;color:var(--tx3);margin-bottom:8px;display:block">快捷需求</label>
+    <div class="quick-tags">
+      <div class="qt" onclick="fillInput('周末两天海边放松')">周末两天海边</div>
+      <div class="qt" onclick="fillInput('3天2晚莫干山带娃')">莫干山带娃</div>
+      <div class="qt" onclick="fillInput('公司团建20人预算1万')">公司团建</div>
+      <div class="qt" onclick="fillInput('情侣周末城市度假')">情侣城市度假</div>
+      <div class="qt" onclick="fillInput('冬天温泉滑雪三日')">温泉滑雪</div>
+    </div>
+    <div class="generate-btn" onclick="loadScene('generate')"><span class="mi">autorenew</span>AI 生成行程方案</div>
+  </div>
+</div>
+
+<!-- 场景2：AI生成行程 -->
+<div class="scene" id="scene-generate">
+  <div class="topbar"><div class="top-t">AI 行程方案</div></div>
+  <div class="ai-thinking">
+    <div class="av"><span class="mi">auto_awesome</span></div>
+    <div class="dots"><i></i><i></i><i></i></div>
+    <div class="t">AI 正在分析需求并编排行程...</div>
+  </div>
+
+  <div class="plan-card">
+    <div class="plan-h">
+      <div class="plan-k">AI CUSTOMIZED ITINERARY</div>
+      <div class="plan-t">莫干山三日行程</div>
+      <div class="plan-d">3天2晚 · 2大1小（5岁）· 预算 ¥4,680</div>
+      <div class="plan-tags">
+        <div class="plan-tag">山林主题</div>
+        <div class="plan-tag">亲子适配</div>
+        <div class="plan-tag">天气晴好</div>
+        <div class="plan-tag">预算内</div>
+      </div>
+    </div>
+    <div class="plan-body">
+      <!-- 行程时间轴 -->
+      <div class="plan-sec-t"><span class="mi">timeline</span>行程安排</div>
+      <div class="timeline">
+        <div class="tl-day">
+          <div class="tl-day-h"><span class="mi">date_range</span>Day 1 · 11/15（周六）· 晴 16℃</div>
+          <div class="tl-item"><div class="tl-time">09:00</div><div class="tl-content"><b>专车接站</b> · 云栖谷 → 莫干山</div></div>
+          <div class="tl-item"><div class="tl-time">12:00</div><div class="tl-content"><b>山野午餐</b> · 竹里馆 · 已含儿童餐</div></div>
+          <div class="tl-item"><div class="tl-time">15:00</div><div class="tl-content"><b>溪谷徒步</b> · 向导随行 · 适合5岁+</div></div>
+          <div class="tl-item"><div class="tl-time">19:00</div><div class="tl-content"><b>星空围炉晚宴</b> · 需预约</div></div>
+          <div class="tl-item"><div class="tl-time">21:00</div><div class="tl-content"><b>入住云景·山居</b> · 云海大床房 + 儿童床</div></div>
+        </div>
+        <div class="tl-day">
+          <div class="tl-day-h"><span class="mi">date_range</span>Day 2 · 11/16（周日）· 多云 14℃</div>
+          <div class="tl-item"><div class="tl-time">08:00</div><div class="tl-content"><b>山景早餐</b> · 凭房号</div></div>
+          <div class="tl-item"><div class="tl-time">10:00</div><div class="tl-content"><b>竹海徒步</b> · 平缓步道 · 适合亲子</div></div>
+          <div class="tl-item"><div class="tl-time">12:30</div><div class="tl-content"><b>农家午餐</b> · 山野菜时令</div></div>
+          <div class="tl-item"><div class="tl-time">15:00</div><div class="tl-content"><b>非遗手作体验</b> · 徽墨描帖（儿童可参与）</div></div>
+          <div class="tl-item"><div class="tl-time">19:00</div><div class="tl-content"><b>山居私宴</b> · 私厨定制</div></div>
+        </div>
+        <div class="tl-day">
+          <div class="tl-day-h"><span class="mi">date_range</span>Day 3 · 11/17（周一）· 晴 12℃</div>
+          <div class="tl-item"><div class="tl-time">08:00</div><div class="tl-content"><b>早餐 + 退房</b> · 09:30前</div></div>
+          <div class="tl-item"><div class="tl-time">10:00</div><div class="tl-content"><b>观云台看云海</b> · 最佳观景时段</div></div>
+          <div class="tl-item"><div class="tl-time">12:00</div><div class="tl-content"><b>送站</b> · 专车</div></div>
+        </div>
+      </div>
+
+      <!-- 预算明细 -->
+      <div class="budget-box">
+        <div class="budget-t"><span class="mi" style="font-size:14px">account_balance_wallet</span> 预算明细</div>
+        <div class="budget-row"><span>住宿（云景·山居 2晚）</span><b>¥1,520</b></div>
+        <div class="budget-row"><span>餐饮（5餐）</span><b>¥1,350</b></div>
+        <div class="budget-row"><span>活动（徒步+手作）</span><b>¥980</b></div>
+        <div class="budget-row"><span>交通（包车）</span><b>¥830</b></div>
+        <div class="budget-divider"></div>
+        <div class="budget-total"><div class="budget-total-l">合计</div><div class="budget-total-v">¥4,680<small>/2大1小</small></div></div>
+        <div class="budget-ok"><span class="mi" style="font-size:12px">check_circle</span> 在预算 ¥5,000 以内，剩余 ¥320</div>
+      </div>
+
+      <!-- 包含服务 -->
+      <div class="plan-sec-t" style="margin-top:14px"><span class="mi">format_list_bulleted</span>包含服务</div>
+      <div class="inc-list">
+        <i><span class="mi">hotel</span>山居2晚</i><i><span class="mi">restaurant</span>5餐</i><i><span class="mi">hiking</span>徒步2次</i><i><span class="mi">brush</span>非遗手作</i><i><span class="mi">local_taxi</span>包车</i><i><span class="mi">support_agent</span>管家</i>
+      </div>
+    </div>
+    <div class="plan-actions">
+      <div class="pa-btn pa-btn-sec" onclick="loadScene('adjust')"><span class="mi">edit</span>调整需求</div>
+      <div class="pa-btn pa-btn-pri" onclick="loadScene('order')"><span class="mi">shopping_cart</span>选套餐预订</div>
+    </div>
+  </div>
+</div>
+
+<!-- 场景3：调整需求 -->
+<div class="scene" id="scene-adjust">
+  <div class="topbar"><div class="top-t">调整需求</div></div>
+  <div class="adjust-area">
+    <div class="adjust-input">
+      <input id="adjustInput" placeholder="如：想把徒步换成轻松点的，午餐换成海鲜...">
+      <div class="adjust-send" onclick="showToast('AI 正在重新编排行程...')"><span class="mi">send</span></div>
+    </div>
+
+    <div class="adjust-diff">
+      <div class="adjust-diff-h"><span class="mi">autorenew</span>AI 识别到调整需求</div>
+      <div class="adjust-diff-text">
+        原需求：<b>3天2晚 · 亲子 · 自然风光</b><br>
+        调整：<b>徒步换轻松活动</b> · <b>午餐换海鲜</b><br>
+        AI 判断：莫干山以山林为主，海鲜需从安吉调运，建议改为「溪边野餐」替代。徒步改为「观云台轻松散步」。
+      </div>
+    </div>
+
+    <div class="plan-card">
+      <div class="plan-h" style="background:linear-gradient(135deg,#6FA22E,#547C20)">
+        <div class="plan-k">AI CUSTOMIZED ITINERARY · UPDATED</div>
+        <div class="plan-t">莫干山三日行程（调整版）</div>
+        <div class="plan-d">3天2晚 · 2大1小 · 预算 ¥4,520</div>
+      </div>
+      <div class="plan-body">
+        <div class="plan-sec-t"><span class="mi">timeline</span>调整后的行程</div>
+        <div class="timeline">
+          <div class="tl-day">
+            <div class="tl-day-h"><span class="mi">date_range</span>Day 1 · 11/15（周六）</div>
+            <div class="tl-item"><div class="tl-time">09:00</div><div class="tl-content"><b>专车接站</b></div></div>
+            <div class="tl-item"><div class="tl-time">12:00</div><div class="tl-content"><b>溪边野餐</b> · <span style="color:var(--acc);font-weight:700">（替代山野午餐）</span></div></div>
+            <div class="tl-item"><div class="tl-time">15:00</div><div class="tl-content"><b>观云台散步</b> · <span style="color:var(--acc);font-weight:700">（替代溪谷徒步，更轻松）</span></div></div>
+            <div class="tl-item"><div class="tl-time">19:00</div><div class="tl-content"><b>星空围炉晚宴</b></div></div>
+            <div class="tl-item"><div class="tl-time">21:00</div><div class="tl-content"><b>入住云景·山居</b></div></div>
+          </div>
+          <div class="tl-day">
+            <div class="tl-day-h"><span class="mi">date_range</span>Day 2 · 11/16（周日）</div>
+            <div class="tl-item"><div class="tl-time">10:00</div><div class="tl-content"><b>竹海散步</b> · <span style="color:var(--acc);font-weight:700">（平缓步道）</span></div></div>
+            <div class="tl-item"><div class="tl-time">12:30</div><div class="tl-content"><b>农家午餐</b> · 山野菜</div></div>
+            <div class="tl-item"><div class="tl-time">15:00</div><div class="tl-content"><b>非遗手作</b></div></div>
+          </div>
+        </div>
+        <div class="budget-box" style="margin-top:14px">
+          <div class="budget-t">调整后预算</div>
+          <div class="budget-row"><span>住宿</span><b>¥1,520</b></div>
+          <div class="budget-row"><span>餐饮（溪边野餐替代）</span><b>¥1,200</b></div>
+          <div class="budget-row"><span>活动（散步替代徒步）</span><b>¥720</b></div>
+          <div class="budget-row"><span>交通</span><b>¥830</b></div>
+          <div class="budget-divider"></div>
+          <div class="budget-total"><div class="budget-total-l">合计</div><div class="budget-total-v">¥4,270<small>/2大1小</small></div></div>
+          <div class="budget-ok"><span class="mi" style="font-size:12px">check_circle</span> 预算降低 ¥410，更轻松</div>
+        </div>
+      </div>
+      <div class="plan-actions">
+        <div class="pa-btn pa-btn-sec" onclick="loadScene('input')"><span class="mi">edit</span>继续调整</div>
+        <div class="pa-btn pa-btn-pri" onclick="loadScene('order')"><span class="mi">shopping_cart</span>选套餐预订</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 场景4：选套餐下单 -->
+<div class="scene" id="scene-order">
+  <div class="topbar"><div class="top-t">选套餐预订</div></div>
+  <div class="pkg-select">
+    <div style="font-size:12px;font-weight:700;color:var(--tx3);margin-bottom:12px">AI 行程对应的套餐（点击选择）</div>
+
+    <div class="pkg-card selected" data-theme="forest" onclick="togglePkg(this)">
+      <div class="pkg-img g2"><span class="mi">filter_hdr</span><div class="pkg-badge"><i style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#12897C;margin-right:3px"></i>山林</div></div>
+      <div class="pkg-body">
+        <div class="pkg-n">莫干山云端两日（核心套餐）</div>
+        <div class="pkg-inc">住宿+4餐+溪谷徒步+围炉晚宴+接送</div>
+        <div class="pkg-row"><div class="pkg-p">¥1,680<small>/2大1小</small></div><div class="pkg-check on"><span class="mi">check</span></div></div>
+      </div>
+    </div>
+
+    <div class="pkg-card" data-theme="grassland" onclick="togglePkg(this)">
+      <div class="pkg-img g3"><span class="mi">park</span><div class="pkg-badge"><i style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#6FA22E;margin-right:3px"></i>草原</div></div>
+      <div class="pkg-body">
+        <div class="pkg-n">安吉竹海亲子三日（补充第3天）</div>
+        <div class="pkg-inc">住宿1晚+2餐+观云台+非遗手作+送站</div>
+        <div class="pkg-row"><div class="pkg-p">¥2,890<small>/2大1小</small></div><div class="pkg-check"><span class="mi">add</span></div></div>
+      </div>
+    </div>
+
+    <div class="pkg-card" data-theme="forest" onclick="togglePkg(this)">
+      <div class="pkg-img g4"><span class="mi">local_fire_department</span><div class="pkg-badge"><i style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#12897C;margin-right:3px"></i>山林</div></div>
+      <div class="pkg-body">
+        <div class="pkg-n">星空围炉晚宴（加购）</div>
+        <div class="pkg-inc">竹里馆 · 8道菜+桂花酒 · 需预约</div>
+        <div class="pkg-row"><div class="pkg-p">+¥460<small>/2大1小</small></div><div class="pkg-check"><span class="mi">add</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:0 16px 80px">
+    <div style="padding:12px;background:var(--pri-l);border-radius:var(--r-md);font-size:11px;font-weight:600;color:var(--pri-d);line-height:1.7">
+      💡 <b>AI 提示</b>：已选「莫干山云端两日」为核心套餐，建议加购「安吉竹海亲子三日」补全第3天行程。如不需要第3天，可取消选择。
+    </div>
+  </div>
+
+  <div class="order-bar">
+    <div class="order-total">
+      <div class="order-total-l">已选 1 个套餐</div>
+      <div class="order-total-v">¥1,680</div>
+    </div>
+    <div class="order-btn" onclick="showToast('跳转填写订单页 → 支付 → 获取凭证')"><span class="mi">shopping_cart</span>去预订</div>
+  </div>
+
+  <!-- AI悬浮球 -->
+  <div class="fab" onclick="showToast('唤起AI管家')"><span class="mi">auto_awesome</span></div>
+
+  <!-- 底部Tab -->
+  <div class="tabbar">
+    <div class="tab" onclick="showToast('返回发现')"><span class="mi">explore</span><span>发现</span></div>
+    <div class="tab" onclick="showToast('进入行程')"><span class="mi">timeline</span><span>行程</span></div>
+    <div class="tab" onclick="showToast('进入企业')"><span class="mi">business_center</span><span>企业</span></div>
+    <div class="tab" onclick="showToast('进入我的')"><span class="mi">person_outline</span><span>我的</span></div>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+<script>
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2400)}
+function loadScene(scene){
+  document.querySelectorAll('.scene-tab').forEach(function(t){t.classList.remove('on')});
+  event.currentTarget.classList.add('on');
+  document.querySelectorAll('.scene').forEach(function(s){s.classList.remove('on')});
+  document.getElementById('scene-'+scene).classList.add('on');
+}
+function fillInput(v){document.querySelector('textarea').value=v}
+function togglePkg(el){
+  el.classList.toggle('selected');
+  var check=el.querySelector('.pkg-check');
+  if(el.classList.contains('selected')){
+    check.classList.add('on');
+    check.innerHTML='<span class="mi">check</span>';
+    var total=1680;
+    document.querySelectorAll('.pkg-card.selected').forEach(function(c,i){if(i>0){var p=c.querySelector('.pkg-p').textContent;total+=parseInt(p.replace(/[^\d]/g,''))}});
+    document.querySelector('.order-total-l').textContent='已选 '+document.querySelectorAll('.pkg-card.selected').length+' 个套餐';
+    document.querySelector('.order-total-v').textContent='¥'+total;
+  }else{
+    check.classList.remove('on');
+    check.innerHTML='<span class="mi">add</span>';
+  }
+}
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+</body>
+</html>

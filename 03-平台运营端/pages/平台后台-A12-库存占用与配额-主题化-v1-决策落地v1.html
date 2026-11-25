@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>云栖度假 · 平台后台 · 库存占用与配额（A8）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{--bg:#F3F5F7;--card:#fff;--tx:#1A2138;--tx2:#5B6477;--tx3:#9BA3B5;--line:#E5E9EF;--line2:#F0F3F7;--pri:#2B5FE0;--pri-d:#1E48B8;--pri-l:#EEF2FE;--pri-xl:#F6F8FE;--ok:#16A34A;--ok-l:#ECFDF5;--warn:#D97706;--warn-l:#FFF7ED;--err:#DC2626;--err-l:#FEF2F2;--r-sm:6px;--r-md:10px;--r-lg:14px;--sh:0 1px 3px rgba(26,33,56,.06),0 1px 2px rgba(26,33,56,.04);--sh-m:0 4px 14px rgba(26,33,56,.08);--sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif}
+[data-theme="ocean"]{--vt:#0E86C4;--vt-l:#E3F1FA}
+[data-theme="forest"]{--vt:#12897C;--vt-l:#E4F2F0}
+[data-theme="heritage"]{--vt:#8A5A3B;--vt-l:#F4EAE2}
+[data-theme="grassland"]{--vt:#6FA22E;--vt-l:#EDF5E1}
+[data-theme="snow"]{--vt:#4C7FA8;--vt-l:#E8F1F8}
+[data-theme="city"]{--vt:#5A5BD0;--vt-l:#ECECFB}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+.mi{font-family:'Material Icons'}
+.side{background:#1A2138;color:#C5CCDE;padding:20px 14px;display:flex;flex-direction:column;gap:3px}
+.brand{display:flex;align-items:center;gap:8px;padding:6px 10px 22px;color:#fff;font-weight:800;font-size:15px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px}
+.brand .mi{font-size:20px;color:#4E7FEF}.brand small{font-size:9px;font-weight:600;letter-spacing:.1em;color:#6C7690;margin-left:4px}
+.nav{font-size:10.5px;font-weight:700;letter-spacing:.08em;color:#6C7690;padding:14px 10px 6px}
+.sit{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+.sit .mi{font-size:18px;color:#8993A8}.sit:hover{background:rgba(255,255,255,.05);color:#fff}
+.sit.on{background:linear-gradient(90deg,#2B5FE0,rgba(43,95,224,.3));color:#fff}.sit.on .mi{color:#fff}
+.sit b{margin-left:auto;padding:1px 6px;background:var(--warn);color:#fff;font-size:9px;border-radius:8px;font-weight:700}
+.sfoot{margin-top:auto;padding:12px 10px 0;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:#8993A8;display:flex;align-items:center;gap:8px}
+.sfoot-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4E7FEF,#2B5FE0);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px}
+.main{display:flex;flex-direction:column;min-width:0}
+.top{height:62px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.bread{font-size:12.5px;color:var(--tx3);font-weight:600;display:flex;align-items:center;gap:6px}.bread .mi{font-size:14px}.bread b{color:var(--tx);font-weight:800}
+.top-r{display:flex;align-items:center;gap:14px;margin-left:auto}.top-ic{position:relative;cursor:pointer}.top-ic .mi{font-size:20px;color:var(--tx2)}
+.top-ic b{position:absolute;top:-4px;right:-6px;padding:0 5px;background:var(--err);color:#fff;font-size:9px;border-radius:8px;font-weight:800}
+.page{padding:24px 28px 40px;max-width:1520px;width:100%}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:14px}
+.pt{font-size:22px;font-weight:800;letter-spacing:-.015em}.ps{font-size:12px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.6}
+.ph-r{display:flex;gap:10px;align-items:center}
+.btn{padding:9px 17px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;transition:.15s;font-family:var(--sans)}
+.btn .mi{font-size:16px}.btn-pri{background:var(--pri);color:#fff;box-shadow:var(--sh)}.btn-pri:hover{background:var(--pri-d)}
+.btn-sec{background:#fff;color:var(--tx2);border-color:var(--line)}.btn-sec:hover{border-color:var(--pri);color:var(--pri-d)}
+.btn-ok{background:var(--ok);color:#fff}.btn-warn{background:var(--warn);color:#fff}
+.rulebar{display:flex;align-items:center;gap:8px;padding:11px 15px;background:var(--pri-l);border:1px solid #D6E2FC;border-radius:var(--r-md);font-size:11.5px;color:var(--pri-d);font-weight:700;margin-bottom:18px;line-height:1.7}
+.rulebar .mi{font-size:17px}.rulebar b{font-weight:800}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.kpi{background:#fff;border-radius:var(--r-lg);padding:18px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,var(--pri-l),transparent 70%);opacity:.6}
+.kpi-l{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:.04em;display:flex;align-items:center;gap:6px}.kpi-l .mi{font-size:14px;color:var(--pri)}
+.kpi-v{font-size:28px;font-weight:800;letter-spacing:-.025em;margin-top:10px;line-height:1}.kpi-v small{font-size:13px;font-weight:700;color:var(--tx3)}
+.kpi-d{font-size:10.5px;color:var(--tx3);margin-top:9px;font-weight:600}
+.kpi.warn .kpi-v{color:var(--warn)}.kpi.err .kpi-v{color:var(--err)}.kpi.ok .kpi-v{color:var(--ok)}
+.layout{display:grid;grid-template-columns:1fr 340px;gap:18px}
+.panel{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden}
+.panel-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:#FAFBFD}
+.panel-t{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:7px}.panel-t .mi{font-size:17px;color:var(--pri)}
+.panel-t small{font-size:10px;color:var(--tx3);font-weight:600;margin-left:4px}
+.panel-b{padding:16px 18px}
+.modes{display:flex;gap:7px;flex-wrap:wrap}
+.mode{padding:8px 14px;border:1.5px solid var(--line);border-radius:8px;font-size:11.5px;font-weight:800;color:var(--tx2);cursor:pointer;transition:.16s;display:flex;align-items:center;gap:5px}
+.mode .mi{font-size:15px}.mode:hover{border-color:var(--pri)}
+.mode.on{background:var(--pri-l);border-color:var(--pri);color:var(--pri-d)}
+.rec-tag{font-size:9px;background:var(--ok);color:#fff;padding:1px 5px;border-radius:6px;font-weight:800}
+.selects{display:flex;gap:10px;align-items:center;margin:14px 0 12px;flex-wrap:wrap}
+select{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--tx);border:1px solid var(--line);background:#fff;border-radius:7px;padding:8px 11px;outline:none;cursor:pointer}
+select:focus{border-color:var(--pri)}
+.dates{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px}.dates::-webkit-scrollbar{display:none}
+.date{flex:1;min-width:72px;padding:9px 4px;text-align:center;border:1.5px solid var(--line);border-radius:8px;cursor:pointer;background:#fff;transition:.16s}
+.date:hover{border-color:var(--pri)}.date.on{border-color:var(--pri);background:var(--pri-l)}
+.date.conflict{border-color:var(--err);background:var(--err-l)}.date.conflict.on{box-shadow:0 0 0 2px rgba(220,38,38,.18)}
+.date-w{font-size:9px;color:var(--tx3);font-weight:700}.date-d{font-size:13px;font-weight:800;margin-top:2px}
+.date-s{font-size:9px;font-weight:800;margin-top:3px;color:var(--ok)}.date-s.warn{color:var(--warn)}.date-s.err{color:var(--err)}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+th{text-align:left;padding:10px 8px;background:var(--line2);color:var(--tx3);font-weight:800;font-size:10px;letter-spacing:.04em;white-space:nowrap}
+td{padding:11px 8px;border-bottom:1px solid var(--line2);font-weight:600;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:9.5px;font-weight:800;white-space:nowrap}
+.tag .dot{width:7px;height:7px;border-radius:50%;background:var(--vt,var(--tx3))}
+.tag.ok{background:var(--ok-l);color:var(--ok)}.tag.warn{background:var(--warn-l);color:var(--warn)}.tag.err{background:var(--err-l);color:var(--err)}.tag.pri{background:var(--pri-l);color:var(--pri-d)}
+.bar{height:5px;background:var(--line2);border-radius:3px;overflow:hidden;width:88px}.bar i{display:block;height:100%;border-radius:3px;background:var(--vt,var(--pri))}
+.num{font-weight:800;font-variant-numeric:tabular-nums}
+.conflict-card{background:var(--err-l);border:1px solid #FECACA;border-radius:var(--r-md);padding:14px;margin-bottom:14px}
+.cc-t{font-size:12px;font-weight:800;color:var(--err);display:flex;align-items:center;gap:6px}.cc-t .mi{font-size:16px}
+.cc-b{font-size:10.5px;color:var(--tx2);line-height:1.8;margin-top:8px;font-weight:600}.cc-b b{color:var(--err)}
+.quota-row{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--line2)}
+.quota-row:last-child{border-bottom:none}.q-name{flex:1;font-size:11px;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q-in{width:58px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-weight:800;text-align:center;font-family:var(--sans);outline:none}
+.q-in:focus{border-color:var(--pri)}
+.q-sum{display:flex;align-items:center;justify-content:space-between;padding:12px 0 6px;font-size:11.5px;font-weight:800}
+.q-sum .over{color:var(--err)}.q-sum .fit{color:var(--ok)}
+.link-chain{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.lc{padding:5px 9px;background:var(--line2);border-radius:6px;font-size:9.5px;color:var(--tx2);font-weight:700;display:flex;align-items:center;gap:4px}.lc .mi{font-size:13px;color:var(--pri)}
+.note{font-size:10.5px;color:var(--tx3);line-height:1.85;margin-top:12px;font-weight:600;padding-top:12px;border-top:1px dashed var(--line)}
+.note b{color:var(--tx2)}
+.toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,20px);background:#1A2138;color:#fff;padding:11px 20px;border-radius:9px;font-size:12px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:99;box-shadow:0 8px 26px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* decision v3 - confirmed rules strip */
+.dstrip{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;margin-bottom:14px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;font-size:10.5px;color:#14532D;font-weight:700;line-height:1.85}
+.dstrip>.mi{font-size:18px;flex-shrink:0;color:#15803D}
+.dstrip b{color:#166534}
+.dstrip .dstrip-t{font-size:11px;font-weight:800;letter-spacing:.02em}
+.dstrip .dstrip-x{color:#166534;font-weight:600}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="mi">travel_explore</span>云栖度假<small>PLATFORM</small></div>
+    <div class="nav">经营</div>
+    <div class="sit"><span class="mi">dashboard</span>数据看板</div>
+    <div class="sit"><span class="mi">inventory_2</span>套餐组货工具</div>
+    <div class="sit"><span class="mi">verified_user</span>商家审核</div>
+    <div class="sit"><span class="mi">article</span>内容与首页 CMS</div>
+    <div class="nav">履约与资金</div>
+    <div class="sit"><span class="mi">gavel</span>订单仲裁</div>
+    <div class="sit on"><span class="mi">grid_view</span>库存占用与配额<b>1</b></div>
+    <div class="sit"><span class="mi">receipt_long</span>退款资金对账</div>
+    <div class="sit"><span class="mi">payments</span>分账权限配置</div>
+    <div class="sit"><span class="mi">local_activity</span>营销中心</div>
+    <div class="sit"><span class="mi">card_giftcard</span>企业采购与礼品卡</div>
+    <div class="nav">系统</div>
+    <div class="sit"><span class="mi">palette</span>主题库维护</div>
+    <div class="sfoot"><div class="sfoot-av">尹</div>尹凯 · 平台运营</div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="bread"><span class="mi">home</span> 平台后台 <span class="mi">chevron_right</span> <b>库存占用与配额</b></div>
+      <div class="top-r"><div class="top-ic"><span class="mi">notifications</span><b>1</b></div><div class="top-ic"><span class="mi">help_outline</span></div></div>
+    </div>
+
+    <div class="page">
+      <!-- DECISION_V3_APPLIED -->
+<div class="dstrip"><span class="mi">gavel</span><div><div class="dstrip-t">决策 1 已拍板 · 库存跨套餐共享策略</div><div class="dstrip-x"><b>共享池唯一硬约束 + 软配额仅预警</b>。下单扣共享池，不扣套餐配额；Σ配额 7 &gt; 池 6 只告警不阻断，池售罄后全套餐同时下架，从根上消除超卖。另两种模式保留作对比，生产禁用。</div></div></div>
+
+      <div class="ph">
+        <div><div class="pt">库存占用与配额</div><div class="ps">资源项 × 套餐 × 日期的唯一真相视图 · 补断点 1 · 决策 1 已拍板</div></div>
+        <div class="ph-r">
+          <button class="btn btn-sec" onclick="toast('已导出 10-16 ~ 10-22 占用明细')"><span class="mi">download</span>导出明细</button>
+          <button class="btn btn-pri" onclick="saveQuota()"><span class="mi">save</span>保存配额</button>
+        </div>
+      </div>
+
+      <div class="rulebar"><span class="mi">gavel</span><span id="ruleText">✅ 已拍板（决策 1）：<b>共享池是唯一硬约束，套餐配额为软配额</b>，只用于曝光排序与预警；下单统一扣共享池，Σ配额 &gt; 池容量时只告警不阻断。卖满池容量后引用该资源项的所有套餐同时售罄，<b>不会超卖、不会到店无房</b>；若仍发生履约异常，由平台兜底改期 / 升级房型，写入 A5 仲裁与 A1 异常看板。</span></div>
+
+      <div class="kpis" id="kpis"></div>
+
+      <div class="layout">
+        <div>
+          <div class="panel" style="margin-bottom:18px">
+            <div class="panel-h"><div class="panel-t"><span class="mi">tune</span>库存共享策略<small>切换后全表实时重算 · 演示用</small></div><span class="tag ok">决策 1 · 已拍板</span></div>
+            <div class="panel-b">
+              <div class="modes" id="modes"></div>
+              <div class="selects">
+                <select id="resSel"></select>
+                <span style="font-size:10.5px;color:var(--tx3);font-weight:700" id="resMeta"></span>
+              </div>
+              <div class="dates" id="dates"></div>
+              <table>
+                <thead><tr><th>引用套餐</th><th>主题</th><th>软配额</th><th>本日已售</th><th>占用进度</th><th>可售（按当前模式）</th><th>状态</th></tr></thead>
+                <tbody id="tbody"></tbody>
+              </table>
+              <div class="note" id="modeNote"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-h"><div class="panel-t"><span class="mi">show_chart</span>近 7 日共享池水位<small>occupied / total</small></div><span class="tag ok">来自 M2 商家库存日历</span></div>
+            <div class="panel-b"><table>
+              <thead><tr><th>日期</th><th>真实库存</th><th>已占用</th><th>剩余</th><th>水位</th><th>安全阈值</th></tr></thead>
+              <tbody id="weekBody"></tbody>
+            </table></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel" style="margin-bottom:18px">
+            <div class="panel-h"><div class="panel-t"><span class="mi">warning</span>冲突详情</div><span class="tag err" id="conflictTag">需处理</span></div>
+            <div class="panel-b">
+              <div class="conflict-card">
+                <div class="cc-t"><span class="mi">error</span><span id="ccTitle">10-18 配额合计超出真实库存 1 间</span></div>
+                <div class="cc-b" id="ccBody"></div>
+              </div>
+              <div style="font-size:10.5px;font-weight:800;color:var(--tx2);margin:4px 0 2px;display:flex;align-items:center;gap:5px"><span class="mi" style="font-size:15px;color:var(--pri)">tune</span>调整软配额（仅影响曝光，不改变可售）</div>
+              <div id="quotaRows"></div>
+              <div class="q-sum"><span>合计 <span id="qTotal">7</span> / 池 <span id="qPool">6</span></span><span id="qVerdict" class="over">超出 1 间</span></div>
+              <button class="btn btn-pri" style="width:100%;justify-content:center;margin-top:8px" onclick="saveQuota()"><span class="mi">check</span>保存为软配额</button>
+              <button class="btn btn-sec" style="width:100%;justify-content:center;margin-top:8px" onclick="priority()"><span class="mi">military_tech</span>按客单价优先保障</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-h"><div class="panel-t"><span class="mi">hub</span>联动链路</div></div>
+            <div class="panel-b">
+              <div class="link-chain">
+                <span class="lc"><span class="mi">storefront</span>M2 共享池</span>
+                <span class="lc"><span class="mi">inventory_2</span>A2 组货参考</span>
+                <span class="lc"><span class="mi">calendar_month</span>P4 价格日历</span>
+                <span class="lc"><span class="mi">notifications</span>平台端超卖告警</span>
+                <span class="lc"><span class="mi">monitoring</span>A1 库存利用率</span>
+              </div>
+              <div class="note"><b>为什么必须有这张表：</b>一个资源项被多个套餐引用时，单页都显示「可售」，但没人知道共享池还剩多少。此前通知中心只能写「预留配额相加，必然超卖，人工调」。本页把它变成可查、可调、可归因的一张表。<br><br><b>商家侧边界：</b>商家只能改自己资源项的 <b>共享池总量</b>，不能改套餐软配额（权限规范 §3.2）。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const RES={
+ 'RI-0031':{name:'海景石屋大床房',merchant:'B-0031 · 海隅·石屋',total:6,threshold:2,
+  occupied:[3,4,5,6,4,3,2],dates:['10-16','10-17','10-18','10-19','10-20','10-21','10-22'],
+  pkgs:[{id:'PKG-001',name:'东极岛听海两日',theme:'ocean',quota:3,sold:[1,2,2,2,1,1,1],price:158000},
+        {id:'PKG-002',name:'嵊泗亲子三日',theme:'ocean',quota:2,sold:[1,1,2,2,1,1,0],price:218000},
+        {id:'PKG-003',name:'普陀山静修两日',theme:'heritage',quota:2,sold:[1,1,1,2,2,1,1],price:188000}]},
+ 'RI-0032':{name:'云海大床房',merchant:'B-0032 · 栖云山房',total:8,threshold:2,
+  occupied:[4,5,6,7,5,4,3],dates:['10-16','10-17','10-18','10-19','10-20','10-21','10-22'],
+  pkgs:[{id:'PKG-004',name:'莫干山云端两日',theme:'forest',quota:4,sold:[2,2,2,3,2,1,1],price:168000},
+        {id:'PKG-005',name:'安吉竹海亲子三日',theme:'forest',quota:3,sold:[1,2,2,2,1,2,1],price:228000},
+        {id:'PKG-006',name:'团建包场一日',theme:'city',quota:2,sold:[1,1,2,2,2,1,1],price:98000}]},
+ 'RI-0033':{name:'星空围炉晚宴',merchant:'B-0032 · 竹里馆',total:12,threshold:2,
+  occupied:[7,8,9,11,8,6,5],dates:['10-16','10-17','10-18','10-19','10-20','10-21','10-22'],
+  pkgs:[{id:'PKG-004',name:'莫干山云端两日',theme:'forest',quota:6,sold:[4,4,5,6,4,3,2],price:168000},
+        {id:'PKG-007',name:'莫干山围炉夜话两日',theme:'heritage',quota:4,sold:[2,3,3,3,2,2,2],price:198000},
+        {id:'PKG-008',name:'山谷跨年包场',theme:'snow',quota:3,sold:[1,1,1,2,2,1,1],price:328000}]}
+};
+const MODES=[
+ {k:'SHARED',n:'共享池 + 软配额',ic:'hub',rec:true,note:'✅ 决策 1 已拍板。<b>共享池 = 唯一硬约束</b>；套餐配额仅用于曝光排序与预警，Σ配额超出池容量时只提示、不阻断。卖满 6 单后三个套餐同时售罄，不会出现「A 卖完 B 还有房」；其余两种模式仅作对比，不进生产。'},
+ {k:'HARD',n:'每套餐硬预留',ic:'lock',rec:false,note:'每个套餐有独立可售上限，互不互通。好处是组货时预期确定，代价是<b>库存切片浪费</b>：某套餐没卖完，剩下的房也不能给别的套餐用，还需要额外定义「配额回收时点」。'},
+ {k:'FCFS',n:'纯先到先得',ic:'bolt',rec:false,note:'最简单，完全取消配额，所有套餐抢同一池子。代价是高客单套餐可能被低价单挤空，且 A2 组货时运营拿不到任何可售预期。'}
+];
+const RULE_TEXT={
+ SHARED:'✅ 已拍板（决策 1）：<b>共享池是唯一硬约束，套餐配额为软配额</b>，只用于曝光排序与预警；下单统一扣共享池，Σ配额 &gt; 池容量时只告警不阻断。卖满后全套餐同时售罄，不超卖。',
+ HARD:'当前口径（备选）：<b>每套餐硬预留配额</b>，可售 = 该套餐配额 − 已售；未用完的配额不回流共享池，会产生库存浪费。',
+ FCFS:'当前口径（备选）：<b>纯先到先得</b>，取消套餐配额，全部订单抢同一共享池；高客单套餐无优先级保障。'
+};
+let mode='SHARED',dateIdx=2,resKey='RI-0031';
+const $=id=>document.getElementById(id);
+function toast(t){const e=$('toast');e.textContent=t;e.className='toast show';clearTimeout(window._t);window._t=setTimeout(()=>e.className='toast',2600)}
+function cur(){return RES[resKey]}
+function sumQuota(){return cur().pkgs.reduce((s,p)=>s+p.quota,0)}
+function left(){const r=cur();return Math.max(0,r.total-r.occupied[dateIdx])}
+function initSel(){
+  $('resSel').innerHTML=Object.keys(RES).map(k=>`<option value="${k}">${RES[k].name} · ${RES[k].merchant}</option>`).join('');
+  $('resSel').value=resKey;
+}
+function renderModes(){
+  $('modes').innerHTML=MODES.map(m=>`<div class="mode ${m.k===mode?'on':''}" onclick="setMode('${m.k}')"><span class="mi">${m.ic}</span>${m.n}${m.rec?'<span class="rec-tag">推荐</span>':''}</div>`).join('');
+  $('ruleText').innerHTML=RULE_TEXT[mode];
+  $('modeNote').innerHTML=MODES.find(m=>m.k===mode).note;
+}
+function setMode(k){mode=k;renderModes();render();toast('已切换为「'+MODES.find(m=>m.k===k).n+'」口径，全表重算')}
+function renderDates(){
+  const r=cur(),sq=sumQuota();
+  $('dates').innerHTML=r.dates.map((d,i)=>{
+    const l=Math.max(0,r.total-r.occupied[i]),conf=sq>r.total&&r.occupied[i]>=r.total-1;
+    const cls=(i===dateIdx?'on ':'')+(conf?'conflict':'');
+    const st=l===0?'售罄':(l<=r.threshold?'紧张':'充足');
+    return `<div class="date ${cls}" onclick="setDate(${i})"><div class="date-w">10月</div><div class="date-d">${d}</div><div class="date-s ${l===0?'err':(l<=r.threshold?'warn':'')}">剩 ${l}</div></div>`;
+  }).join('');
+}
+function setDate(i){dateIdx=i;render()}
+function sellable(p){
+  const r=cur(),l=left();
+  if(mode==='HARD')return Math.max(0,p.quota-p.sold[dateIdx]);
+  return l;
+}
+function renderBody(){
+  const r=cur(),l=left(),sq=sumQuota();
+  $('tbody').innerHTML=r.pkgs.map(p=>{
+    const s=sellable(p),sold=p.sold[dateIdx];
+    let tag='<span class="tag ok">可售</span>';
+    if(s===0)tag='<span class="tag err">售罄</span>';
+    else if(s<=r.threshold)tag='<span class="tag warn">紧张</span>';
+    if(mode==='HARD'&&p.quota<p.sold[dateIdx])tag='<span class="tag err">超配额</span>';
+    return `<tr data-theme="${p.theme}">
+      <td><div style="font-weight:800">${p.name}</div><div style="font-size:9.5px;color:var(--tx3);margin-top:2px">${p.id}</div></td>
+      <td><span class="tag" style="background:var(--vt-l);color:var(--vt)"><i class="dot"></i>${p.theme}</span></td>
+      <td><span class="num" style="color:${mode==='FCFS'?'var(--tx3)':'var(--tx)'}">${mode==='FCFS'?'—':p.quota}</span><span style="font-size:9px;color:var(--tx3);margin-left:3px">${mode==='HARD'?'硬':'软'}</span></td>
+      <td class="num">${sold}</td>
+      <td><div class="bar"><i style="width:${Math.min(100,p.quota?p.sold[dateIdx]/p.quota*100:0)}%"></i></div></td>
+      <td class="num" style="color:${s<=r.threshold?'var(--warn)':'var(--ok)'}">${s}</td>
+      <td>${tag}</td></tr>`;
+  }).join('');
+  $('resMeta').textContent=`真实库存 ${r.total} · 安全阈值 ${r.threshold} · 配额合计 ${sq} · 本日已占用 ${r.occupied[dateIdx]}`;
+}
+function renderWeek(){
+  const r=cur();
+  $('weekBody').innerHTML=r.dates.map((d,i)=>{
+    const o=r.occupied[i],l=Math.max(0,r.total-o),pct=Math.round(o/r.total*100);
+    return `<tr><td class="num">10-${d}</td><td class="num">${r.total}</td><td class="num">${o}</td><td class="num" style="color:${l<=r.threshold?'var(--warn)':'var(--ok)'}">${l}</td><td><div class="bar" style="width:120px"><i style="width:${pct}%;background:${pct>=100?'var(--err)':(pct>=75?'var(--warn)':'var(--pri)')}"></i></div></td><td>${r.threshold}</td></tr>`;
+  }).join('');
+}
+function renderKpis(){
+  const r=cur(),l=left(),sq=sumQuota(),over=sq-r.total;
+  $('kpis').innerHTML=[
+    {l:'真实库存（共享池）',v:r.total,s:'间 / 日 · 商家 M2 维护',ic:'inventory_2'},
+    {l:'本日已占用',v:r.occupied[dateIdx],s:`10-${r.dates[dateIdx]} · 剩余 ${l} 间`,ic:'event_available'},
+    {l:'配额合计',v:sq,s:`${r.pkgs.length} 个套餐 · 软配额`,ic:'layers',c:over>0?'warn':''},
+    {l:'可售（当前口径）',v:l,s:mode==='HARD'?'按各套餐硬配额':(mode==='FCFS'?'纯先到先得':'统一扣共享池'),ic:'shopping_cart',c:l===0?'err':'ok'}
+  ].map(k=>`<div class="kpi ${k.c||''}"><div class="kpi-l"><span class="mi">${k.ic}</span>${k.l}</div><div class="kpi-v">${k.v}<small> 间</small></div><div class="kpi-d">${k.s}</div></div>`).join('');
+}
+function renderConflict(){
+  const r=cur(),sq=sumQuota(),over=sq-r.total,l=left();
+  const bad=sq>r.total;
+  $('conflictTag').className='tag '+(bad?'err':'ok');
+  $('conflictTag').textContent=bad?'需处理':'无冲突';
+  $('ccTitle').textContent=bad?`10-${r.dates[dateIdx]} 配额合计超出真实库存 ${over} 间`:'配额合计未超出真实库存';
+  $('ccBody').innerHTML=bad
+    ? `资源项 <b>${r.name}</b>（${r.merchant}）每日真实库存 <b>${r.total} 间</b>，被 ${r.pkgs.length} 个套餐累计预留 <b>${sq} 间</b>。<br><br>在「共享池 + 软配额」口径下，这<b>不会导致超卖</b>：下单统一扣共享池，卖满 ${r.total} 单后所有套餐同时售罄。当前告警只提示「曝光预期偏高」，建议下调软配额或通知商家扩容。<br><br>本日剩余 <b>${l} 间</b>。`
+    : `当前配额合计 ${sq} ≤ 真实库存 ${r.total}，配置合理。本日剩余 ${l} 间。`;
+  $('quotaRows').innerHTML=r.pkgs.map((p,i)=>`<div class="quota-row" data-theme="${p.theme}"><i style="width:8px;height:8px;border-radius:50%;background:var(--vt);flex-shrink:0"></i><div class="q-name">${p.name}</div><input class="q-in" type="number" min="0" max="20" value="${p.quota}" id="q${i}" oninput="onQuota()"></div>`).join('');
+  $('qTotal').textContent=sq;$('qPool').textContent=r.total;
+  const v=$('qVerdict');v.textContent=bad?`超出 ${over} 间（仅告警）`:'配额合理';v.className=bad?'over':'fit';
+}
+function onQuota(){
+  const r=cur();let sum=0;
+  r.pkgs.forEach((p,i)=>{const el=$('q'+i);if(el)p.quota=Math.max(0,parseInt(el.value||'0',10)),sum+=p.quota});
+  $('qTotal').textContent=sum;$('qPool').textContent=r.total;
+  const over=sum-r.total,v=$('qVerdict');
+  v.textContent=over>0?`超出 ${over} 间（仅告警）`:'配额合理';v.className=over>0?'over':'fit';
+  $('ccTitle').textContent=over>0?`配额合计超出真实库存 ${over} 间`:'配额合计未超出真实库存';
+  renderModes();renderKpis();renderBody();renderDates();
+}
+function saveQuota(){
+  const r=cur(),sq=sumQuota();
+  toast(`已保存 ${r.pkgs.length} 个套餐的软配额（合计 ${sq}）· 仅影响曝光与预警，不改变可售库存`);
+}
+function priority(){
+  const r=cur(),sorted=[...r.pkgs].sort((a,b)=>b.price-a.price);
+  toast('按客单价优先保障：'+sorted.map(p=>p.name).join(' > ')+' · 库存不足时低优先级套餐先置售罄');
+}
+function render(){renderKpis();renderDates();renderBody();renderWeek();renderConflict()}
+initSel();
+$('resSel').addEventListener('change',e=>{resKey=e.target.value;dateIdx=2;render()});
+renderModes();render();
+</script>
+</body>
+</html>

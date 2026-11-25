@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>云栖度假 · 平台后台 · 营销中心（A6）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F7; --card:#fff; --tx:#1A2138; --tx2:#5B6477; --tx3:#9BA3B5;
+  --line:#E5E9EF; --line2:#F0F3F7;
+  --pri:#2B5FE0; --pri-d:#1E48B8; --pri-l:#EEF2FE; --pri-xl:#F6F8FE;
+  --ok:#16A34A; --ok-l:#ECFDF5;
+  --warn:#D97706; --warn-l:#FFF7ED;
+  --err:#DC2626; --err-l:#FEF2F2;
+  --pink:#EC4899; --pink-l:#FDF2F8;
+  --purple:#8B5CF6; --purple-l:#F5F3FF;
+  --r-sm:6px; --r-md:10px; --r-lg:14px;
+  --sh:0 1px 3px rgba(26,33,56,.06),0 1px 2px rgba(26,33,56,.04);
+  --sh-m:0 4px 14px rgba(26,33,56,.08);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+
+.side{background:#1A2138;color:#C5CCDE;padding:20px 14px;display:flex;flex-direction:column;gap:3px}
+.brand{display:flex;align-items:center;gap:8px;padding:6px 10px 22px;color:#fff;font-weight:800;font-size:15px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px}
+.brand .mi{font-size:20px;color:#4E7FEF}
+.brand small{font-size:9px;font-weight:600;letter-spacing:.1em;color:#6C7690;margin-left:4px}
+.nav{font-size:10.5px;font-weight:700;letter-spacing:.08em;color:#6C7690;padding:14px 10px 6px}
+.sit{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+.sit .mi{font-size:18px;color:#8993A8}
+.sit:hover{background:rgba(255,255,255,.05);color:#fff}
+.sit.on{background:linear-gradient(90deg,#2B5FE0,rgba(43,95,224,.3));color:#fff}
+.sit.on .mi{color:#fff}
+.sit b{margin-left:auto;padding:1px 6px;background:var(--warn);color:#fff;font-size:9px;border-radius:8px;font-weight:700}
+.sfoot{margin-top:auto;padding:12px 10px 0;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:#8993A8;display:flex;align-items:center;gap:8px}
+.sfoot-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4E7FEF,#2B5FE0);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px}
+
+.main{display:flex;flex-direction:column;min-width:0}
+.top{height:62px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.bread{font-size:12.5px;color:var(--tx3);font-weight:600;display:flex;align-items:center;gap:6px}
+.bread .mi{font-size:14px}
+.bread b{color:var(--tx);font-weight:800}
+.top-r{display:flex;align-items:center;gap:14px;margin-left:auto}
+.top-ic{position:relative;cursor:pointer}
+.top-ic .mi{font-size:20px;color:var(--tx2)}
+.top-ic b{position:absolute;top:-4px;right:-6px;padding:0 5px;background:var(--err);color:#fff;font-size:9px;border-radius:8px;font-weight:800}
+
+.page{padding:24px 28px 40px;max-width:1520px;width:100%}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:14px}
+.pt{font-size:22px;font-weight:800;letter-spacing:-.015em}
+.ps{font-size:12px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.6}
+.ph-r{display:flex;gap:10px;align-items:center}
+.btn{padding:9px 17px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;transition:.15s}
+.btn .mi{font-size:16px}
+.btn-pri{background:var(--pri);color:#fff;box-shadow:var(--sh)}
+.btn-pri:hover{background:var(--pri-d)}
+.btn-sec{background:#fff;color:var(--tx2);border-color:var(--line)}
+.btn-pink{background:var(--pink);color:#fff}
+.btn-purple{background:var(--purple);color:#fff}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{background:#fff;border-radius:var(--r-lg);padding:18px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,var(--pri-l),transparent 70%);opacity:.6}
+.kpi.pink::before{background:radial-gradient(circle,var(--pink-l),transparent 70%)}
+.kpi.purple::before{background:radial-gradient(circle,var(--purple-l),transparent 70%)}
+.kpi-l{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:.04em;display:flex;align-items:center;gap:6px}
+.kpi-l .mi{font-size:14px}
+.kpi-v{font-size:28px;font-weight:800;letter-spacing:-.025em;margin-top:10px;line-height:1}
+.kpi-v small{font-size:13px;font-weight:700;color:var(--tx3)}
+.kpi-d{display:flex;align-items:center;gap:4px;margin-top:11px;font-size:11px;font-weight:800}
+.kpi-d .mi{font-size:14px}
+.kpi-d.up{color:var(--ok)}.kpi-d.down{color:var(--err)}.kpi-d.flat{color:var(--tx3)}
+
+.tabs{display:flex;gap:7px;margin-bottom:18px;border-bottom:2px solid var(--line);padding-bottom:0}
+.tab{padding:11px 18px;font-size:12.5px;font-weight:700;color:var(--tx3);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.18s;display:flex;align-items:center;gap:5px}
+.tab:hover{color:var(--pri-d)}
+.tab.on{color:var(--pri-d);border-bottom-color:var(--pri)}
+.tab .mi{font-size:16px}
+.tab b{padding:1px 7px;background:var(--pri-l);color:var(--pri-d);border-radius:var(--r-full);font-size:9.5px;font-weight:800}
+
+.grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-bottom:18px}
+.panel{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden}
+.panel-h{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:#FAFBFD}
+.panel-t{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:7px}
+.panel-t .mi{font-size:17px;color:var(--pri)}
+.panel-t small{font-size:10px;color:var(--tx3);font-weight:600;margin-left:4px}
+.panel-act{font-size:11px;color:var(--pri);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:3px}
+.panel-act .mi{font-size:14px}
+.panel-b{padding:16px 18px}
+
+/* 优惠券卡片 */
+.coupon{border:1.5px solid var(--line);border-radius:var(--r-md);padding:14px;margin-bottom:11px;cursor:pointer;transition:.2s;position:relative;overflow:hidden;background:#fff}
+.coupon:hover{border-color:var(--pri);transform:translateX(2px);box-shadow:var(--sh)}
+.coupon.active{border-color:var(--ok);background:var(--ok-l)}
+.coupon.ended{opacity:.6}
+.coupon::before{content:'';position:absolute;left:-8px;top:40px;width:16px;height:16px;background:var(--bg);border-radius:50%}
+.coupon::after{content:'';position:absolute;right:-8px;top:40px;width:16px;height:16px;background:var(--bg);border-radius:50%}
+.coupon-h{display:flex;align-items:flex-start;gap:12px;padding-bottom:11px;border-bottom:1px dashed var(--line);margin-bottom:11px}
+.coupon-v{font-size:28px;font-weight:800;color:var(--pri-d);letter-spacing:-.03em;line-height:1}
+.coupon-v small{font-size:13px;font-weight:700}
+.coupon-b{flex:1;min-width:0}
+.coupon-n{font-size:13px;font-weight:800;line-height:1.4}
+.coupon-d{font-size:10px;color:var(--tx3);margin-top:4px;font-weight:600;line-height:1.6}
+.coupon-st{padding:2px 8px;border-radius:var(--r-full);font-size:9px;font-weight:800;flex-shrink:0}
+.coupon-st.on{background:var(--ok-l);color:var(--ok)}
+.coupon-st.soon{background:var(--warn-l);color:var(--warn)}
+.coupon-st.off{background:var(--line2);color:var(--tx3)}
+.coupon-f{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--tx3);font-weight:600}
+.coupon-f b{color:var(--tx);font-weight:800}
+
+/* 拼团卡片 */
+.group{border:1.5px solid var(--pink-l);border-radius:var(--r-md);padding:14px;margin-bottom:11px;background:linear-gradient(135deg,#fff,var(--pink-l));cursor:pointer;transition:.2s}
+.group:hover{transform:translateX(2px);box-shadow:var(--sh-m)}
+.group-h{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.group-ic{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--pink),#BE185D);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.group-ic .mi{font-size:19px;color:#fff}
+.group-b{flex:1;min-width:0}
+.group-n{font-size:12.5px;font-weight:800}
+.group-m{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.group-st{padding:2px 8px;border-radius:var(--r-full);font-size:9px;font-weight:800;background:var(--pink-l);color:var(--pink)}
+.group-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px;background:rgba(255,255,255,.7);border-radius:var(--r-sm);margin-bottom:10px}
+.group-st-i{text-align:center}
+.group-st-v{font-size:15px;font-weight:800;color:var(--pink)}
+.group-st-k{font-size:9px;color:var(--tx3);margin-top:2px;font-weight:700}
+.group-prog{height:6px;background:var(--line2);border-radius:3px;overflow:hidden;position:relative}
+.group-prog-fill{height:100%;background:linear-gradient(90deg,var(--pink),#BE185D);border-radius:3px;transition:.4s}
+.group-prog-txt{display:flex;justify-content:space-between;margin-top:5px;font-size:9.5px;color:var(--tx3);font-weight:700}
+
+/* 限时折扣 */
+.flash{border:1.5px solid var(--warn-l);border-radius:var(--r-md);padding:14px;margin-bottom:11px;background:linear-gradient(135deg,#fff,var(--warn-l));cursor:pointer;transition:.2s;position:relative}
+.flash:hover{transform:translateX(2px);box-shadow:var(--sh-m)}
+.flash-h{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.flash-ic{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--warn),#B45309);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.flash-ic .mi{font-size:19px;color:#fff}
+.flash-b{flex:1;min-width:0}
+.flash-n{font-size:12.5px;font-weight:800;display:flex;align-items:center;gap:6px}
+.flash-live{padding:2px 7px;background:var(--err);color:#fff;border-radius:var(--r-full);font-size:8.5px;font-weight:800;display:inline-flex;align-items:center;gap:3px}
+.flash-live::before{content:'';width:5px;height:5px;border-radius:50%;background:#fff;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.flash-m{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.flash-count{font-size:20px;font-weight:800;color:var(--warn);letter-spacing:-.02em;text-align:center;padding:6px 0}
+.flash-count small{font-size:11px;color:var(--tx3);font-weight:700;margin-left:3px}
+.flash-prods{display:flex;gap:7px;overflow-x:auto;padding:4px 0 6px;scrollbar-width:none}
+.flash-prods::-webkit-scrollbar{display:none}
+.flash-prod{flex:0 0 110px;background:#fff;border-radius:var(--r-sm);padding:7px;border:1px solid var(--line2);cursor:pointer}
+.flash-img{width:100%;aspect-ratio:4/3;border-radius:5px;background:linear-gradient(160deg,#FFE2B0,#F0805A);display:flex;align-items:center;justify-content:center;margin-bottom:5px}
+.flash-img .mi{font-size:22px;color:rgba(255,255,255,.7)}
+.flash-pn{font-size:9.5px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.flash-pr{display:flex;align-items:baseline;gap:3px;margin-top:3px}
+.flash-pr-now{font-size:12px;font-weight:800;color:var(--err)}
+.flash-pr-old{font-size:9px;color:var(--tx3);text-decoration:line-through}
+
+/* 会员积分 */
+.member{border:1.5px solid var(--purple-l);border-radius:var(--r-md);padding:14px;background:linear-gradient(135deg,#fff,var(--purple-l))}
+.member-h{display:flex;align-items:center;gap:11px;margin-bottom:13px}
+.member-ic{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--purple),#6D28D9);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.member-ic .mi{font-size:21px;color:#fff}
+.member-b{flex:1;min-width:0}
+.member-n{font-size:14px;font-weight:800}
+.member-m{font-size:10.5px;color:var(--tx3);margin-top:3px;font-weight:600}
+.member-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:13px}
+.member-st{padding:11px;background:rgba(255,255,255,.7);border-radius:var(--r-sm);text-align:center}
+.member-st-v{font-size:18px;font-weight:800;color:var(--purple);letter-spacing:-.02em}
+.member-st-k{font-size:9.5px;color:var(--tx3);margin-top:3px;font-weight:700}
+.member-rules{display:flex;flex-direction:column;gap:7px}
+.member-rule{display:flex;align-items:center;gap:10px;padding:9px 11px;background:rgba(255,255,255,.7);border-radius:var(--r-sm);font-size:11.5px}
+.member-rule .mi{font-size:16px;color:var(--purple)}
+.member-rule-b{flex:1;font-weight:700}
+.member-rule-v{font-weight:800;color:var(--purple)}
+
+/* 活动日历 */
+.cal{background:#fff;border-radius:var(--r-md);overflow:hidden;box-shadow:var(--sh)}
+.cal-h{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.cal-t{font-size:13px;font-weight:800}
+.cal-nav{display:flex;gap:5px}
+.cal-nav div{width:26px;height:26px;border-radius:50%;background:var(--line2);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.cal-nav .mi{font-size:15px;color:var(--tx2)}
+.cal-grid{padding:10px}
+.cal-row{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-cell{aspect-ratio:1;padding:5px;border-radius:5px;font-size:10px;font-weight:700;color:var(--tx2);position:relative;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+.cal-cell:hover{background:var(--line2)}
+.cal-cell.other{opacity:.3}
+.cal-cell.today{background:var(--pri-l);color:var(--pri-d);font-weight:800}
+.cal-cell b{font-size:12px;margin-bottom:2px}
+.cal-dot{width:4px;height:4px;border-radius:50%;margin-top:2px}
+.cal-dot.pink{background:var(--pink)}
+.cal-dot.warn{background:var(--warn)}
+.cal-dot.purple{background:var(--purple)}
+
+/* 营销效果 TOP */
+.rank{display:flex;flex-direction:column}
+.rk{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--line2)}
+.rk:last-child{border-bottom:none}
+.rk-pos{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;flex-shrink:0}
+.rk-pos.t1{background:linear-gradient(135deg,#FDE68A,#F59E0B);color:#fff}
+.rk-pos.t2{background:linear-gradient(135deg,#E5E9EF,#9BA3B5);color:#fff}
+.rk-pos.t3{background:linear-gradient(135deg,#E7B08C,#B45309);color:#fff}
+.rk-pos.other{background:var(--line2);color:var(--tx3)}
+.rk-ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rk-ic .mi{font-size:17px;color:#fff}
+.rk-b{flex:1;min-width:0}
+.rk-n{font-size:12px;font-weight:800}
+.rk-m{font-size:9.5px;color:var(--tx3);margin-top:3px;font-weight:600}
+.rk-r{text-align:right;flex-shrink:0}
+.rk-v{font-size:13px;font-weight:800;color:var(--pri-d)}
+.rk-sub{font-size:9px;color:var(--tx3);margin-top:2px;font-weight:600}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(26,33,56,.92);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;max-width:320px}
+.toast.show{opacity:1}
+.toast.ok{background:var(--ok)}
+.toast.warn{background:var(--warn)}
+
+/* 收口补丁 v1.1 - 券成本承担方 decision 3 */
+.cb-panel{margin-bottom:18px;border:1.5px solid var(--pri);box-shadow:var(--sh-m)}
+.cb-panel .panel-h{background:linear-gradient(90deg,var(--pri-xl),#fff)}
+.cb-flash{box-shadow:0 0 0 4px rgba(43,95,224,.22),var(--sh-m)}
+.cb-warn{display:flex;align-items:flex-start;gap:8px;padding:10px 13px;background:var(--warn-l);border:1px solid #FED7AA;border-radius:8px;font-size:11.5px;color:#92400E;font-weight:700;line-height:1.7;margin-bottom:14px}
+.cb-warn .mi{font-size:16px;flex-shrink:0}
+.cb-grid{display:grid;grid-template-columns:200px 1fr;gap:18px}
+.cb-f-l{font-size:11px;font-weight:800;color:var(--tx2);margin-bottom:6px}
+.cb-f input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:7px;font-size:13px;font-weight:800;color:var(--tx);outline:none;font-family:var(--sans)}
+.cb-f input:focus{border-color:var(--pri)}
+.cb-f-note{font-size:10px;color:var(--tx3);margin-top:7px;line-height:1.7;font-weight:600}
+.cb-opts{display:flex;gap:8px;flex-wrap:wrap}
+.cb-opt{flex:1;min-width:150px;display:block;padding:11px 12px;border:1.5px solid var(--line);border-radius:9px;cursor:pointer;transition:.18s;background:#fff}
+.cb-opt:hover{border-color:var(--pri)}
+.cb-opt.on{border-color:var(--pri);background:var(--pri-xl)}
+.cb-opt input{margin-right:5px;accent-color:var(--pri)}
+.cb-ot{font-size:11.5px;font-weight:800;color:var(--tx)}
+.cb-od{display:block;font-size:10px;color:var(--tx3);margin-top:5px;line-height:1.6;font-weight:600}
+.cb-sec-t{font-size:11px;font-weight:800;color:var(--tx2);margin:16px 0 8px;display:flex;align-items:center;gap:6px}
+.cb-sec-t .mi{font-size:15px;color:var(--pri)}
+.cb-preview{padding:13px 15px;background:var(--line2);border:1px dashed var(--line);border-radius:9px;font-size:12px;color:var(--tx2);font-weight:700;line-height:1.9;min-height:66px}
+.cb-preview b{color:var(--pri-d)}
+.cb-preview .cb-hi{color:var(--err);font-weight:800}
+.cb-foot{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+.cb-note{font-size:10.5px;color:var(--tx3);font-weight:600;line-height:1.7;flex:1;min-width:220px}
+
+
+/* decision v3 - confirmed rules strip */
+.dstrip{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;margin-bottom:14px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;font-size:10.5px;color:#14532D;font-weight:700;line-height:1.85}
+.dstrip>.mi{font-size:18px;flex-shrink:0;color:#15803D}
+.dstrip b{color:#166534}
+.dstrip .dstrip-t{font-size:11px;font-weight:800;letter-spacing:.02em}
+.dstrip .dstrip-x{color:#166534;font-weight:600}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="mi">terrain</span>云栖度假<small>ADMIN</small></div>
+    <div class="nav">概览</div>
+    <div class="sit"><span class="mi">dashboard</span>数据看板</div>
+    <div class="sit"><span class="mi">inventory_2</span>套餐组货工具</div>
+    <div class="nav">资源与商家</div>
+    <div class="sit"><span class="mi">storefront</span>商家与资质审核<b>3</b></div>
+    <div class="sit"><span class="mi">category</span>资源项库</div>
+    <div class="nav">订单与售后</div>
+    <div class="sit"><span class="mi">receipt_long</span>订单中心</div>
+    <div class="sit"><span class="mi">gavel</span>退款仲裁<b>4</b></div>
+    <div class="sit"><span class="mi">payments</span>分账与结算</div>
+    <div class="nav">内容与营销</div>
+    <div class="sit"><span class="mi">auto_stories</span>内容与首页 CMS</div>
+    <div class="sit on"><span class="mi">campaign</span>营销中心</div>
+    <div class="sit"><span class="mi">palette</span>主题库<b>6</b></div>
+    <div class="nav">系统</div>
+    <div class="sit"><span class="mi">payments</span>分账权限配置</div>
+    <div class="sit"><span class="mi">admin_panel_settings</span>角色与权限</div>
+    <div class="sit"><span class="mi">history</span>操作日志</div>
+    <div class="sfoot"><div class="sfoot-av">YK</div>运营 · 尹凯</div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="bread"><span class="mi">home</span> 平台后台 <span class="mi">chevron_right</span> <b>营销中心</b></div>
+      <div class="top-r">
+        <div class="top-ic" onclick="showToast('待办事项')"><span class="mi">notifications_none</span><b>5</b></div>
+        <div class="top-ic" onclick="showToast('导出营销报表')"><span class="mi">download</span></div>
+        <div class="top-ic" onclick="showToast('帮助文档')"><span class="mi">help_outline</span></div>
+      </div>
+    </div>
+
+    <div class="page">
+      <!-- DECISION_V3_APPLIED -->
+<div class="dstrip"><span class="mi">gavel</span><div><div class="dstrip-t">决策 3 已拍板 · 券成本按适用范围分摊</div><div class="dstrip-x">新增必填字段 <b>coupon_scope</b>：套餐券（PACKAGE）分摊到整个套餐，单项目券（ITEM）成本算该项目；配合 <b>cost_bearer</b> 决定谁出钱。<b>分摊与归集分离</b>，A1 活动 ROI 一律按归集对象取净佣金口径。券字段随<b>下单锁价</b>固化。</div></div></div>
+
+      <div class="ph">
+        <div>
+          <div class="pt">营销中心</div>
+          <div class="ps">优惠券 · 拼团 · 限时折扣 · 会员积分 · 营销效果追踪</div>
+        </div>
+        <div class="ph-r">
+          <div class="btn btn-sec" onclick="showToast('查看历史活动')"><span class="mi">history</span>历史活动</div>
+          <div class="btn btn-pink" onclick="showToast('创建拼团活动')"><span class="mi">groups</span>新建拼团</div>
+          <div class="btn btn-pri" onclick="openCoupon()"><span class="mi">add</span>新建优惠券</div>
+        </div>
+      </div>
+
+      <!-- KPI -->
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">confirmation_number</span>活跃优惠券</div>
+          <div class="kpi-v">12<small> 张</small></div>
+          <div class="kpi-d up"><span class="mi">trending_up</span>核销率 68%</div>
+        </div>
+        <div class="kpi pink">
+          <div class="kpi-l"><span class="mi">groups</span>进行中拼团</div>
+          <div class="kpi-v">8<small> 个</small></div>
+          <div class="kpi-d up"><span class="mi">trending_up</span>成团率 82%</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">flash_on</span>限时折扣</div>
+          <div class="kpi-v">3<small> 个</small></div>
+          <div class="kpi-d flat"><span class="mi">schedule</span>2 个进行中</div>
+        </div>
+        <div class="kpi purple">
+          <div class="kpi-l"><span class="mi">workspace_premium</span>会员积分池</div>
+          <div class="kpi-v">¥48.6<small>万</small></div>
+          <div class="kpi-d up"><span class="mi">trending_up</span>本月兑换 ¥12.4w</div>
+        </div>
+      </div>
+
+      <!-- 收口补丁 v1.1 · 券成本承担方（决策 3 / 断点 5） -->
+      <div class="panel cb-panel" id="couponCfg">
+        <div class="panel-h">
+          <div class="panel-t"><span class="mi">payments</span>新建优惠券 · 成本承担方<small>必填 · 决策 3 默认口径</small></div>
+          <div class="panel-act" onclick="showToast('字段定义见 接口契约 §6 / 决策卡 3')"><span class="mi">help_outline</span>字段说明</div>
+        </div>
+        <div class="panel-b">
+          <div class="cb-warn"><span class="mi">info</span><div>历史 <b>12 张券</b>尚未补录 <b>cost_bearer / coupon_scope</b>，补录前活动 ROI 按售卖价差额计算，与 A7 净佣金口径不一致。新券未选承担方不允许保存；补录批次完成后方可切换 A1 的 ROI 口径。</div></div>
+          <div class="cb-grid">
+            <div class="cb-f">
+              <div class="cb-f-l">券面额（示例订单 ¥1,940）</div>
+              <input id="cbFace" type="number" value="100" min="1" step="1" oninput="calcBearer()">
+              <div class="cb-f-note">叠加顺序：会员折扣 → 券 → 礼品卡额度抵扣；券面额按折扣后金额计算，<b>礼品卡不参与券成本分摊</b>。券适用范围与承担方随<b>下单锁价</b>一并写入 PriceSnapshot。</div>
+            </div>
+            <div>
+              <div class="cb-f-l">券适用范围 coupon_scope <span style="color:var(--err)">*必填 · 决策 3</span></div>
+              <div class="cb-opts" id="cbScope" style="margin-bottom:12px">
+                <label class="cb-opt" onclick="cbPick(this,'cbScope')"><input type="radio" name="cbScope" value="PACKAGE" checked onchange="calcBearer()"><span class="cb-ot">套餐可用 PACKAGE</span><span class="cb-od">券成本按套餐内各资源项供货价占比分摊到整个套餐（A/B 6:4）</span></label>
+                <label class="cb-opt" onclick="cbPick(this,'cbScope')"><input type="radio" name="cbScope" value="ITEM" onchange="calcBearer()"><span class="cb-ot">单项目可用 ITEM</span><span class="cb-od">券成本全额算该项目所属商家，套餐内其他商家不承担</span></label>
+              </div>
+              <div class="cb-f-l">成本承担方 cost_bearer <span style="color:var(--err)">*必填</span></div>
+              <div class="cb-opts" id="cbOpts">
+                <label class="cb-opt" onclick="cbPick(this)"><input type="radio" name="cbBearer" value="PLATFORM" onchange="calcBearer()"><span class="cb-ot">平台承担 PLATFORM</span><span class="cb-od">券成本全额从平台佣金里扣，商家供货价不变</span></label>
+                <label class="cb-opt" onclick="cbPick(this)"><input type="radio" name="cbBearer" value="MERCHANT" onchange="calcBearer()"><span class="cb-ot">商家承担 MERCHANT</span><span class="cb-od">券成本从发券商家供货价里扣，平台佣金不变</span></label>
+                <label class="cb-opt" onclick="cbPick(this)"><input type="radio" name="cbBearer" value="PROPORTIONAL" onchange="calcBearer()"><span class="cb-ot">按比例 PROPORTIONAL</span><span class="cb-od">按订单内各资源项支付时供货价占比拆到各商家</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="cb-sec-t"><span class="mi">calculate</span>分账影响预览 · 按 coupon_scope × cost_bearer 实时重算</div>
+          <div class="cb-preview" id="cbPreview">请先选择成本承担方，保存时该字段为必填项。预览使用决策卡验收用例：券面 ¥100，A/B 供货价占比 6:4。</div>
+          <div class="cb-foot">
+            <div class="cb-note">✅ <b>决策 3：</b>套餐券（PACKAGE）分摊到整个套餐，单项目券（ITEM）成本算该项目；<b>分摊（谁出钱）与归集（A1 ROI 算到哪个对象）分离</b>，无论谁出钱 A1 一律按归集对象取净佣金口径。<code>coupon_scope + cost_bearer</code> 随<b>下单锁价</b>写入 PriceSnapshot；退款按同一组合反向冲回，避免「券已退、成本没退」。礼品卡额度抵扣不参与券成本分摊。</div>
+            <button class="btn btn-pri" onclick="saveCoupon()"><span class="mi">save</span>保存优惠券</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab -->
+      <div class="tabs">
+        <div class="tab on" onclick="tabPick(this)"><span class="mi">confirmation_number</span>优惠券 <b>12</b></div>
+        <div class="tab" onclick="tabPick(this)"><span class="mi">groups</span>拼团 <b>8</b></div>
+        <div class="tab" onclick="tabPick(this)"><span class="mi">flash_on</span>限时折扣 <b>3</b></div>
+        <div class="tab" onclick="tabPick(this)"><span class="mi">workspace_premium</span>会员积分</div>
+        <div class="tab" onclick="tabPick(this)"><span class="mi">calendar_month</span>活动日历</div>
+      </div>
+
+      <!-- 优惠券 -->
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">confirmation_number</span>优惠券列表<small>按投放时间排序</small></div>
+            <div class="panel-act" onclick="showToast('筛选优惠券')"><span class="mi">filter_list</span>筛选</div>
+          </div>
+          <div class="panel-b">
+            <div class="coupon active">
+              <div class="coupon-h">
+                <div class="coupon-v">¥<small>100</small></div>
+                <div class="coupon-b">
+                  <div class="coupon-n">新人首单立减 · 满 1000 可用</div>
+                  <div class="coupon-d">适用：全平台套餐 · 有效期 30 天 · 限新用户首单</div>
+                </div>
+                <div class="coupon-st on">投放中</div>
+              </div>
+              <div class="coupon-f">
+                <span>已发放 <b>1,248</b> / 总 <b>5,000</b> 张</span>
+                <span>已核销 <b>847</b> 张 · 核销率 <b>68%</b></span>
+                <span>带来 GMV <b>¥84.7w</b></span>
+              </div>
+            </div>
+            <div class="coupon">
+              <div class="coupon-h">
+                <div class="coupon-v" style="color:var(--pink)">8.5<small>折</small></div>
+                <div class="coupon-b">
+                  <div class="coupon-n">双 11 预热 · 山林主题套餐专享</div>
+                  <div class="coupon-d">适用：山林 forest 主题 · 11-01 至 11-11 · 可叠加会员折扣</div>
+                </div>
+                <div class="coupon-st soon">即将开始</div>
+              </div>
+              <div class="coupon-f">
+                <span>已发放 <b>3,200</b> / 总 <b>10,000</b> 张</span>
+                <span>已核销 <b>0</b> 张 · 11-01 开抢</span>
+                <span>预计带来 GMV <b>¥280w</b></span>
+              </div>
+            </div>
+            <div class="coupon">
+              <div class="coupon-h">
+                <div class="coupon-v" style="color:var(--purple)">¥<small>300</small></div>
+                <div class="coupon-b">
+                  <div class="coupon-n">LV4 云栖会员专享券</div>
+                  <div class="coupon-d">适用：满 3000 元 · 限 LV4 及以上会员 · 每月 1 张</div>
+                </div>
+                <div class="coupon-st on">投放中</div>
+              </div>
+              <div class="coupon-f">
+                <span>已发放 <b>89</b> / 总 <b>200</b> 张</span>
+                <span>已核销 <b>62</b> 张 · 核销率 <b>70%</b></span>
+                <span>带来 GMV <b>¥18.6w</b></span>
+              </div>
+            </div>
+            <div class="coupon ended">
+              <div class="coupon-h">
+                <div class="coupon-v" style="color:var(--tx3)">¥<small>200</small></div>
+                <div class="coupon-b">
+                  <div class="coupon-n">国庆黄金周满减 · 已结束</div>
+                  <div class="coupon-d">适用：全平台 · 10-01 至 10-07 · 已结束</div>
+                </div>
+                <div class="coupon-st off">已结束</div>
+              </div>
+              <div class="coupon-f">
+                <span>已发放 <b>5,000</b> 张</span>
+                <span>已核销 <b>3,142</b> 张 · 核销率 <b>63%</b></span>
+                <span>带来 GMV <b>¥62.8w</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">leaderboard</span>营销效果 TOP 5</div>
+            <div class="panel-act" onclick="showToast('查看全部')"><span class="mi">chevron_right</span></div>
+          </div>
+          <div class="panel-b">
+            <div class="rank">
+              <div class="rk">
+                <div class="rk-pos t1">1</div>
+                <div class="rk-ic" style="background:linear-gradient(135deg,#2B5FE0,#1E48B8)"><span class="mi">confirmation_number</span></div>
+                <div class="rk-b">
+                  <div class="rk-n">新人首单立减 ¥100</div>
+                  <div class="rk-m">投放 45 天 · 847 次核销</div>
+                </div>
+                <div class="rk-r"><div class="rk-v">¥84.7w</div><div class="rk-sub">ROI 12.4</div></div>
+              </div>
+              <div class="rk">
+                <div class="rk-pos t2">2</div>
+                <div class="rk-ic" style="background:linear-gradient(135deg,#EC4899,#BE185D)"><span class="mi">groups</span></div>
+                <div class="rk-b">
+                  <div class="rk-n">莫干山云端 3 人团</div>
+                  <div class="rk-m">成团 42 个 · 126 单</div>
+                </div>
+                <div class="rk-r"><div class="rk-v">¥70.6w</div><div class="rk-sub">ROI 9.8</div></div>
+              </div>
+              <div class="rk">
+                <div class="rk-pos t3">3</div>
+                <div class="rk-ic" style="background:linear-gradient(135deg,#D97706,#B45309)"><span class="mi">flash_on</span></div>
+                <div class="rk-b">
+                  <div class="rk-n">东极岛限时 7 折</div>
+                  <div class="rk-m">3 天 · 89 单</div>
+                </div>
+                <div class="rk-r"><div class="rk-v">¥45.3w</div><div class="rk-sub">ROI 7.2</div></div>
+              </div>
+              <div class="rk">
+                <div class="rk-pos other">4</div>
+                <div class="rk-ic" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9)"><span class="mi">workspace_premium</span></div>
+                <div class="rk-b">
+                  <div class="rk-n">LV4 会员专享 ¥300</div>
+                  <div class="rk-m">投放 30 天 · 62 次核销</div>
+                </div>
+                <div class="rk-r"><div class="rk-v">¥18.6w</div><div class="rk-sub">ROI 6.1</div></div>
+              </div>
+              <div class="rk">
+                <div class="rk-pos other">5</div>
+                <div class="rk-ic" style="background:linear-gradient(135deg,#16A34A,#15803D)"><span class="mi">confirmation_number</span></div>
+                <div class="rk-b">
+                  <div class="rk-n">国庆满减 ¥200</div>
+                  <div class="rk-m">已结束 · 3142 次核销</div>
+                </div>
+                <div class="rk-r"><div class="rk-v">¥62.8w</div><div class="rk-sub">ROI 5.8</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 拼团 + 限时折扣 -->
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">groups</span>拼团活动<small>成团率 82%</small></div>
+            <div class="panel-act" onclick="showToast('创建拼团')"><span class="mi">add</span>新建</div>
+          </div>
+          <div class="panel-b">
+            <div class="group">
+              <div class="group-h">
+                <div class="group-ic"><span class="mi">groups</span></div>
+                <div class="group-b">
+                  <div class="group-n">莫干山云端两日 · 3 人成团</div>
+                  <div class="group-m">原价 ¥1,680 · 拼团价 ¥1,380 · 11-01 至 11-30</div>
+                </div>
+                <div class="group-st">进行中</div>
+              </div>
+              <div class="group-stats">
+                <div class="group-st-i"><div class="group-st-v">42</div><div class="group-st-k">已成团</div></div>
+                <div class="group-st-i"><div class="group-st-v">8</div><div class="group-st-k">拼团中</div></div>
+                <div class="group-st-i"><div class="group-st-v">126</div><div class="group-st-k">总订单</div></div>
+                <div class="group-st-i"><div class="group-st-v">¥70.6w</div><div class="group-st-k">GMV</div></div>
+              </div>
+              <div class="group-prog"><div class="group-prog-fill" style="width:82%"></div></div>
+              <div class="group-prog-txt"><span>成团率 82%（42/51）</span><span>剩 22 天</span></div>
+            </div>
+            <div class="group">
+              <div class="group-h">
+                <div class="group-ic" style="background:linear-gradient(135deg,#0E86C4,#0A6291)"><span class="mi">sailing</span></div>
+                <div class="group-b">
+                  <div class="group-n">东极岛听海两日 · 2 人成团</div>
+                  <div class="group-m">原价 ¥1,580 · 拼团价 ¥1,280 · 10-15 至 11-15</div>
+                </div>
+                <div class="group-st">进行中</div>
+              </div>
+              <div class="group-stats">
+                <div class="group-st-i"><div class="group-st-v">28</div><div class="group-st-k">已成团</div></div>
+                <div class="group-st-i"><div class="group-st-v">3</div><div class="group-st-k">拼团中</div></div>
+                <div class="group-st-i"><div class="group-st-v">56</div><div class="group-st-k">总订单</div></div>
+                <div class="group-st-i"><div class="group-st-v">¥35.8w</div><div class="group-st-k">GMV</div></div>
+              </div>
+              <div class="group-prog"><div class="group-prog-fill" style="width:90%"></div></div>
+              <div class="group-prog-txt"><span>成团率 90%（28/31）</span><span>剩 13 天</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">flash_on</span>限时折扣<small>2 个进行中</small></div>
+            <div class="panel-act" onclick="showToast('创建限时折扣')"><span class="mi">add</span>新建</div>
+          </div>
+          <div class="panel-b">
+            <div class="flash">
+              <div class="flash-h">
+                <div class="flash-ic"><span class="mi">flash_on</span></div>
+                <div class="flash-b">
+                  <div class="flash-n">双 11 预热 · 海洋主题 7 折 <span class="flash-live">LIVE</span></div>
+                  <div class="flash-m">11-01 00:00 至 11-03 23:59 · 剩 1 天 12 小时</div>
+                </div>
+              </div>
+              <div class="flash-count">48<small>:22:16</small></div>
+              <div class="flash-prods">
+                <div class="flash-prod">
+                  <div class="flash-img"><span class="mi">sailing</span></div>
+                  <div class="flash-pn">东极岛听海两日</div>
+                  <div class="flash-pr"><span class="flash-pr-now">¥1,106</span><span class="flash-pr-old">¥1,580</span></div>
+                </div>
+                <div class="flash-prod">
+                  <div class="flash-img" style="background:linear-gradient(160deg,#BFD9F2,#3F6E9E)"><span class="mi">beach_access</span></div>
+                  <div class="flash-pn">嵊泗列岛赶海三日</div>
+                  <div class="flash-pr"><span class="flash-pr-now">¥1,526</span><span class="flash-pr-old">¥2,180</span></div>
+                </div>
+                <div class="flash-prod">
+                  <div class="flash-img" style="background:linear-gradient(160deg,#8FE0F0,#14689E)"><span class="mi">scuba_diving</span></div>
+                  <div class="flash-pn">舟山潜水体验两日</div>
+                  <div class="flash-pr"><span class="flash-pr-now">¥1,386</span><span class="flash-pr-old">¥1,980</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 会员积分 + 活动日历 -->
+      <div class="grid2">
+        <div class="member">
+          <div class="member-h">
+            <div class="member-ic"><span class="mi">workspace_premium</span></div>
+            <div class="member-b">
+              <div class="member-n">会员积分体系</div>
+              <div class="member-m">5 级会员 · 24,680 活跃用户 · 积分池 ¥48.6 万</div>
+            </div>
+            <div class="btn btn-purple" onclick="showToast('编辑积分规则')"><span class="mi">edit</span>规则配置</div>
+          </div>
+          <div class="member-stats">
+            <div class="member-st"><div class="member-st-v">24,680</div><div class="member-st-k">活跃会员</div></div>
+            <div class="member-st"><div class="member-st-v">¥48.6w</div><div class="member-st-k">积分池余额</div></div>
+            <div class="member-st"><div class="member-st-v">¥12.4w</div><div class="member-st-k">本月兑换</div></div>
+          </div>
+          <div class="member-rules">
+            <div class="member-rule"><span class="mi">add_circle</span><div class="member-rule-b">消费获取</div><div class="member-rule-v">¥1 = 1 积分</div></div>
+            <div class="member-rule"><span class="mi">redeem</span><div class="member-rule-b">积分抵扣</div><div class="member-rule-v">100 积分 = ¥1</div></div>
+            <div class="member-rule"><span class="mi">star</span><div class="member-rule-b">评价奖励</div><div class="member-rule-v">50 积分/条</div></div>
+            <div class="member-rule"><span class="mi">share</span><div class="member-rule-b">分享奖励</div><div class="member-rule-v">20 积分/次</div></div>
+            <div class="member-rule"><span class="mi">event</span><div class="member-rule-b">积分有效期</div><div class="member-rule-v">12 个月</div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">calendar_month</span>活动日历<small>2026 年 11 月</small></div>
+            <div class="panel-act" onclick="showToast('新建活动')"><span class="mi">add</span></div>
+          </div>
+          <div class="panel-b">
+            <div class="cal">
+              <div class="cal-h">
+                <div class="cal-t">2026 年 11 月</div>
+                <div class="cal-nav"><div><span class="mi">chevron_left</span></div><div><span class="mi">chevron_right</span></div></div>
+              </div>
+              <div class="cal-grid">
+                <div class="cal-row" style="margin-bottom:5px">
+                  <div style="text-align:center;font-size:9.5px;font-weight:800;color:var(--tx3)">一</div>
+                  <div style="text-align:center;font-size:9.5px;font-weight:800;color:var(--tx3)">二</div>
+                  <div style="text-align:center;font-size:9.5px;font-weight:800;color:var(--tx3)">三</div>
+                  <div style="text-align:center;font-size:9.5px;font-weight:800;color:var(--tx3)">四</div>
+                  <div style="text-align:center;font-size:9.5px;font-weight:800;color:var(--tx3)">五</div>
+                  <div style="text-align:center;font-size:9.5px;font-weight:800;color:var(--tx3)">六</div>
+                  <div style="text-align:center;font-size:9.5px;font-weight:800;color:var(--tx3)">日</div>
+                </div>
+                <div class="cal-row">
+                  <div class="cal-cell other"><b>26</b></div>
+                  <div class="cal-cell other"><b>27</b></div>
+                  <div class="cal-cell other"><b>28</b></div>
+                  <div class="cal-cell other"><b>29</b></div>
+                  <div class="cal-cell other"><b>30</b></div>
+                  <div class="cal-cell other"><b>31</b></div>
+                  <div class="cal-cell"><b>1</b><div class="cal-dot pink"></div></div>
+                </div>
+                <div class="cal-row">
+                  <div class="cal-cell"><b>2</b><div class="cal-dot pink"></div></div>
+                  <div class="cal-cell"><b>3</b><div class="cal-dot pink"></div></div>
+                  <div class="cal-cell"><b>4</b></div>
+                  <div class="cal-cell"><b>5</b></div>
+                  <div class="cal-cell"><b>6</b></div>
+                  <div class="cal-cell"><b>7</b></div>
+                  <div class="cal-cell"><b>8</b></div>
+                </div>
+                <div class="cal-row">
+                  <div class="cal-cell"><b>9</b></div>
+                  <div class="cal-cell"><b>10</b></div>
+                  <div class="cal-cell today"><b>11</b><div class="cal-dot pink"></div></div>
+                  <div class="cal-cell"><b>12</b><div class="cal-dot warn"></div></div>
+                  <div class="cal-cell"><b>13</b><div class="cal-dot warn"></div></div>
+                  <div class="cal-cell"><b>14</b><div class="cal-dot warn"></div></div>
+                  <div class="cal-cell"><b>15</b><div class="cal-dot warn"></div></div>
+                </div>
+                <div class="cal-row">
+                  <div class="cal-cell"><b>16</b></div>
+                  <div class="cal-cell"><b>17</b></div>
+                  <div class="cal-cell"><b>18</b></div>
+                  <div class="cal-cell"><b>19</b></div>
+                  <div class="cal-cell"><b>20</b></div>
+                  <div class="cal-cell"><b>21</b></div>
+                  <div class="cal-cell"><b>22</b></div>
+                </div>
+                <div class="cal-row">
+                  <div class="cal-cell"><b>23</b></div>
+                  <div class="cal-cell"><b>24</b></div>
+                  <div class="cal-cell"><b>25</b></div>
+                  <div class="cal-cell"><b>26</b></div>
+                  <div class="cal-cell"><b>27</b><div class="cal-dot purple"></div></div>
+                  <div class="cal-cell"><b>28</b><div class="cal-dot purple"></div></div>
+                  <div class="cal-cell"><b>29</b><div class="cal-dot purple"></div></div>
+                </div>
+                <div class="cal-row">
+                  <div class="cal-cell"><b>30</b><div class="cal-dot purple"></div></div>
+                  <div class="cal-cell other"><b>1</b></div>
+                  <div class="cal-cell other"><b>2</b></div>
+                  <div class="cal-cell other"><b>3</b></div>
+                  <div class="cal-cell other"><b>4</b></div>
+                  <div class="cal-cell other"><b>5</b></div>
+                  <div class="cal-cell other"><b>6</b></div>
+                </div>
+              </div>
+              <div style="padding:10px 14px;border-top:1px solid var(--line);display:flex;gap:12px;font-size:9.5px;font-weight:700;color:var(--tx3);flex-wrap:wrap">
+                <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--pink);vertical-align:-1px"></span> 双 11 预热</span>
+                <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--warn);vertical-align:-1px"></span> 限时折扣</span>
+                <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--purple);vertical-align:-1px"></span> 会员日</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+function tabPick(el){
+  el.parentNode.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  showToast('已切换分类：'+el.textContent.replace(/\s+/g,' '));
+}
+function showToast(x,t){
+  const el=document.getElementById('toast');
+  el.textContent=x;
+  el.className='toast show'+(t?' '+t:'');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>el.className='toast',2200);
+}
+// 倒计时
+setInterval(()=>{
+  const el=document.querySelector('.flash-count');
+  if(el){
+    const now=new Date();
+    const end=new Date('2026-11-03T23:59:59');
+    const diff=end-now;
+    const h=Math.floor(diff/3600000);
+    const m=Math.floor((diff%3600000)/60000);
+    const s=Math.floor((diff%60000)/1000);
+    el.innerHTML=`${h}<small>:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</small>`;
+  }
+},1000);
+
+/* ---- 收口补丁 v1.1 · 券成本承担方 ---- */
+function cbPick(el,box){
+  var scope=box||'cbOpts';
+  document.querySelectorAll('#'+scope+' .cb-opt').forEach(function(o){o.classList.remove('on')});
+  el.classList.add('on');
+}
+function cbScopeValue(){
+  var r=document.querySelector('input[name="cbScope"]:checked');
+  return r?r.value:'PACKAGE';
+}
+function cbBearerValue(){
+  var r=document.querySelector('input[name="cbBearer"]:checked');
+  return r?r.value:'';
+}
+function calcBearer(){
+  var face=parseFloat((document.getElementById('cbFace')||{}).value)||0;
+  var b=cbBearerValue(), sc=cbScopeValue(), box=document.getElementById('cbPreview');
+  if(!box)return;
+  if(!b){box.innerHTML='请先选择成本承担方，保存时该字段为必填项。预览使用验收用例：券面 ¥100，A/B 供货价占比 6:4。';return;}
+  var a=(face*0.6).toFixed(0), c=(face*0.4).toFixed(0);
+  var head='<b>scope='+sc+'</b> · <b>bearer='+b+'</b> · 券面 ¥'+face.toFixed(0)+'<br>';
+  if(sc==='ITEM'){
+    if(b==='PLATFORM') box.innerHTML=head+'单项目券：平台佣金 <span class="cb-hi">−¥'+face.toFixed(0)+'</span>；<b>成本归集仅到该项目</b>，商家 A / B 供货价均不变。A1 该项目 ROI 按净佣金计。';
+    else box.innerHTML=head+'单项目券：<b>该项目所属商家 A 全额承担 ¥'+face.toFixed(0)+'</b>；商家 B <b>¥0</b>（单项目无分摊对象）；平台佣金不变。M5 结算明细新增「券成本承担」一行，归集仅到该项目。';
+    return;
+  }
+  if(b==='PLATFORM') box.innerHTML=head+'套餐券：平台佣金 <span class="cb-hi">−¥'+face.toFixed(0)+'</span>；商家 A <b>¥0</b> / 商家 B <b>¥0</b>。成本按 6:4 <b>归集</b>到套餐内各资源项供 A1 算 ROI，<b>分摊与归集分离</b>。';
+  else if(b==='MERCHANT') box.innerHTML=head+'套餐券：按套餐内供货价占比 6:4 分摊 → 商家 A <span class="cb-hi">−¥'+a+'</span> / 商家 B <span class="cb-hi">−¥'+c+'</span>；平台佣金不变。退款按同一组合反向冲回。';
+  else box.innerHTML=head+'套餐券：按占比 6:4 拆 → 商家 A <span class="cb-hi">−¥'+a+'</span> / 商家 B <span class="cb-hi">−¥'+c+'</span>；平台佣金不变。退款按同一比例反向冲回。';
+}
+function saveCoupon(){
+  var b=cbBearerValue();
+  if(!b){showToast('cost_bearer 为必填项：请选择成本承担方','warn');var el=document.getElementById('couponCfg');if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('cb-flash');setTimeout(function(){el.classList.remove('cb-flash')},1200);}return;}
+  showToast('已保存 · scope='+cbScopeValue()+' / cost_bearer='+b+' · 随下单锁价写入快照，历史 12 张券待补录','ok');
+}
+function openCoupon(){
+  var el=document.getElementById('couponCfg');
+  if(!el)return;
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  el.classList.add('cb-flash');
+  setTimeout(function(){el.classList.remove('cb-flash')},1200);
+  showToast('新建优惠券 · cost_bearer 为必填项');
+}
+
+</script>
+</body>
+</html>

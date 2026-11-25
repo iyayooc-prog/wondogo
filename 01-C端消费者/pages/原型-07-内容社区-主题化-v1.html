@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · 内容社区（P10 主题化 v1）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+/* ============================================================
+   P10 内容种草（游记 / 短视频）· 主题化 v1
+   骨架中性（导航/tab/底部栏/输入区）
+   内容卡与「同款套餐」卡内部 = 该内容所绑产品的主题色
+   数据与 A4「内容挂套餐绑定」面板一一对应：
+     已绑定 → 展示同款套餐入口
+     待运营确认 / 无匹配 → 不展示入口
+   ============================================================ */
+:root{
+  --bg:#F4F6F5; --card:#fff; --tx:#1B2E2C; --tx2:#5E7370; --tx3:#9BAEAB;
+  --line:#E8EFEE; --line2:#F2F6F5;
+  --pri:#4A5D59; --pri-d:#33423F; --pri-l:#EDF1F0; --pri-xl:#F6F8F7;
+  --acc:#FF6B4A; --acc-l:#FFEFEB;
+  --r-sm:10px; --r-md:16px; --r-lg:22px; --r-full:999px;
+  --sh-s:0 2px 10px rgba(27,46,44,.05); --sh-m:0 6px 22px rgba(27,46,44,.08);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',Roboto,sans-serif;
+  --ease:cubic-bezier(.22,.75,.28,1);
+}
+[data-theme="ocean"]{--vt:#0E86C4;--vt-d:#0A6291;--vt-l:#E3F1FA;--vt-xl:#F2F9FD;--va:#FF7A59;--va-l:#FFF0EB;--g1a:#8FE0F0;--g1b:#2E9BD4;--g1c:#14689E;--g2a:#BFD9F2;--g2b:#6E9FD0;--g2c:#3F6E9E;--g3a:#A8E8DC;--g3b:#4FBFAE;--g3c:#2A8A80;--g4a:#FFE2B0;--g4b:#FFA96B;--g4c:#F0805A}
+[data-theme="forest"]{--vt:#12897C;--vt-d:#0C6B61;--vt-l:#E4F2F0;--vt-xl:#F1F8F7;--va:#FF7A59;--va-l:#FFF0EB;--g1a:#C6E8B0;--g1b:#6FBF7F;--g1c:#2E8B57;--g2a:#A8E0C8;--g2b:#4FB894;--g2c:#1E8367;--g3a:#D8E8C0;--g3b:#93C07A;--g3c:#5A8C46;--g4a:#FFE0B2;--g4b:#FFAE6B;--g4c:#E08A4A}
+[data-theme="heritage"]{--vt:#8A5A3B;--vt-d:#6B4229;--vt-l:#F4EAE2;--vt-xl:#FBF6F1;--va:#C0453A;--va-l:#FCEDEB;--g1a:#E8DCCB;--g1b:#BFA78A;--g1c:#8A6F52;--g2a:#D9CBB8;--g2b:#A98F6E;--g2c:#6E5842;--g3a:#E5C9A8;--g3b:#C9976A;--g3c:#9A6742;--g4a:#DCD6CC;--g4b:#9E968A;--g4c:#6B6459}
+[data-theme="grassland"]{--vt:#6FA22E;--vt-d:#547C20;--vt-l:#EDF5E1;--vt-xl:#F6FAF0;--va:#D9701F;--va-d:#C2410C;--va-l:#FFF2E6;--g1a:#DCF0A8;--g1b:#93C85A;--g1c:#5A9430;--g2a:#BFE8F5;--g2b:#79C0DC;--g2c:#3F8FB0;--g3a:#E8F2C0;--g3b:#B5D483;--g3c:#7CA84E;--g4a:#FFE9A8;--g4b:#FFC65C;--g4c:#E09A2E}
+[data-theme="snow"]{--vt:#4C7FA8;--vt-d:#35607F;--vt-l:#E8F1F8;--vt-xl:#F4F9FC;--va:#E8734A;--va-l:#FCEEE8;--g1a:#F0F7FC;--g1b:#BDD8EA;--g1c:#7FA8C8;--g2a:#E4EEF6;--g2b:#A9C6DC;--g2c:#6E92B0;--g3a:#EDF4FA;--g3b:#C2D8E8;--g3c:#8AAAC4;--g4a:#FFE0D0;--g4b:#F5A882;--g4c:#D4764E}
+[data-theme="city"]{--vt:#5A5BD0;--vt-d:#413FA8;--vt-l:#ECECFB;--vt-xl:#F6F6FD;--va:#FF5C8A;--va-l:#FFEDF3;--g1a:#CFCFFF;--g1b:#8A8AF0;--g1c:#5A5BD0;--g2a:#C9D8F5;--g2b:#8AA6E0;--g2c:#5A78C0;--g3a:#FFD3E2;--g3b:#FF92B4;--g3c:#E05A82;--g4a:#FFE3B8;--g4b:#FFBE6B;--g4c:#E0913A}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#dfe3e2;color:var(--tx);line-height:1.55;-webkit-font-smoothing:antialiased}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;padding-bottom:66px;box-shadow:0 0 40px rgba(0,0,0,.12)}
+.mi{font-family:'Material Icons'}
+.g1{background:linear-gradient(160deg,var(--g1a),var(--g1b) 52%,var(--g1c))}
+.g2{background:linear-gradient(160deg,var(--g2a),var(--g2b) 50%,var(--g2c))}
+.g3{background:linear-gradient(160deg,var(--g3a),var(--g3b) 52%,var(--g3c))}
+.g4{background:linear-gradient(160deg,var(--g4a),var(--g4b) 50%,var(--g4c))}
+.page{display:none}.page.on{display:block}
+
+/* 顶部 */
+.nav{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav-row{display:flex;align-items:center;gap:10px;padding:11px 16px}
+.nav-row .mi.back{font-size:20px;cursor:pointer;color:var(--tx)}
+.nav-t{flex:1;font-size:16px;font-weight:800;letter-spacing:-.01em}
+.nav-btn{width:32px;height:32px;border-radius:50%;background:var(--pri-l);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.nav-btn .mi{font-size:17px;color:var(--pri-d)}
+.nav-btn.pub{background:var(--acc);}
+.nav-btn.pub .mi{color:#fff}
+/* tab */
+.ctabs{display:flex;gap:4px;padding:0 12px 9px;overflow-x:auto;scrollbar-width:none}
+.ctabs::-webkit-scrollbar{display:none}
+.ctab{flex-shrink:0;padding:7px 14px;border-radius:var(--r-full);font-size:12px;font-weight:800;color:var(--tx3);cursor:pointer;position:relative}
+.ctab.on{background:var(--pri-d);color:#fff}
+/* 主题筛选 */
+.tf{display:flex;gap:6px;padding:0 14px 10px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
+.tf::-webkit-scrollbar{display:none}
+.tfc{flex-shrink:0;padding:5px 11px;background:#fff;border-radius:var(--r-full);font-size:10.5px;font-weight:800;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:4px;box-shadow:var(--sh-s)}
+.tfc i{width:8px;height:8px;border-radius:50%;display:block}
+.tfc.on{color:#fff}
+.bind-note{margin:10px 14px 0;padding:9px 11px;background:var(--pri-l);border-radius:var(--r-sm);font-size:10px;color:var(--pri-d);font-weight:600;line-height:1.65;display:flex;gap:6px}
+.bind-note .mi{font-size:14px;flex-shrink:0;margin-top:1px}
+
+/* 双列瀑布 */
+.feed{column-count:2;column-gap:10px;padding:12px 14px}
+.note{break-inside:avoid;margin-bottom:10px;background:#fff;border-radius:var(--r-md);overflow:hidden;box-shadow:var(--sh-s);cursor:pointer;transition:.24s var(--ease)}
+.note:hover{box-shadow:var(--sh-m);transform:translateY(-2px)}
+.note:active{transform:scale(.985)}
+.note-img{width:100%;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.note-img .mi.ic{font-size:34px;color:rgba(255,255,255,.6);position:relative;z-index:2}
+.note-type{position:absolute;top:8px;left:8px;z-index:3;padding:2px 8px;background:rgba(255,255,255,.92);border-radius:var(--r-full);font-size:8.5px;font-weight:800;color:var(--vt-d);letter-spacing:.06em}
+.note-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center}
+.note-play .mi{font-size:22px;color:var(--vt-d);margin-left:2px}
+.note-body{padding:11px}
+.note-t{font-size:12px;font-weight:800;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.note-meta{display:flex;align-items:center;justify-content:space-between;margin-top:9px}
+.note-u{display:flex;align-items:center;gap:5px;font-size:9.5px;color:var(--tx3);font-weight:600;min-width:0}
+.note-u .av{width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;font-weight:800;color:#fff;overflow:hidden}
+.note-l{display:flex;align-items:center;gap:3px;font-size:9.5px;color:var(--tx3);font-weight:700;flex-shrink:0}
+.note-l .mi{font-size:13px;color:var(--va)}
+/* 绑定徽标 */
+.bind{margin-top:9px;padding:8px 9px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:space-between;gap:5px;font-size:9.5px;font-weight:800}
+.bind.on{background:var(--vt-xl);color:var(--vt-d);border-left:2px solid var(--vt)}
+.bind.pend{background:var(--line2);color:var(--tx3)}
+.bind .mi{font-size:13px}
+
+/* ===== 游记详情 ===== */
+.d-hero{height:300px;position:relative;display:flex;align-items:center;justify-content:center}
+.d-hero .mi.ic{font-size:64px;color:rgba(255,255,255,.45);position:relative;z-index:2}
+.d-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 30%,transparent 55%,var(--bg))}
+.d-top{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:13px 16px}
+.d-ic{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.d-ic .mi{font-size:17px;color:var(--tx)}
+.d-card{margin:-42px 14px 0;background:#fff;border-radius:var(--r-lg);padding:16px;box-shadow:var(--sh-m);position:relative;z-index:6}
+.d-t{font-size:19px;font-weight:800;line-height:1.45;letter-spacing:-.015em}
+.d-info{display:flex;align-items:center;gap:10px;margin-top:13px}
+.d-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
+.d-un{font-size:12.5px;font-weight:800}
+.d-um{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.d-follow{margin-left:auto;padding:7px 15px;background:var(--acc);color:#fff;border-radius:var(--r-full);font-size:11.5px;font-weight:800;cursor:pointer}
+.d-follow.on{background:var(--pri-l);color:var(--pri-d)}
+.d-body{padding:18px 16px 0}
+.p-sec{margin-bottom:20px}
+.p-cap{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--pri-d);text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:9px}
+.p-cap i{width:6px;height:6px;border-radius:50%;background:var(--vt);display:block}
+.p-img{width:100%;height:150px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;margin-bottom:11px;cursor:pointer;overflow:hidden;position:relative}
+.p-img .mi{font-size:34px;color:rgba(255,255,255,.6);position:relative;z-index:2}
+.p-txt{font-size:13px;color:var(--tx);line-height:2;font-weight:500}
+.p-txt b{color:var(--vt-d);font-weight:800;background:var(--vt-l);padding:0 3px;border-radius:3px}
+/* 文中提到的服务 */
+.svc{margin:0 16px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);overflow:hidden}
+.svc-h{padding:13px 15px 11px;border-bottom:1px solid var(--line2);display:flex;align-items:center;justify-content:space-between}
+.svc-t{font-size:12.5px;font-weight:800;display:flex;align-items:center;gap:6px}
+.svc-t .mi{font-size:15px;color:var(--vt)}
+.svc-s{font-size:9.5px;color:var(--tx3);font-weight:600}
+.svc-i{display:flex;align-items:center;gap:11px;padding:12px 15px;border-bottom:1px solid var(--line2);cursor:pointer}
+.svc-i:last-child{border-bottom:none}
+.svc-ic{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.svc-ic .mi{font-size:16px;color:#fff}
+.svc-b{flex:1;min-width:0}
+.svc-n{font-size:12px;font-weight:800}
+.svc-m{font-size:9.5px;color:var(--tx3);margin-top:3px;font-weight:600}
+.svc-go{font-size:10px;font-weight:800;color:var(--vt)}
+/* 同款套餐卡（主题作用域） */
+.pkg{margin:18px 16px 0;background:#fff;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-m);border-top:3px solid var(--vt);cursor:pointer;transition:.24s var(--ease)}
+.pkg:active{transform:scale(.99)}
+.pkg-flag{padding:9px 14px;background:var(--vt-xl);font-size:9.5px;font-weight:800;color:var(--vt-d);letter-spacing:.06em;display:flex;align-items:center;gap:6px}
+.pkg-flag .mi{font-size:13px}
+.pkg-b{display:flex;gap:12px;padding:13px 14px}
+.pkg-img{width:74px;height:88px;border-radius:var(--r-sm);flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.pkg-img .mi{font-size:26px;color:rgba(255,255,255,.7);position:relative;z-index:2}
+.pkg-i{flex:1;min-width:0}
+.pkg-n{font-size:14.5px;font-weight:800;line-height:1.4}
+.pkg-m{font-size:10.5px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.7}
+.pkg-inc{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.pkg-inc i{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;background:var(--vt-xl);border-radius:5px;font-size:9px;color:var(--vt-d);font-style:normal;font-weight:700}
+.pkg-inc i .mi{font-size:11px;color:var(--vt)}
+.pkg-f{display:flex;align-items:flex-end;justify-content:space-between;padding:12px 14px;border-top:1px dashed var(--line)}
+.pkg-p b{font-size:21px;font-weight:800;color:var(--va);letter-spacing:-.02em}
+.pkg-p b small{font-size:11px;font-weight:700}
+.pkg-p span{font-size:9.5px;color:var(--tx3);font-weight:600;margin-left:5px}
+.pkg-p em{display:block;font-size:9.5px;color:var(--tx3);text-decoration:line-through;font-style:normal;margin-top:2px}
+.pkg-btn{padding:9px 18px;background:var(--va);color:#fff;border-radius:var(--r-full);font-size:12px;font-weight:800;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+/* 未绑定 */
+.pkg-none{margin:16px 16px 0;padding:13px 14px;background:var(--line2);border-radius:var(--r-md);font-size:10.5px;color:var(--tx3);font-weight:600;line-height:1.75;display:flex;gap:8px;align-items:flex-start}
+.pkg-none .mi{font-size:16px;flex-shrink:0}
+/* 评论 */
+.cmt{margin:20px 16px 0;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);padding:14px 15px}
+.cmt-h{font-size:12.5px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.cmt-h span{font-size:10px;color:var(--tx3);font-weight:600}
+.cmt-i{display:flex;gap:9px;padding:9px 0;border-top:1px solid var(--line2)}
+.cmt-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;font-weight:800;color:#fff}
+.cmt-b{flex:1;min-width:0}
+.cmt-n{font-size:11px;font-weight:800}
+.cmt-t{font-size:11px;color:var(--tx2);line-height:1.7;margin-top:3px;font-weight:500}
+.cmt-m{font-size:9px;color:var(--tx3);margin-top:5px;font-weight:600}
+.cmt-in{display:flex;gap:9px;align-items:center;padding:12px 16px 0}
+.cmt-box{flex:1;display:flex;align-items:center;gap:8px;background:#fff;border-radius:var(--r-full);padding:10px 15px;font-size:12px;color:var(--tx3);box-shadow:var(--sh-s);cursor:text}
+.cmt-box .mi{font-size:16px}
+.cmt-send{width:38px;height:38px;border-radius:50%;background:var(--pri-d);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.cmt-send .mi{font-size:18px;color:#fff}
+/* 底部互动栏 */
+.iact{position:sticky;bottom:66px;display:flex;align-items:center;gap:14px;padding:11px 16px;margin-top:18px;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+.ia{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;color:var(--tx2);cursor:pointer}
+.ia .mi{font-size:19px}
+.ia.on{color:var(--acc)}
+.ia.on .mi{animation:beat .5s}
+@keyframes beat{0%{transform:scale(1)}35%{transform:scale(1.4)}70%{transform:scale(.92)}100%{transform:scale(1)}}
+.ia-buy{margin-left:auto;padding:9px 20px;background:var(--acc);color:#fff;border-radius:var(--r-full);font-size:12px;font-weight:800;cursor:pointer}
+
+/* ===== 沉浸视频页 ===== */
+.reel{position:fixed;inset:0;background:#000;z-index:120;display:none;max-width:375px;margin:0 auto}
+.reel.on{display:block}
+.reel-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.reel-bg .mi{font-size:110px;color:rgba(255,255,255,.3)}
+.reel-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.42),transparent 25%,transparent 55%,rgba(0,0,0,.8))}
+.reel-x{position:absolute;top:16px;right:16px;z-index:5;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.42);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.reel-x .mi{font-size:19px;color:#fff}
+.reel-body{position:absolute;bottom:0;left:0;right:0;z-index:4;padding:0 16px 26px;color:#fff}
+.reel-prog{height:3px;background:rgba(255,255,255,.2);border-radius:2px;margin-bottom:16px;overflow:hidden}
+.reel-prog i{display:block;height:100%;width:34%;background:#fff;border-radius:2px;transition:width .3s}
+.reel-a{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.reel-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;border:1.5px solid rgba(255,255,255,.6)}
+.reel-n{font-size:13px;font-weight:800}
+.reel-m{font-size:10px;opacity:.75;margin-top:2px;font-weight:600}
+.reel-follow{margin-left:auto;padding:6px 15px;border:1.5px solid rgba(255,255,255,.7);border-radius:var(--r-full);font-size:11.5px;font-weight:800;cursor:pointer}
+.reel-follow.on{background:#fff;color:var(--tx)}
+.reel-cap{font-size:14px;font-weight:800;line-height:1.6;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.reel-desc{font-size:11px;opacity:.85;margin-top:8px;line-height:1.75}
+.reel-side{position:absolute;right:12px;bottom:150px;z-index:5;display:flex;flex-direction:column;gap:18px;align-items:center}
+.rs{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.rs .mi{font-size:28px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.rs span{font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.rs.on .mi{color:var(--va);animation:beat .5s}
+.reel-pkg{margin-top:14px;padding:11px 13px;background:rgba(255,255,255,.94);border-radius:var(--r-md);display:flex;align-items:center;gap:10px;cursor:pointer;border-left:3px solid var(--vt)}
+.reel-pkg-ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.reel-pkg-ic .mi{font-size:17px;color:#fff}
+.reel-pkg-b{flex:1;min-width:0}
+.reel-pkg-k{font-size:8.5px;font-weight:800;letter-spacing:.14em;color:var(--vt-d)}
+.reel-pkg-n{font-size:12px;font-weight:800;color:var(--tx);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reel-pkg-p{font-size:13px;font-weight:800;color:var(--va);white-space:nowrap}
+.reel-swipe{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);z-index:5;font-size:9.5px;color:rgba(255,255,255,.5);font-weight:700;letter-spacing:.1em}
+.reel-nav{position:absolute;right:12px;top:70px;z-index:5;display:flex;flex-direction:column;gap:8px}
+.reel-nav div{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.reel-nav .mi{font-size:19px;color:#fff}
+
+/* 底部 tab */
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:375px;display:flex;background:rgba(255,255,255,.97);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:8px 0 10px;z-index:60}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:var(--tx3);font-weight:700;cursor:pointer}
+.tab .mi{font-size:22px}
+.tab.on{color:var(--pri-d)}
+
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);padding:13px 22px;background:rgba(27,46,44,.92);color:#fff;border-radius:14px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;max-width:290px;font-weight:600;line-height:1.7}
+.toast.show{opacity:1}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+</style>
+</head>
+<body>
+<div class="app" data-theme="neutral" id="app">
+
+  <!-- ===== 内容流 ===== -->
+  <div class="page on" id="pgFeed">
+    <div class="nav">
+      <div class="nav-row">
+        <span class="mi back" onclick="showToast('返回首页')">arrow_back</span>
+        <div class="nav-t">他们去过</div>
+        <div class="nav-btn" onclick="showToast('搜索内容')"><span class="mi">search</span></div>
+        <div class="nav-btn pub" onclick="showToast('发布入口：仅已完成订单可发布')"><span class="mi">edit</span></div>
+      </div>
+      <div class="ctabs">
+        <div class="ctab on" onclick="ctab(this,'reco')">推荐</div>
+        <div class="ctab" onclick="ctab(this,'new')">最新</div>
+        <div class="ctab" onclick="ctab(this,'follow')">关注</div>
+        <div class="ctab" onclick="ctab(this,'video')">只看视频</div>
+        <div class="ctab" onclick="ctab(this,'mine')">我的</div>
+      </div>
+      <div class="tf" id="tf"></div>
+    </div>
+
+    <div class="bind-note" id="bindNote"><span class="mi">link</span><span id="bindNoteT">内容来自已完成订单，运营在后台确认后才会挂上「同款套餐」入口</span></div>
+
+    <div class="feed" id="feed"></div>
+    <div style="text-align:center;font-size:10px;color:var(--tx3);padding:10px 0 20px;font-weight:700;letter-spacing:.14em">— 已 经 到 底 了 —</div>
+  </div>
+
+  <!-- ===== 游记详情 ===== -->
+  <div class="page" id="pgPost">
+    <div class="d-hero g1" id="dHero">
+      <span class="mi ic" id="dHeroIcon">landscape</span>
+      <div class="d-top">
+        <div class="d-ic" onclick="backFeed()"><span class="mi">arrow_back</span></div>
+        <div style="display:flex;gap:8px">
+          <div class="d-ic" onclick="showToast('已收藏到我的收藏夹')"><span class="mi">bookmark_border</span></div>
+          <div class="d-ic" onclick="showToast('生成分享海报')"><span class="mi">ios_share</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-card" data-theme="ocean" id="dCard">
+      <div class="d-t" id="dTitle">带娃在东极岛赶海，一下午挖了半桶蛤蜊</div>
+      <div class="d-info">
+        <div class="d-av" id="dAv" style="background:linear-gradient(135deg,#F472B6,#BE185D)">小</div>
+        <div>
+          <div class="d-un" id="dAuthor">小满妈妈</div>
+          <div class="d-um" id="dMeta">2026-10-19 出行 · 亲子 2大1小 · 东极岛 · 图文 3 张</div>
+        </div>
+        <div class="d-follow" id="dFollow" onclick="followBtn(this)">＋ 关注</div>
+      </div>
+    </div>
+
+    <div class="d-body" id="dBody"></div>
+
+    <div style="padding-top:20px">
+      <div class="svc" data-theme="ocean" id="svcBox">
+        <div class="svc-h"><div class="svc-t"><span class="mi">my_location</span>文中提到的服务</div><div class="svc-s">来自关联订单的子券</div></div>
+        <div id="svcList"></div>
+      </div>
+    </div>
+
+    <div id="pkgSlot"></div>
+
+    <div class="cmt">
+      <div class="cmt-h">评论 <span id="cmtCnt">28 条</span></div>
+      <div id="cmtList"></div>
+    </div>
+    <div class="cmt-in">
+      <div class="cmt-box" onclick="showToast('写下你的评论')"><span class="mi">chat_bubble_outline</span>说点什么…</div>
+      <div class="cmt-send" onclick="showToast('发送评论')"><span class="mi">send</span></div>
+    </div>
+
+    <div class="iact">
+      <div class="ia on" onclick="iaBtn(this)"><span class="mi">favorite</span><span id="iaLike">248</span></div>
+      <div class="ia" onclick="iaBtn(this)"><span class="mi">star_border</span>收藏</div>
+      <div class="ia" onclick="showToast('查看 28 条评论')"><span class="mi">chat_bubble_outline</span>28</div>
+      <div class="ia-buy" onclick="showToast('跳转产品详情')">订同款</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 沉浸视频页 ===== -->
+<div class="reel" id="reel" data-theme="forest">
+  <div class="reel-bg g1" id="reelBg"><span class="mi" id="reelIcon">filter_hdr</span></div>
+  <div class="reel-x" onclick="closeReel()"><span class="mi">close</span></div>
+  <div class="reel-nav">
+    <div onclick="reelGo(-1)"><span class="mi">keyboard_arrow_up</span></div>
+    <div onclick="reelGo(1)"><span class="mi">keyboard_arrow_down</span></div>
+  </div>
+  <div class="reel-side">
+    <div class="rs on" onclick="rsBtn(this)"><span class="mi">favorite</span><span id="rsLike">183</span></div>
+    <div class="rs" onclick="rsBtn(this)"><span class="mi">bookmark_border</span>收藏</div>
+    <div class="rs" onclick="showToast('展开评论')"><span class="mi">chat_bubble_outline</span>42</div>
+    <div class="rs" onclick="showToast('分享视频')"><span class="mi">ios_share</span>分享</div>
+  </div>
+  <div class="reel-body">
+    <div class="reel-prog"><i id="reelProg"></i></div>
+    <div class="reel-a">
+      <div class="reel-av" id="reelAv" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8)">Y</div>
+      <div><div class="reel-n" id="reelAuthor">Y. Lin</div><div class="reel-m" id="reelTime">昨天 09:14 · 莫干山</div></div>
+      <div class="reel-follow" onclick="this.classList.toggle('on');showToast(this.classList.contains('on')?'已关注':'已取消关注')">关注</div>
+    </div>
+    <div class="reel-cap" id="reelCap">清晨六点的云海，和宣传图一模一样</div>
+    <div class="reel-desc" id="reelDesc">民宿阳台正对山谷，不用闹钟就被鸟叫醒。管家七点半发消息问早餐想在哪吃。</div>
+    <div class="reel-pkg" id="reelPkg">
+      <div class="reel-pkg-ic g3"><span class="mi">filter_hdr</span></div>
+      <div class="reel-pkg-b"><div class="reel-pkg-k">这 趟 里 程 的 同 款</div><div class="reel-pkg-n">莫干山云端两日</div></div>
+      <div class="reel-pkg-p">¥1,680 起</div>
+    </div>
+    <div class="reel-swipe">上滑查看更多</div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <div class="tab on"><span class="mi">explore</span><span>发现</span></div>
+  <div class="tab" onclick="showToast('切换到行程助手')"><span class="mi">timeline</span><span>行程</span></div>
+  <div class="tab" onclick="showToast('切换到企业专区')"><span class="mi">business_center</span><span>企业</span></div>
+  <div class="tab" onclick="showToast('切换到个人中心')"><span class="mi">person_outline</span><span>我的</span></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const LIB={ocean:{n:'海洋',sw:'#0E86C4'},forest:{n:'山林',sw:'#12897C'},heritage:{n:'古镇',sw:'#8A5A3B'},
+ grassland:{n:'草原',sw:'#6FA22E'},snow:{n:'雪域温泉',sw:'#4C7FA8'},city:{n:'城市',sw:'#5A5BD0'}};
+
+/* bind 状态与 A4「内容挂套餐绑定」面板一致：on=已绑定 / pend=待确认或无匹配 */
+const POSTS=[
+ {id:1,th:'ocean',type:'图文',t:'带娃在东极岛赶海，一下午挖了半桶蛤蜊',a:'小满妈妈',av:'#F472B6',time:'2026-10-19',meta:'亲子 2大1小 · 图文 3 张',like:248,h:168,ic:'beach_access',
+  bind:'on',pkg:'东极岛听海两日',pp:1580,pold:2960,pinc:[['hotel','海景石屋1晚'],['directions_boat','出海海钓'],['local_taxi','船票接送']],
+  paras:[
+   {cap:'抵达',ic:'sailing',txt:'从沈家门码头坐快船七十分钟，孩子第一次坐船一点没闹，趴在窗上看浪。<b>靠窗座位是管家提前留的</b>，还塞了晕船贴和姜茶。'},
+   {cap:'赶海',ic:'beach_access',txt:'低潮时整片滩涂都是孩子的。工具民宿备好了，小桶小铲加上手套，挖了半桶蛤蜊不肯走。<b>向导一直说「别挖太深的洞」</b>，我们没听，第二天涨潮就发现真的会被淹。'},
+   {cap:'晚饭',ic:'local_fire_department',txt:'沙滩上支的长桌，炭火鱿鱼她吃了三串。厨子听说带娃，主动把辣的那道换成了清蒸，还送了一小碗蛋羹。'}],
+  svc:[['directions_boat','g3','出海海钓 4 小时','老陈船队 · 商家C · 子券 已核销'],
+       ['local_fire_department','g2','沙滩长桌晚宴','海味厨房 · 商家B · 子券 已核销'],
+       ['hotel','g1','海景石屋大床房','海隅石屋 · 商家D · 含双早 · 已加儿童床']],
+  cmts:[['周先生','#3B82F6','请问赶海需要自带工具吗？看到你说民宿备好了。','2 小时前 · 12 赞'],
+        ['小满妈妈','#F472B6','不用，大堂有桶和铲，手套要自己带，礁石划手。','1 小时前 · 8 赞'],
+        ['阿茶','#14B8A6','住的那间能看到日出吗？','昨天 · 3 赞']]},
+ {id:2,th:'forest',type:'视频',t:'清晨六点的云海，和宣传图一模一样',a:'Y. Lin',av:'#3B82F6',time:'2026-10-02',meta:'情侣 · 视频 48 秒',like:183,h:150,ic:'filter_hdr',
+  bind:'on',pkg:'莫干山云端两日',pp:1680,pold:3280,pinc:[['hotel','云海大床房'],['hiking','溪谷徒步'],['local_taxi','专车接送']],
+  paras:[{cap:'清晨',ic:'wb_twilight',txt:'六点推开窗，云从山谷里漫上来。<b>不用闹钟，鸟叫就把人叫醒了</b>。'},
+   {cap:'白天',ic:'hiking',txt:'溪谷三公里，水声盖过一切。向导是本地村民，知道哪段能蹚水。'},
+   {cap:'入夜',ic:'local_fire_department',txt:'围炉晚宴配桂花酒，吃完走两百米就回房。'}],
+  svc:[['hiking','g3','溪谷徒步 · 向导随行','山野向导俱乐部 · 商家C'],['local_fire_department','g2','星空围炉晚宴','竹里馆 · 商家B · 需预约']],
+  cmts:[['王芳','#6FA22E','这个机位是房间阳台还是观景台？','5 小时前 · 6 赞'],['Y. Lin','#3B82F6','阳台，正对山谷，早上六点光最好。','4 小时前 · 14 赞']]},
+ {id:3,th:'heritage',type:'图文',t:'在宏村描了一帖徽墨，孩子安静了两个小时',a:'阿茶',av:'#14B8A6',time:'2026-11-08',meta:'亲子 · 图文 2 张',like:201,h:176,ic:'temple_buddhist',
+  bind:'pend',pkg:null,pp:0,pold:0,pinc:[],
+  paras:[{cap:'清晨',ic:'wb_twilight',txt:'六点的水圳只有你和洗衣服的阿婆，这时候拍照不会有游客入镜。'},
+   {cap:'白昼',ic:'brush',txt:'非遗师傅手把手教捶墨描金。<b>孩子平时坐不住，这天下午一句话没说</b>，只盯着笔尖。'},
+   {cap:'入夜',ic:'nightlight',txt:'天井的灯笼亮起来那一刻，全家都在拍照。'}],
+  svc:[['brush','g3','徽墨手作体验','胡氏墨坊 · 商家C · 需预约'],['restaurant','g2','徽州家宴','叙园 · 商家B']],
+  cmts:[['小满妈妈','#F472B6','手作要预约吗？孩子六岁能做吗','昨天 · 4 赞']]},
+ {id:4,th:'forest',type:'图文',t:'30 人团建包场，HR 说这是最省心的一次',a:'周先生',av:'#6B7585',time:'2026-08-14',meta:'公司团建 22 人 · 图文 2 张',like:96,h:142,ic:'camping',
+  bind:'pend',pkg:null,pp:0,pold:0,pinc:[],
+  paras:[{cap:'出发',ic:'groups',txt:'核销码统一发给 HR，再分给同事，每人自己出示，<b>不用现场点名对账</b>。'},
+   {cap:'白天',ic:'park',txt:'拓展项目按体力分组，走不动的可以在营地喝茶。'},
+   {cap:'晚上',ic:'local_fire_department',txt:'团队晚宴 + 篝火，第二天早上没人赖床。'}],
+  svc:[['restaurant','g2','团队晚宴','竹里馆 · 商家B'],['directions_car','g4','大巴包车','云栖出行']],
+  cmts:[['李思','#8B5CF6','对公转账和专票顺利吗？','2 天前 · 5 赞'],['周先生','#6B7585','顺利，提前三天提的，服务完成五个工作日开出。','2 天前 · 9 赞']]},
+ {id:5,th:'grassland',type:'视频',t:'凌晨四点的草原，银河真的看得见',a:'王芳',av:'#8B5CF6',time:'2026-07-15',meta:'定制小团 · 视频 62 秒',like:398,h:158,ic:'park',
+  bind:'pend',pkg:null,pp:0,pold:0,pinc:[],
+  paras:[{cap:'黄昏',ic:'wb_twilight',txt:'日落有二十分钟，整片草原是琥珀色。向导知道哪个坡顶看得最全。'},
+   {cap:'夜里',ic:'nightlight',txt:'篝火烧起来，烤全羊上桌。<b>十一点走出蒙古包，银河就在头顶</b>。'}],
+  svc:[['sports_martial_arts','g3','骑马穿越 2 小时','巴尔虎马队 · 商家B'],['local_fire_department','g2','篝火烤全羊晚宴','星空营地 · 商家A']],
+  cmts:[['Y. Lin','#3B82F6','蒙古包冷吗？','3 天前 · 7 赞']]},
+ {id:6,th:'city',type:'图文',t:'把城市过成假期，从屋顶的黄昏开始',a:'Vivian',av:'#EC4899',time:'2026-09-22',meta:'情侣 · 图文 4 张',like:296,h:146,ic:'local_bar',
+  bind:'on',pkg:'上海屋顶周末两日',pp:1980,pold:3540,pinc:[['hotel','江景套房1晚'],['restaurant_menu','餐酒晚宴'],['map','City Walk']],
+  paras:[{cap:'黄昏',ic:'local_bar',txt:'二十七层的屋顶，<b>座位是提前留的</b>，看夕阳掉进黄浦江那十分钟，谁都没说话。'},
+   {cap:'夜里',ic:'restaurant_menu',txt:'八道菜配四杯酒，侍酒师会讲每支的来历。'},
+   {cap:'次日',ic:'map',txt:'导览的师傅是本地记者出身，讲的比导游好太多。'}],
+  svc:[['local_bar','g2','屋顶酒吧黄昏场','Bar 27 · 商家B'],['restaurant_menu','g2','八道菜餐酒晚宴','叁·创意料理 · 商家C'],['map','g3','City Walk 本地导览','城市漫步社 · 商家D']],
+  cmts:[['阿茶','#14B8A6','City Walk 大概走多久？','昨天 · 3 赞']]},
+ {id:7,th:'snow',type:'视频',t:'零下二十度，头发结冰身体是热的',a:'陈磊',av:'#0D9488',time:'2026-01-19',meta:'亲子 · 视频 55 秒',like:258,h:152,ic:'hot_tub',
+  bind:'on',pkg:'长白山雪季三日',pp:2880,pold:4680,pinc:[['hotel','雪场酒店2晚'],['downhill_skiing','教学+雪票'],['hot_tub','户外温泉']],
+  paras:[{cap:'白天',ic:'downhill_skiing',txt:'教练一对二，六岁娃摔了七八次，第二小时已经能自己从初级道滑下来。'},
+   {cap:'夜里',ic:'hot_tub',txt:'户外温泉四十度，头顶飘雪，<b>睫毛上结霜</b>。'}],
+  svc:[['downhill_skiing','g3','滑雪教学 · 一对二','滑雪学校 · 商家B'],['hot_tub','g2','户外温泉 90 分钟','蓝景温泉 · 商家C · 需预约']],
+  cmts:[['小满妈妈','#F472B6','雪具要自己租吗？','4 天前 · 11 赞']]}
+];
+
+let fState={tab:'reco',theme:[]};
+const $=id=>document.getElementById(id);
+
+function renderTf(){
+  $('tf').innerHTML='<span class="tfc'+(fState.theme.length?'':' on')+'" style="'+(fState.theme.length?'':'background:var(--pri-d);color:#fff')+'" onclick="themeAll()">全部主题</span>'
+   +Object.keys(LIB).map(k=>{
+    const on=fState.theme.includes(k);
+    return `<span class="tfc${on?' on':''}" style="${on?`background:${LIB[k].sw};color:#fff`:''}" onclick="themePick('${k}')"><i style="background:${on?'#fff':LIB[k].sw}"></i>${LIB[k].n}</span>`;
+  }).join('');
+}
+function themeAll(){fState.theme=[];renderTf();renderFeed();}
+function themePick(k){const i=fState.theme.indexOf(k);i>=0?fState.theme.splice(i,1):fState.theme.push(k);renderTf();renderFeed();}
+function ctab(el,k){document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));el.classList.add('on');fState.tab=k;renderFeed();
+ const N={reco:'内容来自已完成订单，运营在后台确认后才会挂上「同款套餐」入口',new:'按发布时间排序 · 待确认内容也在最新里可见',follow:'你关注的 6 位达人近 30 天有 11 篇新内容',video:'只看视频，点击即进入沉浸播放',mine:'我发布的 2 篇内容 · 1 篇已挂同款套餐'};
+ $('bindNoteT').textContent=N[k];}
+
+function curList(){
+  let l=POSTS.slice();
+  if(fState.theme.length)l=l.filter(p=>fState.theme.includes(p.th));
+  if(fState.tab==='new')l.sort((a,b)=>b.id-a.id);
+  if(fState.tab==='video')l=l.filter(p=>p.type==='视频');
+  if(fState.tab==='follow')l=l.filter(p=>[1,2,6].includes(p.id));
+  if(fState.tab==='mine')l=l.filter(p=>[1,4].includes(p.id));
+  return l;
+}
+function renderFeed(){
+  const l=curList();
+  $('feed').innerHTML=l.length?l.map((p,i)=>{
+    const g=['g1','g3','g4','g2'][i%4];
+    const bindHtml = p.bind==='on'
+      ? `<div class="bind on" onclick="event.stopPropagation();showToast('跳转同款套餐：${p.pkg}')"><span><span class="mi" style="vertical-align:-2px">link</span> 同款 · ${p.pkg}</span><b style="color:var(--va)">¥${p.pp.toLocaleString()} 起</b></div>`
+      : `<div class="bind pend"><span><span class="mi" style="vertical-align:-2px">link_off</span> 运营尚未确认关联</span><b>暂不展示</b></div>`;
+    return `<div class="note" data-theme="${p.th}" onclick="openPost(${p.id})">
+      <div class="note-img ${g}" style="height:${p.h}px">
+        <span class="mi ic">${p.ic}</span>
+        <span class="note-type">${p.type==='视频'?'视频':p.type}</span>
+        ${p.type==='视频'?'<span class="note-play"><span class="mi">play_arrow</span></span>':''}
+      </div>
+      <div class="note-body">
+        <div class="note-t">${p.t}</div>
+        <div class="note-meta"><div class="note-u"><span class="av" style="background:${p.av}">${p.a[0]}</span>${p.a}</div><div class="note-l"><span class="mi">favorite</span>${p.like}</div></div>
+        ${bindHtml}
+      </div></div>`;
+  }).join(''):'<div style="grid-column:1/3;text-align:center;padding:40px 12px;color:var(--tx3);font-size:12px">该主题下暂无内容</div>';
+}
+
+/* 详情 */
+function openPost(id){
+  const p=POSTS.find(x=>x.id===id);
+  $('app').setAttribute('data-theme',p.th);
+  $('dHero').className='d-hero '+(['g1','g2','g3','g4'][id%4]);
+  $('dHeroIcon').textContent=p.ic;
+  $('dCard').setAttribute('data-theme',p.th);
+  $('dTitle').textContent=p.t;
+  $('dAuthor').textContent=p.a;
+  $('dAv').textContent=p.a[0];$('dAv').style.background=p.av;
+  $('dMeta').textContent=p.time+' 出行 · '+p.meta;
+  $('dFollow').className='d-follow';$('dFollow').textContent='＋ 关注';
+  $('iaLike').textContent=p.like;
+  $('svcBox').setAttribute('data-theme',p.th);
+  $('svcList').innerHTML=p.svc.map(s=>`<div class="svc-i" onclick="showToast('跳转该服务详情 · ${s[1]}')">
+    <div class="svc-ic ${s[1]}"><span class="mi">${s[0]}</span></div>
+    <div class="svc-b"><div class="svc-n">${s[2]}</div><div class="svc-m">${s[3]}</div></div>
+    <div class="svc-go">查看</div></div>`).join('');
+  $('dBody').innerHTML=p.paras.map((x,i)=>`<div class="p-sec" data-theme="${p.th}">
+    <div class="p-cap"><i></i>${x.cap}</div>
+    <div class="p-img ${['g1','g3','g2','g4'][i%4]}" onclick="showToast('查看大图')"><span class="mi">${x.ic}</span></div>
+    <div class="p-txt">${x.txt}</div></div>`).join('');
+  $('pkgSlot').innerHTML = p.bind==='on'
+    ? `<div class="pkg" data-theme="${p.th}" onclick="showToast('进入产品详情：${p.pkg}')">
+        <div class="pkg-flag"><span class="mi">verified</span>运营已确认关联 · 与本篇行程同源的打包产品</div>
+        <div class="pkg-b">
+          <div class="pkg-img ${['g1','g2','g3','g4'][p.id%4]}"><span class="mi">${p.ic}</span></div>
+          <div class="pkg-i"><div class="pkg-n">${p.pkg}</div><div class="pkg-m">${LIB[p.th].n}主题 · ${p.meta.split(' · ')[0]}</div>
+          <div class="pkg-inc">${p.pinc.map(x=>`<i><span class="mi">${x[0]}</span>${x[1]}</i>`).join('')}</div></div>
+        </div>
+        <div class="pkg-f"><div class="pkg-p"><b><small>¥</small>${p.pp.toLocaleString()}</b><span>起 / 2人</span><em>单买 ¥${p.pold.toLocaleString()}</em></div><div class="pkg-btn">立即预订</div></div></div>`
+    : `<div class="pkg-none"><span class="mi">info</span><span>这篇内容暂未关联可预订的产品。若它来自你的真实订单，可在「订单详情 → 写游记」发布后由运营确认关联；在此之前这里不会出现跳转入口，避免把你带到不相干的套餐上。</span></div>`;
+  $('cmtCnt').textContent=p.cmts.length+' 条';
+  $('cmtList').innerHTML=p.cmts.map(c=>`<div class="cmt-i"><div class="cmt-av" style="background:${c[1]}">${c[0][0]}</div><div class="cmt-b"><div class="cmt-n">${c[0]}</div><div class="cmt-t">${c[2]}</div><div class="cmt-m">${c[3]}</div></div></div>`).join('');
+  $('pgFeed').classList.remove('on');$('pgPost').classList.add('on');window.scrollTo(0,0);
+}
+function backFeed(){$('pgPost').classList.remove('on');$('pgFeed').classList.add('on');$('app').setAttribute('data-theme','neutral');window.scrollTo(0,0);}
+function followBtn(el){el.classList.toggle('on');el.textContent=el.classList.contains('on')?'已关注':'＋ 关注';showToast(el.classList.contains('on')?'已关注，新内容会推给你':'已取消关注');}
+function iaBtn(el){
+  el.classList.toggle('on');
+  const mi=el.querySelector('.mi');
+  if(mi.textContent==='favorite')mi.textContent=el.classList.contains('on')?'favorite':'favorite_border';
+  if(mi.textContent==='star_border')mi.textContent=el.classList.contains('on')?'star':'star_border';
+  if(el.classList.contains('on')){const s=$('iaLike');s.textContent=(parseInt(s.textContent)+1).toLocaleString();}
+}
+
+/* 沉浸视频 */
+let reelIdx=2;
+function openReel(id){const i=POSTS.findIndex(x=>x.id===id);reelIdx=i>=0?i:2;paintReel();$('reel').classList.add('on');}
+function paintReel(){
+  const p=POSTS[reelIdx];
+  $('reel').setAttribute('data-theme',p.th);
+  $('reelBg').className='reel-bg '+['g1','g2','g3','g4'][reelIdx%4];
+  $('reelIcon').textContent=p.ic;
+  $('reelAuthor').textContent=p.a;$('reelAv').textContent=p.a[0];$('reelAv').style.background=p.av;
+  $('reelTime').textContent=p.time+' · '+LIB[p.th].n;
+  $('reelCap').textContent=p.t;
+  $('reelDesc').textContent=p.paras[0].txt.replace(/<b>|<\/b>/g,'');
+  $('rsLike').textContent=p.like;
+  $('reelProg').style.width=Math.round((reelIdx+1)/POSTS.length*100)+'%';
+  const pk=$('reelPkg');
+  pk.style.display=p.bind==='on'?'flex':'none';
+  pk.querySelector('.reel-pkg-n').textContent=p.pkg||'';
+  pk.querySelector('.reel-pkg-p').textContent='¥'+p.pp.toLocaleString()+' 起';
+  pk.querySelector('.reel-pkg-ic').className='reel-pkg-ic '+['g1','g2','g3','g4'][reelIdx%4];
+  pk.querySelector('.reel-pkg-ic .mi').textContent=p.ic;
+}
+function reelGo(d){reelIdx=(reelIdx+d+POSTS.length)%POSTS.length;paintReel();}
+function closeReel(){$('reel').classList.remove('on');}
+function rsBtn(el){el.classList.toggle('on');const mi=el.querySelector('.mi');
+ if(mi.textContent==='bookmark_border')mi.textContent=el.classList.contains('on')?'bookmark':'bookmark_border';
+ if(el.classList.contains('on')&&mi.textContent==='favorite'){$('rsLike').textContent=(parseInt($('rsLike').textContent)+1);}}
+/* 卡片点击：视频进沉浸页，图文进详情 */
+const _open=openPost;
+openPost=function(id){const p=POSTS.find(x=>x.id===id);if(p.type==='视频')openReel(id);else _open(id);};
+document.addEventListener('keydown',e=>{
+  if(!$('reel').classList.contains('on'))return;
+  if(e.key==='ArrowDown')reelGo(1);if(e.key==='ArrowUp')reelGo(-1);if(e.key==='Escape')closeReel();});
+renderTf();renderFeed();
+/* closure v2 - restore missing toast helper (20 onclick refs) */
+function showToast(msg){
+  var t=document.getElementById('toast');
+  if(!t)return;
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(window._p7toast);
+  window._p7toast=setTimeout(function(){t.classList.remove('show')},2400);
+}
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+</body>
+</html>

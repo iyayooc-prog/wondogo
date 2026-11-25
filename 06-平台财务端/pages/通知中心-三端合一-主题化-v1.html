@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · 通知中心（三端合一 · 主题化 v1）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+/* ============================================================
+   通知中心 · 三端合一 v1
+   一个页面切换 C 端用户 / 商家端 / 平台端三套通知流
+   骨架中性；通知若关联某产品，其关联信息条用该产品主题色
+   每条通知必须有明确深链去向，履约类通知带就地操作按钮
+   ============================================================ */
+:root{
+  --bg:#F4F6F5; --card:#fff; --tx:#1B2E2C; --tx2:#5E7370; --tx3:#9BAEAB;
+  --line:#E8EFEE; --line2:#F2F6F5;
+  --pri:#4A5D59; --pri-d:#33423F; --pri-l:#EDF1F0; --pri-xl:#F6F8F7;
+  --acc:#FF6B4A; --acc-l:#FFEFEB;
+  --ok:#16A34A; --ok-l:#ECFDF5;
+  --warn:#D97706; --warn-l:#FFF7ED;
+  --err:#DC2626; --err-l:#FEF2F2;
+  --r-sm:10px; --r-md:16px; --r-lg:22px; --r-full:999px;
+  --sh-s:0 2px 10px rgba(27,46,44,.05); --sh-m:0 6px 22px rgba(27,46,44,.08);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',Roboto,sans-serif;
+  --ease:cubic-bezier(.22,.75,.28,1);
+}
+[data-theme="ocean"]{--vt:#0E86C4;--vt-d:#0A6291;--vt-l:#E3F1FA;--vt-xl:#F2F9FD;--va:#FF7A59;--g1a:#8FE0F0;--g1b:#2E9BD4;--g1c:#14689E}
+[data-theme="forest"]{--vt:#12897C;--vt-d:#0C6B61;--vt-l:#E4F2F0;--vt-xl:#F1F8F7;--va:#FF7A59;--g1a:#C6E8B0;--g1b:#6FBF7F;--g1c:#2E8B57}
+[data-theme="heritage"]{--vt:#8A5A3B;--vt-d:#6B4229;--vt-l:#F4EAE2;--vt-xl:#FBF6F1;--va:#C0453A;--g1a:#E8DCCB;--g1b:#BFA78A;--g1c:#8A6F52}
+[data-theme="grassland"]{--vt:#6FA22E;--vt-d:#547C20;--vt-l:#EDF5E1;--vt-xl:#F6FAF0;--va:#D9701F;--va-d:#C2410C;--g1a:#DCF0A8;--g1b:#93C85A;--g1c:#5A9430}
+[data-theme="snow"]{--vt:#4C7FA8;--vt-d:#35607F;--vt-l:#E8F1F8;--vt-xl:#F4F9FC;--va:#E8734A;--g1a:#F0F7FC;--g1b:#BDD8EA;--g1c:#7FA8C8}
+[data-theme="city"]{--vt:#5A5BD0;--vt-d:#413FA8;--vt-l:#ECECFB;--vt-xl:#F6F6FD;--va:#FF5C8A;--g1a:#CFCFFF;--g1b:#8A8AF0;--g1c:#5A5BD0}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#dfe3e2;color:var(--tx);line-height:1.55;-webkit-font-smoothing:antialiased}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;padding-bottom:66px;box-shadow:0 0 40px rgba(0,0,0,.12)}
+.mi{font-family:'Material Icons'}
+
+/* 端切换（原型演示） */
+.sidesw{position:sticky;top:0;z-index:60;background:var(--pri-d);padding:9px 12px;display:flex;gap:6px}
+.sd{flex:1;padding:8px 4px;border-radius:var(--r-sm);text-align:center;font-size:11px;font-weight:800;color:rgba(255,255,255,.6);cursor:pointer;position:relative;transition:.2s}
+.sd.on{background:rgba(255,255,255,.16);color:#fff}
+.sd .mi{font-size:15px;display:block;margin-bottom:1px}
+.sd b{position:absolute;top:3px;right:6px;min-width:15px;padding:0 4px;background:var(--acc);color:#fff;font-size:8.5px;border-radius:8px;font-weight:800;line-height:15px}
+
+/* 头部 */
+.hdr{padding:14px 16px 0;background:var(--pri-d);color:#fff}
+.hdr-row{display:flex;align-items:center;gap:10px}
+.hdr .mi.bk{font-size:20px;cursor:pointer;color:#fff}
+.hdr-t{flex:1;font-size:17px;font-weight:800;letter-spacing:-.01em}
+.hdr-act{font-size:11px;font-weight:800;color:rgba(255,255,255,.75);cursor:pointer;display:flex;align-items:center;gap:3px}
+.hdr-act .mi{font-size:15px}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,.62);margin-top:8px;line-height:1.7;font-weight:600}
+.hdr-sub b{color:#fff;font-weight:800}
+/* 分类 tab */
+.cats{display:flex;gap:6px;padding:14px 16px 0;overflow-x:auto;scrollbar-width:none;background:var(--pri-d);margin-bottom:0}
+.cats::-webkit-scrollbar{display:none}
+.cat{flex-shrink:0;padding:7px 13px;border-radius:var(--r-full) var(--r-full) 0 0;background:rgba(255,255,255,.1);font-size:11.5px;font-weight:800;color:rgba(255,255,255,.65);cursor:pointer;display:flex;align-items:center;gap:4px}
+.cat.on{background:var(--bg);color:var(--pri-d)}
+.cat i{min-width:15px;padding:0 4px;background:var(--acc);color:#fff;font-size:8.5px;border-radius:8px;font-style:normal;font-weight:800;text-align:center;line-height:15px}
+.cat.on i{background:var(--acc)}
+.wrap-top{background:var(--bg)}
+
+/* 通知列表 */
+.nlist{padding:12px 14px 0}
+.dayg{font-size:10px;font-weight:800;color:var(--tx3);letter-spacing:.1em;padding:12px 2px 8px;display:flex;align-items:center;gap:6px}
+.dayg::after{content:'';flex:1;height:1px;background:var(--line)}
+.n{background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);margin-bottom:9px;overflow:hidden;cursor:pointer;transition:.22s var(--ease);position:relative}
+.n:hover{box-shadow:var(--sh-m)}
+.n:active{transform:scale(.99)}
+.n.unread::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc)}
+.n.act{border:1.5px solid var(--warn)}
+.n.act.unread::before{background:var(--warn)}
+.n.fav.unread::before{background:var(--vt,#FF6B4A)}
+.n-in{display:flex;gap:11px;padding:13px 14px}
+.n-ic{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.n-ic .mi{font-size:18px;color:#fff}
+.n-ic i{position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:var(--acc);border:2px solid #fff}
+.n-b{flex:1;min-width:0}
+.n-h{display:flex;align-items:center;gap:6px}
+.n-t{font-size:13px;font-weight:800;flex:1;line-height:1.4}
+.n-time{font-size:9.5px;color:var(--tx3);font-weight:700;flex-shrink:0}
+.n-tag{padding:2px 7px;border-radius:5px;font-size:8.5px;font-weight:800;flex-shrink:0}
+.n-tag.ok{background:var(--ok-l);color:var(--ok)}
+.n-tag.warn{background:var(--warn-l);color:var(--warn)}
+.n-tag.err{background:var(--err-l);color:var(--err)}
+.n-tag.info{background:var(--pri-l);color:var(--pri-d)}
+.n-d{font-size:11.5px;color:var(--tx2);margin-top:6px;line-height:1.75;font-weight:500}
+.n-d b{color:var(--tx);font-weight:800}
+/* 关联产品条（主题作用域） */
+.n-ref{display:flex;align-items:center;gap:9px;margin-top:10px;padding:9px 10px;border-radius:var(--r-sm);background:var(--vt-xl);border-left:2px solid var(--vt)}
+.n-ref-ic{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.n-ref-ic .mi{font-size:15px;color:#fff}
+.n-ref-b{flex:1;min-width:0}
+.n-ref-k{font-size:8.5px;font-weight:800;letter-spacing:.1em;color:var(--vt-d)}
+.n-ref-n{font-size:11px;font-weight:800;color:var(--tx);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.n-ref-go{font-size:10px;font-weight:800;color:var(--vt-d);flex-shrink:0;display:flex;align-items:center;gap:2px}
+.n-ref-go .mi{font-size:13px}
+/* 就地操作按钮 */
+.n-acts{display:flex;gap:7px;padding:0 14px 13px;flex-wrap:wrap}
+.nb{padding:8px 14px;border-radius:var(--r-full);font-size:11.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px;border:1.5px solid var(--line);color:var(--tx2);background:#fff;transition:.18s}
+.nb .mi{font-size:14px}
+.nb:hover{border-color:var(--pri);color:var(--pri-d)}
+.nb.pri{background:var(--pri-d);color:#fff;border-color:var(--pri-d)}
+.nb.warn{background:var(--warn);color:#fff;border-color:var(--warn)}
+.nb.err{background:#fff;color:var(--err);border-color:var(--err)}
+.nb.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+/* 已读折叠 */
+.read-more{text-align:center;padding:12px;font-size:11.5px;font-weight:800;color:var(--pri-d);cursor:pointer;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);margin-bottom:9px}
+
+/* 空状态 */
+.empty{display:none;padding:52px 24px;text-align:center}
+.empty.on{display:block}
+.empty-ic{width:78px;height:78px;margin:0 auto;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-s)}
+.empty-ic .mi{font-size:38px;color:var(--line)}
+.empty-t{font-size:14.5px;font-weight:800;margin-top:16px}
+.empty-d{font-size:11.5px;color:var(--tx3);margin-top:8px;line-height:1.8}
+
+/* 规则说明 */
+.spec{margin:16px 14px 0;padding:14px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s)}
+.spec-t{font-size:11.5px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.spec-t .mi{font-size:15px;color:var(--pri-d)}
+.spec-i{display:flex;gap:8px;font-size:10.5px;color:var(--tx2);line-height:1.75;padding:5px 0;border-top:1px dashed var(--line)}
+.spec-i:first-of-type{border-top:none}
+.spec-i b{color:var(--pri-d);font-weight:800;flex-shrink:0}
+
+/* 详情弹层 */
+.mask{position:fixed;inset:0;background:rgba(27,46,44,.44);backdrop-filter:blur(2px);z-index:150;opacity:0;pointer-events:none;transition:.3s}
+.mask.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;bottom:0;left:50%;transform:translate(-50%,100%);width:100%;max-width:375px;background:var(--bg);border-radius:22px 22px 0 0;z-index:160;transition:.4s var(--ease);max-height:86vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,.18)}
+.sheet.on{transform:translate(-50%,0)}
+.sh-grip{width:38px;height:4px;background:var(--line);border-radius:2px;margin:11px auto 0}
+.sh-h{padding:14px 18px 12px;display:flex;align-items:flex-start;gap:11px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:2}
+.sh-ic{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sh-ic .mi{font-size:21px;color:#fff}
+.sh-b{flex:1;min-width:0}
+.sh-t{font-size:15.5px;font-weight:800;line-height:1.4;letter-spacing:-.01em}
+.sh-m{font-size:10.5px;color:var(--tx3);margin-top:4px;font-weight:600}
+.sh-x{cursor:pointer;width:28px;height:28px;border-radius:50%;background:#fff;box-shadow:var(--sh-s);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sh-x .mi{font-size:17px;color:var(--tx3)}
+.sh-body{padding:16px 18px}
+.sh-sec{font-size:11.5px;color:var(--tx);line-height:1.95;font-weight:500}
+.sh-sec b{color:var(--pri-d);font-weight:800}
+.sh-kv{margin-top:14px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);overflow:hidden}
+.sh-kv-i{display:flex;justify-content:space-between;gap:12px;padding:11px 14px;border-bottom:1px solid var(--line2);font-size:11.5px}
+.sh-kv-i:last-child{border-bottom:none}
+.sh-kv-k{color:var(--tx3);font-weight:700;flex-shrink:0}
+.sh-kv-v{color:var(--tx);font-weight:800;text-align:right}
+.sh-foot{position:sticky;bottom:0;background:rgba(244,246,245,.97);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:13px 18px;display:flex;gap:9px}
+.sh-foot .nb{flex:1;justify-content:center;padding:12px}
+
+/* 底部 tab */
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:375px;display:flex;background:rgba(255,255,255,.97);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:8px 0 10px;z-index:55}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:var(--tx3);font-weight:700;cursor:pointer}
+.tab .mi{font-size:22px}
+.tab.on{color:var(--pri-d)}
+
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);padding:13px 22px;background:rgba(27,46,44,.92);color:#fff;border-radius:14px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;max-width:290px;font-weight:600;line-height:1.7}
+.toast.show{opacity:1}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+
+/* yx-deep-NOTICE */
+.yx-map{margin:0 0 10px;padding:9px 12px;background:#F8FAFC;border:1px solid #E5E7EB;border-radius:8px;font-size:10.5px;color:#475569;font-weight:700;line-height:1.9}
+</style>
+</head>
+<body>
+<!-- yx-deep-NOTICE -->
+<div class="yx-map" id="yxMap"><b>跨端状态词对照（本页作为全局组件规范的参考实现）：</b><br>C 端「待使用」= 商家端「待核销」= 平台端「可履约」；C 端「已冻结」= 商家端「核销被拒」= 平台端「仲裁中」；C 端「已完成」= 商家端「已核销」= 平台端「已履约，可结转」。通知文案统一使用<b>用户能听懂</b>的描述，括号里附端内术语。</div>
+
+<div class="app" data-theme="neutral" id="app">
+
+  <!-- 端切换 -->
+  <div class="sidesw">
+    <div class="sd on" data-side="user" onclick="swSide('user')"><span class="mi">person</span>C 端用户<b id="bdg-user">6</b></div>
+    <div class="sd" data-side="mer" onclick="swSide('mer')"><span class="mi">storefront</span>商家端<b id="bdg-mer">5</b></div>
+    <div class="sd" data-side="plat" onclick="swSide('plat')"><span class="mi">admin_panel_settings</span>平台端<b id="bdg-plat">4</b></div>
+  </div>
+
+  <!-- 头部 -->
+  <div class="hdr">
+    <div class="hdr-row">
+      <span class="mi bk" onclick="showToast('返回上一页')">arrow_back</span>
+      <div class="hdr-t" id="hdrT">消息中心</div>
+      <div class="hdr-act" onclick="markAll()"><span class="mi">done_all</span>全部已读</div>
+      <div class="hdr-act" onclick="showToast('通知设置：可按类型开关推送')"><span class="mi">tune</span></div>
+    </div>
+    <div class="hdr-sub" id="hdrSub"></div>
+  </div>
+  <div class="cats" id="cats"></div>
+  <div class="wrap-top"></div>
+
+  <!-- 列表 -->
+  <div class="nlist" id="nlist"></div>
+  <div class="empty" id="empty">
+    <div class="empty-ic"><span class="mi">notifications_none</span></div>
+    <div class="empty-t">这个分类下没有消息</div>
+    <div class="empty-d" id="emptyD">切换其他分类看看，或检查通知设置是否关闭了该类推送</div>
+  </div>
+
+  <!-- 规则说明 -->
+  <div class="spec">
+    <div class="spec-t"><span class="mi">rule</span>通知设计规则（三端共用）</div>
+    <div class="spec-i"><b>深链优先</b><span>每条通知必须有明确去向。点击卡片即标已读并跳转目标页，不允许出现「只有文案没有落点」的通知。</span></div>
+    <div class="spec-i"><b>履约类就地操作</b><span>核销失败、待预约、库存预警这类「不处理会出事」的通知，在列表里直接给操作按钮，不用先进详情。</span></div>
+    <div class="spec-i"><b>关联条用产品主题</b><span>通知若关联某个套餐或订单，其关联信息条取该产品 theme_key 的颜色；页面骨架与分类容器保持中性。</span></div>
+    <div class="spec-i"><b>时效写进正文</b><span>券到期、预约截止、结算到账这类通知，正文必须带具体日期而不是「即将」「 soon」。</span></div>
+    <div class="spec-i"><b>不打扰原则</b><span>营销类通知默认折叠且不推送弹窗；核销与退款类无论何时都推送。</span></div>
+  </div>
+
+  <div style="height:20px"></div>
+
+  <!-- 底部 tab（C 端视角） -->
+  <div class="tabbar" id="tabbar">
+    <div class="tab" onclick="showToast('切换到发现')"><span class="mi">explore</span><span>发现</span></div>
+    <div class="tab" onclick="showToast('切换到行程助手')"><span class="mi">timeline</span><span>行程</span></div>
+    <div class="tab" onclick="showToast('切换到企业专区')"><span class="mi">business_center</span><span>企业</span></div>
+    <div class="tab on" onclick="showToast('当前在消息中心')"><span class="mi">notifications_active</span><span>消息</span></div>
+  </div>
+</div>
+
+<!-- 通知详情弹层 -->
+<div class="mask" id="mask" onclick="closeSh()"></div>
+<div class="sheet" id="sheet">
+  <div class="sh-grip"></div>
+  <div class="sh-h">
+    <div class="sh-ic" id="shIc"><span class="mi">notifications</span></div>
+    <div class="sh-b"><div class="sh-t" id="shT"></div><div class="sh-m" id="shM"></div></div>
+    <div class="sh-x" onclick="closeSh()"><span class="mi">close</span></div>
+  </div>
+  <div class="sh-body">
+    <div class="sh-sec" id="shBody"></div>
+    <div class="sh-kv" id="shKv"></div>
+  </div>
+  <div class="sh-foot" id="shFoot"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+/* 主题映射（与全项目一致） */
+const LIB={ocean:{n:'海洋',sw:'#0E86C4'},forest:{n:'山林',sw:'#12897C'},heritage:{n:'古镇',sw:'#8A5A3B'},
+ grassland:{n:'草原',sw:'#6FA22E'},snow:{n:'雪域温泉',sw:'#4C7FA8'},city:{n:'城市',sw:'#5A5BD0'}};
+
+const CATMAP={
+  user:[['all','全部'],['ful','履约进度'],['rsv','预约'],['pay','退款与款项'],['trip','行程提醒'],['promo','优惠与营销']],
+  mer:[['all','全部'],['ord','订单与预约'],['ver','核销动态'],['rate','评价'],['fund','结算到账'],['risk','资质与风险']],
+  plat:[['all','全部'],['audit','待审核'],['arb','待仲裁'],['ops','运营与库存'],['sys','系统与营销']]
+};
+
+/* 通知数据：side / cat / icon / tone / title / desc / time / unread / need / ref(关联产品主题) / kv / acts */
+const N=[
+/* ================= C 端 ================= */
+{side:'user',cat:'ful',ic:'qr_code_2',tone:'ok',t:'出海海钓已核销',d:'<b>老陈船队</b> 已于 10月18日 15:02 核销你的子券，4 小时行程已开始。',time:'10-18 15:02',unread:true,
+ ref:{th:'ocean',k:'关联订单 YQ2026101800126',n:'东极岛听海两日',go:'订单详情'},
+ kv:[['通知类型','履约进度 · 子券核销'],['触发来源','商家端 M4 扫码核销台'],['剩余可用子券','8 张 / 共 11 张'],['核销商家','老陈船队（商家C）'],['是否可撤销','不可撤销，异常请联系管家']],
+ body:'子券 <b>出海海钓 4 小时</b> 已由老陈船队核销。若现场出现实际服务与券面不符（时长、人数、项目），请立即在订单详情点「投诉商家」，平台 24 小时内介入。<br><br>本条通知由核销动作实时触发，同时会通过短信发送到 <b>138****6721</b>。',
+ acts:[['timeline','查看行程','goto'],['support_agent','服务有问题','err']]},
+
+{side:'user',cat:'rsv',ic:'event_busy',tone:'warn',t:'星空晚宴还需预约',d:'<b>竹里馆</b> 提示：10月1日晚宴需提前 4 小时锁定座位，现在预约还来得及。',time:'今天 12:20',unread:true,need:true,
+ ref:{th:'forest',k:'关联订单 YQ2026092400328',n:'莫干山云端两日',go:'去预约'},
+ kv:[['通知类型','预约提醒 · 需处理'],['服务名称','星空围炉晚宴'],['可预约时段','18:30 / 19:00 / 20:00'],['截止时间','10月1日 15:00 前'],['逾期后果','现场可能无法接待，且不可退款补偿']],
+ body:'本产品有 <b>3 项服务需要预约</b>：山野午餐、星空围炉晚宴、返程送站。未预约直接到店可能无法接待。<br><br>预约时段库存由商家实时开放，如需由管家代为安排，点击「让管家代约」。',
+ acts:[['event_available','立即预约','pri'],['support_agent','让管家代约','']]},
+
+{side:'user',cat:'ver',ic:'error',tone:'err',t:'核销失败：归属商家不匹配',d:'10月18日 13:07 你在 <b>海味厨房</b> 出示的二维码被 <b>老陈船队</b> 误扫，本次未核销，券仍可用。',time:'10-18 13:07',unread:true,need:true,
+ ref:{th:'ocean',k:'涉及子券 · 渔家海鲜午餐',n:'东极岛听海两日',go:'查看凭证'},
+ kv:[['通知类型','核销异常 · 券状态保护'],['失败原因','扫码商家与券归属不匹配'],['券当前状态','仍为待使用，未扣减'],['可核销商家','海味厨房（商家B）'],['应急方式','向商家出示 8 位核销码，或呼叫管家']],
+ body:'你的券 <b>没有被消耗</b>，仍可正常使用。平台已记录本次异常扫码。<br><br>若你现在仍在店里，可点「出示应急码」切换到 8 位数字码让正确商家核销，或直接呼叫行程管家阿海协调。这条通知是本次补齐的应急入口——此前商家扫错码后你在 C 端看不到任何反馈。',
+ acts:[['qr_code_2','出示应急码','pri'],['support_agent','呼叫管家','err']]},
+
+{side:'user',cat:'pay',ic:'currency_yen',tone:'ok',t:'退款已原路退回 ¥1,052',d:'订单 YQ2026100900188 的平台仲裁已完成，退款已退回微信支付，预计 1-3 个工作日到账。',time:'今天 09:14',unread:true,
+ ref:{th:'forest',k:'关联订单 YQ2026100900188',n:'莫干山云端两日',go:'退款进度'},
+ kv:[['通知类型','退款完成'],['订单实付','¥1,940'],['已核销项扣除','¥888（供货价 ¥740 × 1.2）'],['实退金额','¥1,052'],['到账渠道','微信支付原路退回'],['平台佣金处理','¥148 不退还，已计入平台侧账目']],
+ body:'扣除说明：已核销 2 项服务（山野午餐、星空围炉晚宴）按 <b>供货价 × 1.2</b> 扣除，剩余 8 项未使用服务全部退款。<br><br>完整计算过程可在订单详情「退款规则」查看。若到账金额与本通知不符，请在 7 日内联系平台。',
+ acts:[['receipt_long','查看退款明细',''],['chat','对结果有异议','err']]},
+
+{side:'user',cat:'trip',ic:'wb_twilight',tone:'info',t:'明天 05:20 礁石看日出 · 向导会来敲门',d:'含手电筒与热姜茶，步行 15 分钟到礁石。今晚记得穿厚一点，海边凌晨 19℃。',time:'今天 20:00',unread:false,
+ ref:{th:'ocean',k:'关联行程 Day 2',n:'东极岛听海两日',go:'行程助手'},
+ kv:[['通知类型','行程提醒'],['集合时间','10月19日 05:20'],['集合地点','海隅·石屋 大堂'],['天气','晴 19-24℃ · 风 2 级'],['日出时间','05:34'],['低潮时间','17:40（适合赶海）']],
+ body:'这是行程前一天的提醒通知。日出项目 <b>不需要额外核销</b>，由向导现场点名。若你想取消，22:00 前告知管家不影响任何退款。',
+ acts:[['notifications_active','明早 04:50 再提醒我','pri'],['close','不用提醒','']]},
+
+{side:'user',cat:'promo',ic:'local_offer',tone:'warn',t:'LV4 会员券 12 天后过期',d:'¥300 满 3,000 可用 · 山林与海洋主题套餐均适用。',time:'今天 10:00',unread:false,
+ kv:[['通知类型','券到期提醒'],['券名称','LV4 云栖会员专享 ¥300'],['使用门槛','满 ¥3,000'],['到期时间','2026-11-22 23:59'],['可用主题','山林 / 海洋 / 古镇'],['剩余张数','1 张']],
+ body:'会员券由系统按月发放，不与其他优惠叠加。到期后自动作废且不可恢复，如需延长可在「我的 - 优惠券」提交一次申请。',
+ acts:[['search','找能用的套餐','']]},
+
+{side:'user',cat:'promo',ic:'campaign',tone:'info',t:'双 11 预热 · 山林主题套餐 8.5 折',d:'11月1日 00:00 开抢，你收藏的「莫干山云端两日」在列表内。营销类通知已默认不弹窗。',time:'昨天 18:00',unread:false,
+ ref:{th:'forest',k:'你收藏的套餐',n:'莫干山云端两日',go:'设置开抢提醒'},
+ kv:[['通知类型','营销活动'],['活动名称','双 11 预热 · 山林主题'],['折扣','8.5 折'],['开始时间','11月1日 00:00'],['券量','10,000 张'],['是否已开抢','未开始']],
+ body:'营销类通知在本设计里 <b>默认折叠、不推送弹窗、不进系统通知栏</b>，只在消息中心的「优惠与营销」分类内可见。这是为了不让营销信息稀释掉核销、退款这类履约通知的可辨识度。',
+ acts:[['notifications_active','开抢提醒我','']]},
+
+/* ================= 商家端 ================= */
+{side:'mer',cat:'ord',ic:'event_busy',tone:'warn',t:'1 单今日到期仍未预约',d:'张明远一家 10月18日 12:30 的渔家海鲜午餐，尚未收到预约确认。',time:'今天 09:00',unread:true,need:true,
+ ref:{th:'ocean',k:'关联订单 YQ2026101800126',n:'东极岛听海两日',go:'查看订单'},
+ kv:[['通知类型','待预约 · 需处理'],['出行人','张明远 · 2 大 1 小'],['原定服务时段','12:30-14:00'],['备注','孩子对虾过敏，已改清蒸'],['你的接待能力','6 桌 / 当前已订 2 桌'],['建议动作','主动联系客人确认，避免到店无位']],
+ body:'客人未预约有两种可能：<b>忘记了</b> 或 <b>行程有变</b>。前者主动联系可以挽回一单，后者你能提前释放库存。<br><br>点击「联系客人」会通过平台虚拟号拨出，双方号码互不可见，通话记录保留 30 天。',
+ acts:[['call','联系客人','pri'],['check_circle','先留位','ok']]},
+
+{side:'mer',cat:'ver',ic:'fact_check',tone:'ok',t:'山野午餐已核销 · +¥280',d:'10月16日 12:34 由你核销，已计入本周期待结算。',time:'10-16 12:34',unread:true,
+ ref:{th:'forest',k:'关联订单 YQ2026101100089',n:'莫干山云端两日',go:'结算明细'},
+ kv:[['通知类型','核销成功'],['你的供货价','¥280'],['平台对外售价','¥320'],['平台佣金','¥40（12.5%）'],['计入结算周期','10-14 至 10-20'],['预计到账日','10月27日（T+7）']],
+ body:'核销成功后金额立即进入待结算池，<b>不可自行撤销</b>。若客人在店里发现服务有误，请在核销详情页点「申请冲正」，由平台审核后再调整，避免直接退款引发对账混乱。',
+ acts:[['payments','查看结算进度',''],['undo','申请冲正','err']]},
+
+{side:'mer',cat:'ver',ic:'gavel',tone:'err',t:'核销被拒：该券已冻结',d:'陈磊的「星空围炉晚宴」子券处于退款仲裁中，暂不可核销。',time:'昨天 19:48',unread:true,need:true,
+ ref:{th:'forest',k:'关联订单 YQ2026092700301',n:'长白山雪季三日',go:'仲裁详情'},
+ kv:[['通知类型','核销失败 · 券冻结'],['券状态','已冻结（退款仲裁中）'],['申请人','陈磊'],['申请时间','10月17日 21:33'],['你的可操作','等待平台裁定，或提交履约证据'],['若最终退款','本项供货价不计入应结']],
+ body:'客人已申请退款，平台已冻结该子券。此时 <b>即使现场接待了也无法正常核销</b>，可能造成你备货损失。<br><br>建议：若你已为该晚准备食材或留出餐位，请立即在「仲裁详情」上传备货单据与库存截图，平台会据此在裁定时考虑你的实际损失。',
+ acts:[['upload_file','上传履约证据','pri'],['gavel','查看仲裁进度','']]},
+
+{side:'mer',cat:'rate',ic:'rate_review',tone:'warn',t:'3 星新评价待回复',d:'周先生：「对公结算和发票也走通了，唯一建议是会议室的投影需要提前测试。」',time:'今天 11:42',unread:true,need:true,
+ ref:{th:'forest',k:'关联订单 YQ2026100900032',n:'安吉营地包场团建',go:'去回复'},
+ kv:[['通知类型','评价预警 · 3 星'],['评价人','周先生 · 公司团建 22 人'],['涉及资源项','会议场地 + 团队晚宴'],['建议回复时限','24 小时内'],['未回复影响','店铺服务分与 A1 看板评分'],['差评是否计入排名','是，权重高于普通评价']],
+ body:'评价回复会公开展示在你的所有套餐详情页。<b>24 小时内回复</b>可将这条 3 星对店铺分的影响降低约一半。<br><br>如果客人所述与事实不符（例如投影故障发生在会议场地供应商而非你），可在回复页点「申诉」，提交设备使用记录等客观证据。',
+ acts:[['reply','立即回复','pri'],['flag','申诉不实内容','err']]},
+
+{side:'mer',cat:'fund',ic:'account_balance',tone:'ok',t:'T+7 结算已到账 ¥2,460',d:'10月04日至10月10日的核销款项，已转入你默认银行卡尾号 6721。',time:'今天 09:00',unread:false,
+ kv:[['通知类型','结算到账'],['结算周期','10-04 至 10-10'],['核销单数','8 单'],['结算金额','¥2,460'],['扣减项','退款冲减 ¥0'],['到账渠道','招商银行 储蓄卡 6721'],['到账时间','2026-10-17 09:00']],
+ body:'结算单已生成电子回单，可用于内部对账。若你对某笔核销金额有疑问，可在「结算明细」按订单号逐笔核对，供货价来源于套餐组货时平台与你确认的报价。',
+ acts:[['receipt_long','下载回单','']]},
+
+{side:'mer',cat:'risk',ic:'warning',tone:'err',t:'食品经营许可证 30 天内到期',d:'证照到期未更新会导致相关资源项自动下架，影响正在售卖的套餐。',time:'今天 08:00',unread:true,need:true,
+ kv:[['通知类型','资质到期预警'],['证照名称','食品经营许可证'],['证号','JY2330521****0089'],['到期日','2026-12-10'],['影响资源项','山野午餐、星空围炉晚宴、竹林下午茶'],['关联套餐','3 个在售套餐'],['逾期后果','资源项自动下架，套餐库存同步归零']],
+ body:'这是<b>会直接影响营收</b>的通知：证照过期当天，你申报的三个餐饮资源项会自动下架，引用它们的套餐同步失去可售库存。<br><br>更新入口在「商家后台 - 资质管理」，提交后平台 24 小时内完成核验。',
+ acts:[['upload_file','上传新证照','pri'],['schedule','稍后提醒我','']]},
+
+{side:'mer',cat:'risk',ic:'inventory_2',tone:'warn',t:'2 项库存低于安全阈值',d:'星空围炉晚宴 10月11日 仅剩 1 桌，山野午餐 10月12日 仅剩 2 桌。',time:'昨天 21:00',unread:false,
+ kv:[['通知类型','库存预警'],['预警项 1','星空围炉晚宴 · 10-11 · 剩 1 桌'],['预警项 2','山野午餐 · 10-12 · 剩 2 桌'],['触发条件','剩余库存 ≤ 安全阈值（默认 2）'],['影响','平台首页可能降权展示'],['可操作','补充库存 或 提前设置不可用日期']],
+ body:'库存不足时平台会自动降低该套餐在首页楼层的排序权重，避免用户点进去发现订不上。若这几天是<b>主动歇业</b>而不是订满了，请去设置不可用日期，否则客人会持续看到「仅剩 1」。',
+ acts:[['tune','调整库存','pri'],['event_busy','设置不可用','']]},
+
+/* ================= 平台端 ================= */
+{side:'plat',cat:'arb',ic:'gavel',tone:'err',t:'退款仲裁超 24 小时未处理',d:'张明远 vs 竹里馆 · 部分核销退款，争议金额 ¥1,052，已等待 26 小时。',time:'今天 14:22',unread:true,need:true,
+ ref:{th:'forest',k:'关联订单 YQ2026100900188',n:'莫干山云端两日',go:'进入仲裁'},
+ kv:[['通知类型','待仲裁 · 已超 SLA'],['SLA 标准','24 小时内首次响应'],['已等待','26 小时'],['争议金额','¥1,052'],['适用规则','标准版 · 已核销项供货价 ×1.2'],['涉及商家','竹里馆 · 山野厨房（B-0032）'],['当前券状态','剩余 8 张已冻结']],
+ body:'超期未裁定会导致客人的券长期冻结，同时商家待结算款被占用，<b>双边都会升级投诉</b>。<br><br>裁定提交后系统会自动执行三件事：退款原路退回、商家待结算款扣减、A1 看板按「退款冲减」口径记账（是否回冲 GMV 取决于分账配置里的记账口径设置）。',
+ acts:[['gavel','立即裁定','pri'],['person','转交财务复核','']]},
+
+{side:'plat',cat:'audit',ic:'verified_user',tone:'warn',t:'3 家商家资质待审核',d:'栖云山房（缺消防证）· 浪尖帆船俱乐部 · 野奢松阳营地（资质续期）',time:'今天 14:02',unread:true,need:true,
+ kv:[['通知类型','待审核 · 商家入驻'],['待审数量','3 家'],['其中阻断项','栖云山房缺消防安全检查合格证'],['其中临期项','野奢松阳营地 食品经营许可证已过期'],['SLA 标准','2 个工作日内首次响应'],['最长已等待','2 天（野奢松阳）']],
+ body:'注意 <b>野奢松阳营地是续期申请但证照已过期</b>：它旗下资源项此刻应已自动下架，若仍在售卖说明下架任务未执行，需要一并排查。<br><br>栖云山房可直接走「退回修改」，系统会在 3 日后自动提醒补件。',
+ acts:[['search','进入审核队列','pri'],['warning','排查未下架资源项','err']]},
+
+{side:'plat',cat:'ops',ic:'inventory_2',tone:'warn',t:'超卖风险：海隅·石屋 10月18日 库存已被 3 个套餐同时占用',d:'该房型每日 6 间，三个套餐累计预留 7 间，存在超卖风险。',time:'今天 13:30',unread:true,need:true,
+ kv:[['通知类型','库存冲突 · 需处理'],['资源项','海景石屋大床房（商家B-0031）'],['每日真实库存','6 间'],['被占用总量','7 间'],['占用来源','东极岛听海两日 / 嵊泗亲子三日 / 普陀山静修两日'],['风险','客人下单后到店无房，平台先行赔付'],['建议动作','下调某套餐预留配额 或 提高该资源项库存']],
+ body:'这条通知背后是 <b>尚未拍板的规则</b>：一个资源项被多个套餐引用时，是按套餐预留配额，还是先到先得抢同一池子。当前实现是预留配额相加，所以会超过真实库存。<br><br>在库存共享策略确定前，这类冲突只能靠人工调整，无法自动兜底。请优先在本条通知里选择临时处理方式。',
+ acts:[['tune','调整预留配额','pri'],['notifications_active','通知商家扩容','']]},
+
+{side:'plat',cat:'sys',ic:'campaign',tone:'info',t:'双 11 预热券已发出 3,200 张',d:'山林主题 8.5 折券 · 核销窗口 11月1日 00:00 开启，预计带来 GMV ¥280 万。',time:'今天 11:00',unread:false,
+ kv:[['通知类型','营销活动状态'],['活动名称','双 11 预热 · 山林主题'],['券面','8.5 折 · 上限抵扣 ¥300'],['已发放','3,200 / 10,000 张'],['核销窗口','11-01 00:00 至 11-11 23:59'],['成本承担方','平台承担 100%（需在分账规则中确认）'],['预计 GMV','¥280 万'],['预计 ROI','8.4']],
+ body:'营销类通知不推送弹窗，仅在此分类内可查。<br><br>需要提醒：<b>券成本分摊字段目前只在活动配置里存在，尚未同步到分账计算</b>。在该字段联动完成前，A1 看板的商家佣金与实际结算金额会出现口径差，涉及 ¥ 金额的报表请以财务导出为准。',
+ acts:[['show_chart','活动效果分析',''],['link','跳分账配置','']]}
+];
+
+let side='user',cat='all';
+const $=id=>document.getElementById(id);
+
+function unreadOf(s){return N.filter(n=>n.side===s&&n.unread).length}
+function renderBdg(){
+  ['user','mer','plat'].forEach(s=>{
+    const c=unreadOf(s),el=$('bdg-'+s);
+    el.textContent=c; el.style.display=c?'block':'none';
+  });
+}
+function renderCats(){
+  const counts={};
+  N.filter(n=>n.side===side).forEach(n=>{counts[n.cat]=(counts[n.cat]||0)+(n.unread?1:0)});
+  $('cats').innerHTML=CATMAP[side].map(([k,label])=>{
+    const c=k==='all'?unreadOf(side):(counts[k]||0);
+    return `<div class="cat${cat===k?' on':''}" onclick="pickCat('${k}')">${label}${c?`<i>${c}</i>`:''}</div>`;
+  }).join('');
+}
+function renderHead(){
+  const all=N.filter(n=>n.side===side);
+  const need=all.filter(n=>n.need&&n.unread).length;
+  const T={user:'消息中心',mer:'商家消息中心',plat:'平台运营通知'};
+  $('hdrT').textContent=T[side];
+  $('hdrSub').innerHTML=`未读 <b>${unreadOf(side)}</b> 条 · 需要处理 <b>${need}</b> 条 · 共 ${all.length} 条`;
+  const subs={user:'核销、预约、退款这类履约消息会实时推送，营销消息默认不打扰。',
+    mer:'待预约、核销失败、评价、证照到期属于「不处理会出事」，已在列表内直接给操作按钮。',
+    plat:'仲裁与审核带 SLA 时限，超期条目置顶并标红。'};
+  $('hdrSub').innerHTML=`未读 <b>${unreadOf(side)}</b> 条 · 需要处理 <b>${need}</b> 条 · 共 ${all.length} 条<br>${subs[side]}`;
+}
+function curList(){
+  return N.filter(n=>n.side===side&&(cat==='all'||n.cat===cat));
+}
+function toneVar(t){return {ok:'var(--ok)',warn:'var(--warn)',err:'var(--err)',info:'var(--pri-d)'}[t]}
+function toneBg(t){return {ok:'linear-gradient(135deg,#22C55E,#16A34A)',warn:'linear-gradient(135deg,#F59E0B,#D97706)',err:'linear-gradient(135deg,#EF4444,#DC2626)',info:'linear-gradient(135deg,#6B7585,#4A5D59)'}[t]}
+function toneTag(t){return {ok:'ok',warn:'warn',err:'err',info:'info'}[t]}
+const CATLABEL={ful:'履约进度',rsv:'预约',pay:'退款与款项',trip:'行程提醒',promo:'优惠与营销',ord:'订单与预约',ver:'核销动态',rate:'评价',fund:'结算到账',risk:'资质与风险',audit:'待审核',arb:'待仲裁',ops:'运营与库存',sys:'系统与营销'};
+
+function render(){
+  renderBdg();renderCats();renderHead();
+  const list=curList();
+  const unread=list.filter(n=>n.unread), read=list.filter(n=>!n.unread);
+  const groups={};
+  const order=[];
+  const push=(g,n)=>{if(!groups[g]){groups[g]=[];order.push(g)}groups[g].push(n)};
+  unread.forEach(n=>push(n.time.indexOf('今天')===0?'今天':(n.time.indexOf('昨天')===0?'昨天':'更早'),n));
+  read.forEach(n=>push(n.time.indexOf('今天')===0?'今天已读':'更早已读',n));
+  let html='';
+  order.forEach(g=>{
+    html+=`<div class="dayg">${g}</div>`;
+    html+=groups[g].map(n=>card(n)).join('');
+  });
+  $('nlist').innerHTML=html;
+  const isEmpty=list.length===0;
+  $('empty').classList.toggle('on',isEmpty);
+  $('emptyD').textContent=isEmpty?`${CATLABEL[cat]||''} 下暂无消息，切换分类看看；也可检查通知设置是否关闭了该类推送`:'';
+}
+function card(n){
+  const refHtml=n.ref?`<div class="n-ref" data-theme="${n.ref.th}" onclick="event.stopPropagation();showToast('跳转 ${n.ref.n} · ${n.ref.go}')">
+      <div class="n-ref-ic g1"><span class="mi">${LIB[n.ref.th]?'my_location':'my_location'}</span></div>
+      <div class="n-ref-b"><div class="n-ref-k">${n.ref.k.toUpperCase().slice(0,4)==='关联'?n.ref.k:'关联 · '+n.ref.k}</div><div class="n-ref-n">${n.ref.n}</div></div>
+      <div class="n-ref-go">${n.ref.go}<span class="mi">chevron_right</span></div></div>`:'';
+  const acts=(n.acts||[]).map(a=>`<span class="nb ${a[2]}" onclick="event.stopPropagation();actClick('${a[1]}')"><span class="mi">${a[0]}</span>${a[1]}</span>`).join('');
+  return `<div class="n ${n.unread?'unread':''} ${n.need?'act':''}" data-id="${N.indexOf(n)}" onclick="openN(${N.indexOf(n)})">
+    <div class="n-in">
+      <div class="n-ic" style="background:${toneBg(n.tone)}"><span class="mi">${n.ic}</span>${n.unread?'<i></i>':''}</div>
+      <div class="n-b">
+        <div class="n-h"><div class="n-t">${n.t}</div><span class="n-tag ${toneTag(n.tone)}">${n.need?'需处理':CATLABEL[n.cat]}</span><div class="n-time">${n.time}</div></div>
+        <div class="n-d">${n.d}</div>
+        ${refHtml}
+      </div>
+    </div>
+    ${acts?`<div class="n-acts">${acts}</div>`:''}
+  </div>`;
+}
+function openN(i){
+  const n=N[i]; n.unread=false;
+  $('shIc').style.background=toneBg(n.tone);
+  $('shIc').querySelector('.mi').textContent=n.ic;
+  $('shT').textContent=n.t;
+  $('shM').textContent=`${CATLABEL[n.cat]} · ${n.time} · ${n.need?'需要你处理':'仅告知'}`;
+  $('shBody').innerHTML=n.body;
+  $('shKv').innerHTML=(n.kv||[]).map(k=>`<div class="sh-kv-i"><div class="sh-kv-k">${k[0]}</div><div class="sh-kv-v">${k[1]}</div></div>`).join('');
+  $('shFoot').innerHTML=(n.acts||[]).map(a=>`<span class="nb ${a[2]}" onclick="actClick('${a[1]}');closeSh()"><span class="mi">${a[0]}</span>${a[1]}</span>`).join('')
+    +`<span class="nb" onclick="closeSh()">关闭</span>`;
+  $('mask').classList.add('on');$('sheet').classList.add('on');
+  render();
+}
+function closeSh(){$('mask').classList.remove('on');$('sheet').classList.remove('on');}
+function actClick(t){showToast(t+' · 已执行，通知标记为已处理');}
+function pickCat(k){cat=k;render();}
+function swSide(s){
+  side=s;cat='all';
+  document.querySelectorAll('.sd').forEach(d=>d.classList.toggle('on',d.dataset.side===s));
+  $('tabbar').style.display=s==='user'?'flex':'none';
+  render();window.scrollTo(0,0);
+  showToast('已切换到'+({user:'C 端用户视角',mer:'商家端视角',plat:'平台运营视角'}[s]));
+}
+function markAll(){
+  const before=unreadOf(side);
+  N.forEach(n=>{if(n.side===side)n.unread=false});
+  render();showToast(`已将 ${before} 条标记为已读`);
+}
+function showToast(x){const el=$('toast');el.textContent=x;el.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>el.classList.remove('show'),2000)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSh()});
+render();
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+
+<script>
+
+(function(){
+  var m=document.getElementById('yxMap');
+  if(m&&document.querySelector('.spec'))document.querySelector('.spec').parentNode.insertBefore(m,document.querySelector('.spec'));
+  YX.next('通知中心体验基线（推广到其余 42 页）',[
+    {label:'就地操作',fn:function(){YX.toast('履约类通知在列表内直接给操作按钮，不先进详情');}},
+    {label:'空状态',fn:function(){YX.toast('分类下暂无消息时给引导，而非空白');}},
+    {label:'分级反馈',fn:function(){YX.toast('ok / warn / err 三色 + 可撤销','ok');}}
+  ],'#yxMap');
+})();
+
+</script>
+</body>
+</html>

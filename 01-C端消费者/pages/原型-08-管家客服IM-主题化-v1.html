@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · 管家客服（P13 主题化 v1）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{--bg:#F4F6F5;--card:#fff;--tx:#1B2E2C;--tx2:#5E7370;--tx3:#9BAEAB;--line:#E8EFEE;--line2:#F2F6F5;--pri:#4A5D59;--pri-d:#33423F;--pri-l:#EDF1F0;--acc:#FF6B4A;--acc-l:#FFEFEB;--ok:#16A34A;--r-sm:10px;--r-md:16px;--r-lg:22px;--r-full:999px;--sh-s:0 2px 10px rgba(27,46,44,.05);--sh-m:0 6px 22px rgba(27,46,44,.08);--sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',Roboto,sans-serif}
+[data-theme="forest"]{--vt:#12897C;--vt-d:#0C6B61;--vt-l:#E4F2F0;--g1a:#C6E8B0;--g1b:#6FBF7F;--g1c:#2E8B57}
+[data-theme="ocean"]{--vt:#0E86C4;--vt-d:#0A6291;--vt-l:#E3F1FA;--g1a:#8FE0F0;--g1b:#2E9BD4;--g1c:#14689E}
+[data-theme="heritage"]{--vt:#8A5A3B;--vt-d:#6B4229;--vt-l:#F4EAE2;--g1a:#E8DCCB;--g1b:#BFA78A;--g1c:#8A6F52}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#dfe3e2;color:var(--tx);line-height:1.55;-webkit-font-smoothing:antialiased}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;box-shadow:0 0 40px rgba(0,0,0,.12)}
+.mi{font-family:'Material Icons'}
+.page{display:none}.page.on{display:block}
+.demo{background:var(--pri-d);color:#fff;padding:7px 12px;font-size:9px;font-weight:800;letter-spacing:.06em;display:flex;align-items:center;gap:6px}
+.demo .mi{font-size:12px;color:#FFD08A}
+/* 列表 */
+.nav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:14px 16px}
+.nav-t{font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:space-between}
+.nav-t .mi{font-size:20px;color:var(--tx2);cursor:pointer}
+.nav-sub{font-size:10.5px;color:var(--tx3);font-weight:600;margin-top:5px}
+.conv{display:flex;gap:11px;padding:13px 16px;background:#fff;border-bottom:1px solid var(--line2);cursor:pointer;transition:.16s}
+.conv:active{background:var(--line2)}
+.av{width:42px;height:42px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;position:relative}
+.av.on::after{content:'';position:absolute;right:0;bottom:0;width:10px;height:10px;border-radius:50%;background:var(--ok);border:2px solid #fff}
+.conv-b{flex:1;min-width:0}
+.conv-h{display:flex;align-items:center;gap:6px}
+.conv-n{font-size:13px;font-weight:800;flex:1}
+.conv-time{font-size:9.5px;color:var(--tx3);font-weight:600}
+.conv-m{font-size:11px;color:var(--tx2);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.bdg{min-width:17px;height:17px;padding:0 5px;background:var(--acc);color:#fff;border-radius:9px;font-size:9px;font-weight:800;line-height:17px;text-align:center}
+.conv-tag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:9px;font-weight:800;background:var(--vt-l);color:var(--vt-d);margin-top:6px}
+/* 详情 */
+.dnav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:11px 14px;display:flex;align-items:center;gap:10px}
+.dnav .mi{font-size:21px;cursor:pointer;color:var(--tx)}
+.dnav-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#12897C,#0C6B61);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800}
+.dnav-b{flex:1}.dnav-n{font-size:13px;font-weight:800}.dnav-s{font-size:9.5px;color:var(--ok);font-weight:700;margin-top:2px}
+.dnav-s.off{color:var(--tx3)}
+.dnav .mi.more{font-size:19px;color:var(--tx2)}
+/* 上下文卡 */
+.ctx{margin:11px 14px 0;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);overflow:hidden;border-left:3px solid var(--vt)}
+.ctx-h{padding:10px 12px;display:flex;align-items:center;gap:8px;background:var(--vt-l)}
+.ctx-h .mi{font-size:15px;color:var(--vt-d)}
+.ctx-k{font-size:9px;font-weight:800;color:var(--vt-d);letter-spacing:.06em;flex:1}
+.ctx-b{padding:10px 12px;display:flex;gap:9px;align-items:center}
+.ctx-img{width:40px;height:44px;border-radius:7px;background:linear-gradient(160deg,var(--g1a),var(--g1b) 52%,var(--g1c));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ctx-img .mi{font-size:19px;color:rgba(255,255,255,.9)}
+.ctx-t{flex:1;min-width:0}.ctx-n{font-size:11.5px;font-weight:800}.ctx-m{font-size:9.5px;color:var(--tx3);font-weight:600;margin-top:3px}
+.ctx-btn{padding:5px 9px;background:var(--vt);color:#fff;border-radius:var(--r-full);font-size:9.5px;font-weight:800;cursor:pointer;white-space:nowrap}
+.ctx-foot{padding:0 12px 10px;display:flex;align-items:center;gap:6px;font-size:9px;color:var(--tx3);font-weight:700}
+.ctx-foot .bar{height:3px;flex:1;background:var(--line);border-radius:2px;overflow:hidden}.ctx-foot .bar i{display:block;height:100%;background:var(--vt)}
+/* 快捷问题 */
+.quick{padding:10px 14px 2px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.quick::-webkit-scrollbar{display:none}
+.q{flex-shrink:0;padding:6px 11px;background:#fff;border:1px solid var(--line);border-radius:var(--r-full);font-size:10px;font-weight:700;color:var(--tx2);cursor:pointer}
+.q:hover{border-color:var(--vt);color:var(--vt-d)}
+/* 消息 */
+.msgs{padding:12px 14px 118px;min-height:340px}
+.day{text-align:center;font-size:9px;color:var(--tx3);font-weight:700;margin:8px 0 14px}
+.sys{text-align:center;font-size:9.5px;color:var(--tx3);font-weight:600;margin:10px 0;line-height:1.7}
+.msg{display:flex;gap:8px;margin-bottom:12px;align-items:flex-end}
+.msg.me{flex-direction:row-reverse}
+.msg-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#12897C,#0C6B61);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;flex-shrink:0}
+.msg.me .msg-av{background:linear-gradient(135deg,#9BAEAB,#5E7370)}
+.bbl{max-width:238px;padding:10px 13px;border-radius:14px 14px 14px 3px;background:#fff;box-shadow:var(--sh-s);font-size:11.5px;line-height:1.75;font-weight:600}
+.msg.me .bbl{background:var(--pri-d);color:#fff;border-radius:14px 14px 3px 14px}
+.bbl .t{font-size:9px;color:var(--tx3);font-weight:600;margin-top:6px;display:block}
+.msg.me .bbl .t{color:rgba(255,255,255,.6)}
+.bbl b{color:var(--vt-d)}
+.cardbbl{background:#fff;border-radius:14px 14px 14px 3px;box-shadow:var(--sh-s);overflow:hidden;max-width:238px}
+.cardbbl .cb-h{padding:9px 12px;background:var(--vt-l);font-size:10px;font-weight:800;color:var(--vt-d)}
+.cardbbl .cb-b{padding:10px 12px;font-size:10.5px;line-height:1.8;color:var(--tx2);font-weight:600}
+.cardbbl .cb-a{padding:0 12px 11px;display:flex;gap:6px;flex-wrap:wrap}
+.cb-btn{padding:5px 10px;border:1px solid var(--vt);color:var(--vt-d);border-radius:var(--r-full);font-size:9.5px;font-weight:800;cursor:pointer}
+/* 输入栏 */
+.inputbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:375px;background:#fff;border-top:1px solid var(--line);padding:9px 12px 12px;z-index:30}
+.tools{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto;scrollbar-width:none}.tools::-webkit-scrollbar{display:none}
+.tool{flex-shrink:0;padding:5px 10px;background:var(--line2);border-radius:var(--r-full);font-size:9.5px;font-weight:700;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:4px}
+.tool .mi{font-size:13px}
+.inrow{display:flex;align-items:center;gap:8px}
+.inrow input{flex:1;padding:9px 13px;border:1px solid var(--line);border-radius:var(--r-full);font-size:11.5px;font-family:var(--sans);outline:none;background:var(--line2);color:var(--tx)}
+.inrow input:focus{border-color:var(--vt);background:#fff}
+.send{width:34px;height:34px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.send .mi{font-size:18px}
+.offbar{padding:8px 12px;background:var(--line2);border-radius:var(--r-sm);font-size:9.5px;color:var(--tx2);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.offbar .mi{font-size:14px;color:var(--tx3)}
+/* 底部 tab */
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:375px;background:rgba(255,255,255,.97);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;padding:8px 0 10px;z-index:25}
+.tabbar .tb{flex:1;text-align:center;font-size:9.5px;color:var(--tx3);font-weight:700;cursor:pointer}
+.tabbar .tb .mi{display:block;font-size:20px;margin-bottom:2px}.tabbar .tb.on{color:var(--pri-d)}
+.toast{position:fixed;bottom:80px;left:50%;transform:translate(-50%,20px);background:var(--pri-d);color:#fff;padding:10px 18px;border-radius:var(--r-full);font-size:10.5px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:99;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+</style>
+</head>
+<body>
+<div class="app" data-theme="forest">
+  <div class="demo"><span class="mi">info</span>P13 管家客服 · 带订单上下文进线 · 通知中心「呼叫管家」深链落点</div>
+
+  <!-- 会话列表 -->
+  <div class="page on" id="pList">
+    <div class="nav"><div class="nav-t">消息 <span class="mi" onclick="toast('消息设置 · 营销类不推送')">settings</span></div><div class="nav-sub">3 个会话 · 1 条未读 · 管家真人在线</div></div>
+    <div id="convList"></div>
+    <div style="padding:16px;text-align:center;font-size:10px;color:var(--tx3);font-weight:600;line-height:1.8">非工作时间可留言，管家会在次日 10:00 前回复<br>订单相关问题会自动带上订单上下文</div>
+    <div class="tabbar" style="position:relative;left:auto;transform:none;max-width:none">
+      <div class="tb"><span class="mi">explore</span>发现</div>
+      <div class="tb"><span class="mi">event_note</span>行程</div>
+      <div class="tb"><span class="mi">business_center</span>企业专区</div>
+      <div class="tb on"><span class="mi">chat</span>消息</div>
+      <div class="tb"><span class="mi">person</span>我的</div>
+    </div>
+  </div>
+
+  <!-- 会话详情 -->
+  <div class="page" id="pChat">
+    <div class="dnav">
+      <span class="mi" onclick="goList()">arrow_back</span>
+      <div class="dnav-av">林</div>
+      <div class="dnav-b"><div class="dnav-n">小林 · 你的专属管家</div><div class="dnav-s" id="onlineState">在线 · 通常 3 分钟内回复</div></div>
+      <span class="mi more" onclick="toggleOnline()">more_horiz</span>
+    </div>
+
+    <div class="ctx" data-theme="forest">
+      <div class="ctx-h"><span class="mi">confirmation_number</span><div class="ctx-k">本次咨询关联订单</div><span class="mi" style="font-size:14px;color:var(--vt-d)">open_in_new</span></div>
+      <div class="ctx-b">
+        <div class="ctx-img"><span class="mi">landscape</span></div>
+        <div class="ctx-t"><div class="ctx-n">莫干山云端两日</div><div class="ctx-m">YQ2026100900188 · 10-16 出行 · 2 成人</div></div>
+        <div class="ctx-btn" onclick="toast('跳转 P8 订单详情与核销凭证')">看凭证</div>
+      </div>
+      <div class="ctx-foot"><span>子券 5 / 9 已核销</span><div class="bar"><i style="width:56%"></i></div><span>山林 forest</span></div>
+    </div>
+
+    <div class="quick" id="quick"></div>
+    <div class="msgs" id="msgs"></div>
+
+    <div class="inputbar">
+      <div id="offbar"></div>
+      <div class="tools">
+        <div class="tool" onclick="toast('已发起回电预约 · 管家将在 10 分钟内致电')"><span class="mi">call</span>回电预约</div>
+        <div class="tool" onclick="toast('已打开常用语：改期 / 加人 / 发票 / 忌口')"><span class="mi">short_text</span>常用语</div>
+        <div class="tool" onclick="toast('已选择图片（原型演示）')"><span class="mi">image</span>图片</div>
+        <div class="tool" onclick="toast('已呼叫管家 138****6621')"><span class="mi">phone_in_talk</span>一键呼叫</div>
+      </div>
+      <div class="inrow"><input id="inp" placeholder="说点什么..." onkeydown="if(event.key==='Enter')send()"><div class="send" onclick="send()"><span class="mi">send</span></div></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+let online=true,unread=1;
+const CONVS=[
+ {n:'小林 · 你的专属管家',av:'林',g:'linear-gradient(135deg,#12897C,#0C6B61)',m:'关于 10-16 的山野午餐，我帮您和竹里馆确认好了',t:'14:22',badge:1,theme:'forest',tag:'关联订单 YQ2026100900188',last:'justnow'},
+ {n:'订单助手',av:'单',g:'linear-gradient(135deg,#9BAEAB,#5E7370)',m:'您的子券「星空围炉晚宴」已于 10-15 19:30 核销',t:'昨天',badge:0,theme:'heritage',tag:'履约通知',last:'yesterday'},
+ {n:'企业福利管家',av:'企',g:'linear-gradient(135deg,#C9952B,#9A7118)',m:'您的福利额度还剩 ¥3,200，有效期至 2027-06-30',t:'10-28',badge:0,theme:'ocean',tag:'企业专区',last:'old'}
+];
+const QUICK=['山野午餐能改到 13:00 吗','子券扫不出来怎么办','想申请部分退款','开发票需要什么资料','儿童加床怎么算'];
+const MSGS=[
+ {sys:true,t:'今天 14:20 · 从「通知中心 · 核销失败」带订单上下文进线'},
+ {side:'butler',t:'您好张先生，我是小林。看到您刚才在竹里馆核销时提示「归属商家不匹配」，券没有被消耗，仍可正常使用。需要我帮您协调吗？',time:'14:20'},
+ {side:'me',t:'对，我站在店门口，扫不出来。',time:'14:21'},
+ {side:'butler',card:true,title:'应急处理建议',body:'这顿「山野午餐」属于 <b>莫干山云端两日</b> 的子券 VC-0032-02，归属商家是竹里馆。<br>可能是扫到了隔壁餐吧的场所码。给您两个办法：',acts:['出示 8 位应急码','让正确商家扫','呼叫管家到场'],time:'14:21'},
+ {side:'butler',t:'另外我顺手帮您确认了：13:00 的时段还有位，如果要改时间我直接跟竹里馆说一声就行。',time:'14:22'}
+];
+const $=id=>document.getElementById(id);
+function toast(t){const e=$('toast');e.textContent=t;e.className='toast show';clearTimeout(window._t);window._t=setTimeout(()=>e.className='toast',2500)}
+function renderConvs(){
+ $('convList').innerHTML=CONVS.map((c,i)=>`<div class="conv" data-theme="${c.theme}" onclick="goChat(${i})">
+  <div class="av ${i===0&&online?'on':''}" style="background:${c.g}">${c.av}</div>
+  <div class="conv-b"><div class="conv-h"><div class="conv-n">${c.n}</div><div class="conv-time">${c.t}</div></div>
+   <div class="conv-m">${c.m}</div><span class="conv-tag" style="background:var(--vt-l);color:var(--vt-d)">${c.tag}</span></div>
+  ${i===0&&unread?'<div class="bdg">1</div>':''}</div>`).join('');
+}
+function goChat(i){unread=0;$('pList').className='page';$('pChat').className='page on';renderConvs();renderQuick();renderMsgs();window.scrollTo(0,0);toast('已带订单上下文进入会话 · 无需复述订单号')}
+function goList(){$('pChat').className='page';$('pList').className='page on';window.scrollTo(0,0)}
+function renderQuick(){$('quick').innerHTML=QUICK.map(q=>`<div class="q" onclick="quickSend('${q}')">${q}</div>`).join('')}
+function bbl(m){
+ if(m.sys)return `<div class="sys">${m.t}</div>`;
+ const me=m.side==='me';
+ let inner;
+ if(m.card){
+  inner=`<div class="cardbbl"><div class="cb-h">${m.title}</div><div class="cb-b">${m.body}</div><div class="cb-a">${m.acts.map(a=>`<div class="cb-btn" onclick="toast('${a} · 已同步给管家')">${a}</div>`).join('')}</div></div>`;
+ }else inner=`<div class="bbl">${m.t}<span class="t">${m.time||''}</span></div>`;
+ return `<div class="msg ${me?'me':''}"><div class="msg-av">${me?'我':'林'}</div>${inner}</div>`;
+}
+function renderMsgs(){$('msgs').innerHTML='<div class="day">今天 10月16日</div>'+MSGS.map(bbl).join('')}
+function send(){
+ const v=$('inp').value.trim();if(!v)return;
+ MSGS.push({side:'me',t:v,time:'刚刚'});$('inp').value='';renderMsgs();
+ scrollBottom();
+ setTimeout(()=>{
+  if(!online){MSGS.push({side:'butler',t:'现在是管家非工作时间（22:00 - 次日 10:00），您的留言已收到，我们会在次日 10:00 前回复。如需紧急协助，可点下方「一键呼叫」。',time:'刚刚'});}
+  else{MSGS.push({side:'butler',t:'收到，我这边帮您跟进一下，稍等 2 分钟给您确认结果。',time:'刚刚'});}
+  renderMsgs();scrollBottom();
+ },700);
+}
+function quickSend(q){$('inp').value=q;send()}
+function scrollBottom(){window.scrollTo(0,document.body.scrollHeight)}
+function toggleOnline(){
+ online=!online;
+ $('onlineState').textContent=online?'在线 · 通常 3 分钟内回复':'非工作时间 · 留言次日 10:00 前回复';
+ $('onlineState').className='dnav-s'+(online?'':' off');
+ $('offbar').innerHTML=online?'':'<div class="offbar"><span class="mi">schedule</span>当前为非工作时间，发送的消息将作为留言，次日 10:00 前回复</div>';
+ renderConvs();toast(online?'已切回在线态（演示）':'已切为非工作时间留言态（演示）');
+}
+renderConvs();renderQuick();renderMsgs();
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+</body>
+</html>

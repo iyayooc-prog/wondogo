@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>云栖度假 · 平台后台 · 企业采购与礼品卡（A11）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{--bg:#F3F5F7;--card:#fff;--tx:#1A2138;--tx2:#5B6477;--tx3:#9BA3B5;--line:#E5E9EF;--line2:#F0F3F7;--pri:#2B5FE0;--pri-d:#1E48B8;--pri-l:#EEF2FE;--ok:#16A34A;--ok-l:#ECFDF5;--warn:#D97706;--warn-l:#FFF7ED;--err:#DC2626;--err-l:#FEF2F2;--gold:#C9952B;--gold-l:#FBF3E2;--r-sm:6px;--r-md:10px;--r-lg:14px;--sh:0 1px 3px rgba(26,33,56,.06),0 1px 2px rgba(26,33,56,.04);--sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}.mi{font-family:'Material Icons'}
+.side{background:#1A2138;color:#C5CCDE;padding:20px 14px;display:flex;flex-direction:column;gap:3px}
+.brand{display:flex;align-items:center;gap:8px;padding:6px 10px 22px;color:#fff;font-weight:800;font-size:15px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px}
+.brand .mi{font-size:20px;color:#4E7FEF}.brand small{font-size:9px;font-weight:600;letter-spacing:.1em;color:#6C7690;margin-left:4px}
+.nav{font-size:10.5px;font-weight:700;letter-spacing:.08em;color:#6C7690;padding:14px 10px 6px}
+.sit{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+.sit .mi{font-size:18px;color:#8993A8}.sit:hover{background:rgba(255,255,255,.05);color:#fff}
+.sit.on{background:linear-gradient(90deg,#2B5FE0,rgba(43,95,224,.3));color:#fff}.sit.on .mi{color:#fff}
+.sit b{margin-left:auto;padding:1px 6px;background:var(--warn);color:#fff;font-size:9px;border-radius:8px;font-weight:700}
+.sfoot{margin-top:auto;padding:12px 10px 0;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:#8993A8;display:flex;align-items:center;gap:8px}
+.sfoot-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4E7FEF,#2B5FE0);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px}
+.main{display:flex;flex-direction:column;min-width:0}
+.top{height:62px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.bread{font-size:12.5px;color:var(--tx3);font-weight:600;display:flex;align-items:center;gap:6px}.bread .mi{font-size:14px}.bread b{color:var(--tx);font-weight:800}
+.top-r{display:flex;align-items:center;gap:14px;margin-left:auto}.top-ic{position:relative;cursor:pointer}.top-ic .mi{font-size:20px;color:var(--tx2)}
+.page{padding:24px 28px 40px;max-width:1520px;width:100%}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:14px}
+.pt{font-size:22px;font-weight:800;letter-spacing:-.015em}.ps{font-size:12px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.6}
+.ph-r{display:flex;gap:10px;align-items:center}
+.btn{padding:9px 17px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;transition:.15s;font-family:var(--sans)}
+.btn .mi{font-size:16px}.btn-pri{background:var(--pri);color:#fff}.btn-pri:hover{background:var(--pri-d)}
+.btn-sec{background:#fff;color:var(--tx2);border-color:var(--line)}.btn-sec:hover{border-color:var(--pri);color:var(--pri-d)}
+.btn-gold{background:var(--gold);color:#fff}
+.compliance{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--warn-l);border:1px solid #FDE3B8;border-radius:var(--r-md);margin-bottom:18px;flex-wrap:wrap}
+.compliance .mi{font-size:20px;color:var(--warn)}
+.comp-t{flex:1;font-size:11.5px;font-weight:800;color:#92400E;line-height:1.7}
+.comp-t span{font-weight:600;color:#B45309}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:9.5px;font-weight:800;white-space:nowrap}
+.tag.ok{background:var(--ok-l);color:var(--ok)}.tag.warn{background:var(--warn-l);color:var(--warn)}.tag.err{background:var(--err-l);color:var(--err)}.tag.pri{background:var(--pri-l);color:var(--pri-d)}.tag.gold{background:var(--gold-l);color:var(--gold)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.kpi{background:#fff;border-radius:var(--r-lg);padding:18px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.kpi.gold::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,var(--gold-l),transparent 70%)}
+.kpi-l{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:.04em;display:flex;align-items:center;gap:6px}.kpi-l .mi{font-size:14px;color:var(--gold)}
+.kpi-v{font-size:26px;font-weight:800;letter-spacing:-.025em;margin-top:10px;line-height:1}.kpi-v small{font-size:12px;font-weight:700;color:var(--tx3)}
+.kpi-d{font-size:10px;color:var(--tx3);margin-top:9px;font-weight:600}
+.layout{display:grid;grid-template-columns:380px 1fr;gap:18px}
+.panel{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden;margin-bottom:18px}
+.panel-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:#FAFBFD}
+.panel-t{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:7px}.panel-t .mi{font-size:17px;color:var(--pri)}
+.panel-t small{font-size:10px;color:var(--tx3);font-weight:600;margin-left:4px}
+.panel-b{padding:14px 18px}
+.batch{padding:12px 13px;border:1.5px solid var(--line);border-radius:var(--r-md);margin-bottom:9px;cursor:pointer;transition:.16s}
+.batch:hover{border-color:var(--gold)}.batch.on{border-color:var(--gold);background:var(--gold-l)}
+.batch-h{display:flex;align-items:center;gap:7px}.batch-n{font-size:12px;font-weight:800;flex:1}
+.batch-m{font-size:9.5px;color:var(--tx3);font-weight:700;margin-top:5px;line-height:1.6}
+.batch-bar{height:4px;background:var(--line2);border-radius:2px;overflow:hidden;margin-top:8px}.batch-bar i{display:block;height:100%;background:var(--gold);border-radius:2px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line2);font-size:11px;font-weight:600;color:var(--tx2)}
+.row:last-child{border-bottom:none}.row b{color:var(--tx);font-weight:800;font-variant-numeric:tabular-nums}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:7px 12px;border-radius:7px;background:var(--line2);font-size:10.5px;font-weight:800;color:var(--tx2);cursor:pointer}
+.tab.on{background:var(--pri-l);color:var(--pri-d)}
+table{width:100%;border-collapse:collapse;font-size:10.5px}
+th{text-align:left;padding:9px 7px;background:var(--line2);color:var(--tx3);font-weight:800;font-size:9.5px;white-space:nowrap}
+td{padding:9px 7px;border-bottom:1px solid var(--line2);font-weight:600}tr:last-child td{border-bottom:none}
+.num{font-weight:800;font-variant-numeric:tabular-nums}
+.codes{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.code{padding:5px 9px;background:var(--line2);border-radius:6px;font-size:10px;font-weight:800;color:var(--tx2);font-variant-numeric:tabular-nums}
+.code.demo{background:var(--warn-l);color:var(--warn)}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.form label{font-size:9.5px;color:var(--tx3);font-weight:700;display:block;margin-bottom:4px}
+.form input,.form select{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:6px;font-size:11px;font-family:var(--sans);color:var(--tx);outline:none;font-weight:700}
+.form input:focus,.form select:focus{border-color:var(--pri)}
+.note{font-size:10px;color:var(--tx3);line-height:1.85;font-weight:600;margin-top:12px;padding-top:11px;border-top:1px dashed var(--line)}
+.note b{color:var(--tx2)}
+.chain{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.lc{padding:5px 9px;background:var(--line2);border-radius:6px;font-size:9.5px;color:var(--tx2);font-weight:700;display:flex;align-items:center;gap:4px}.lc .mi{font-size:13px;color:var(--gold)}
+.modal{position:fixed;inset:0;background:rgba(26,33,56,.5);display:none;align-items:center;justify-content:center;z-index:80}
+.modal.on{display:flex}.modal-c{background:#fff;border-radius:var(--r-lg);width:420px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-t{font-size:15px;font-weight:800;margin-bottom:8px}.modal-d{font-size:11px;color:var(--tx2);line-height:1.8;font-weight:600;margin-bottom:16px}
+.modal-a{display:flex;gap:8px;justify-content:flex-end}
+.toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,20px);background:#1A2138;color:#fff;padding:11px 20px;border-radius:9px;font-size:12px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:99}.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* decision v3 - confirmed rules strip */
+.dstrip{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;margin-bottom:14px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;font-size:10.5px;color:#14532D;font-weight:700;line-height:1.85}
+.dstrip>.mi{font-size:18px;flex-shrink:0;color:#15803D}
+.dstrip b{color:#166534}
+.dstrip .dstrip-t{font-size:11px;font-weight:800;letter-spacing:.02em}
+.dstrip .dstrip-x{color:#166534;font-weight:600}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="mi">travel_explore</span>云栖度假<small>PLATFORM</small></div>
+    <div class="nav">经营</div>
+    <div class="sit"><span class="mi">dashboard</span>数据看板</div>
+    <div class="sit"><span class="mi">inventory_2</span>套餐组货工具</div>
+    <div class="sit"><span class="mi">verified_user</span>商家审核</div>
+    <div class="sit"><span class="mi">article</span>内容与首页 CMS</div>
+    <div class="nav">履约与资金</div>
+    <div class="sit"><span class="mi">gavel</span>订单仲裁</div>
+    <div class="sit"><span class="mi">grid_view</span>库存占用与配额</div>
+    <div class="sit"><span class="mi">receipt_long</span>退款资金对账</div>
+    <div class="sit"><span class="mi">payments</span>分账权限配置</div>
+    <div class="sit"><span class="mi">local_activity</span>营销中心</div>
+    <div class="sit on"><span class="mi">card_giftcard</span>企业采购与礼品卡<b>1</b></div>
+    <div class="nav">系统</div>
+    <div class="sit"><span class="mi">palette</span>主题库维护</div>
+    <div class="sfoot"><div class="sfoot-av">财</div>周敏 · 平台财务</div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="bread"><span class="mi">home</span> 平台后台 <span class="mi">chevron_right</span> <b>企业采购与礼品卡</b></div>
+      <div class="top-r"><div class="top-ic"><span class="mi">notifications</span><b>1</b></div></div>
+    </div>
+
+    <div class="page">
+      <!-- DECISION_V3_APPLIED -->
+<div class="dstrip"><span class="mi">gavel</span><div><div class="dstrip-t">决策 4 已拍板 · 单用途卡备案与资金存管</div><div class="dstrip-x"><b>方向已定，合规前提待法务书面定性。</b>本页已补齐 30 日备案、品牌发卡企业 40% 存管比例、存管账户与协议、合同负债按核销进度结转、单卡限额、实名与非现金购卡、不征税普票、季度报送等法规参数。<b>四项闸门齐备前保持 PREP 态</b>。</div></div></div>
+
+      <div class="ph">
+        <div><div class="pt">企业采购与礼品卡</div><div class="ps">补断点 6 · 对应待拍板决策 4 · C 端 P11 只做了兑换，企业侧资金链路在这里收口</div></div>
+        <div class="ph-r">
+          <button class="btn btn-sec" onclick="toast('已导出负债台账（口径：合同负债，未进 GMV）')"><span class="mi">download</span>导出台账</button>
+          <button class="btn btn-gold" onclick="toast('新建批次表单已展开 · 请先填写企业与面额')"><span class="mi">add</span>新建采购批次</button>
+        </div>
+      </div>
+
+      <div class="compliance">
+        <span class="mi">gavel</span>
+        <div class="comp-t" id="compText"><b>合规状态：PREP（已定方向 · 待备案回执）</b> · <span>✅ 决策 4 已拍板：<b>走单用途商业预付卡备案 + 资金存管</b>。<b>第 0 号闸门</b>：单用途卡仅限「本企业 / 所属集团 / 同一品牌特许经营体系」内兑付，是否跨法人不是判断依据；若额度可在多个独立第三方商家兑付，监管可能认定为多用途预付卡（须持牌支付机构发行）。此项需法务书面定性。四项闸门（法务定性 / 财务科目 / 备案回执 / 存管协议生效）齐备前，批次为 PREP 态：不收对公款、不生成可支付正式码、不发真实资金流水。</span></div>
+        <button class="btn btn-sec" id="compBtn" onclick="openModal()"><span class="mi">gavel</span>查看上线闸门</button>
+      </div>
+
+      <!-- 决策 4 · 备案与资金存管配置 -->
+      <div class="panel" style="margin-bottom:18px">
+        <div class="panel-h"><div class="panel-t"><span class="mi">gavel</span>单用途卡备案与资金存管<small>决策 4 · 法规参数</small></div><span class="tag warn">PREP · 四项闸门未齐</span></div>
+        <div class="panel-b">
+          <div class="note" style="margin-bottom:12px;background:var(--warn-l);border-color:#FED7AA"><b>⚠️ 成立前提（法务只需回答这一句）：</b>本平台发卡主体与可兑付商家，是否构成「同一企业 / 所属集团 / 同一品牌特许经营体系」？<br>· <b>是 → 路径 A</b>：平台持有「云栖度假」注册商标，可兑付商家签品牌授权 / 特许协议并列入售卡企业清单 → 按<b>品牌发卡企业</b>向省级商务主管部门备案，资金存管比例不低于上一季度预收资金余额 <b>40%</b>。<br>· <b>否 → 路径 B</b>：改由持《支付业务许可证》（储值账户运营Ⅱ类）的支付机构发行（平台不碰预收资金），或把企业福利改为「指定套餐批量团购订单」，从形态上避开预付卡定性。<br>商务部解读明确：<b>是否可跨法人使用不是判断依据</b>，关键看是否同一集团（母公司绝对控股 &gt;50%）或同一品牌特许体系；跨独立商户的福利券存在被认定为无证经营多用途预付卡的风险。</div>
+          <div class="form">
+            <div><label>发卡企业类型</label><select id="f_type"><option>品牌发卡企业（路径 A）</option><option>集团发卡企业</option><option>规模发卡企业</option><option>持牌支付机构代发（路径 B）</option></select></div>
+            <div><label>备案机关</label><input type="text" id="f_auth" placeholder="省级商务主管部门" value="待回执"></div>
+            <div><label>备案编号</label><input type="text" id="f_no" placeholder="待回执" value="待回执"></div>
+            <div><label>备案日期 / 开展业务日起 30 日内</label><input type="text" id="f_date" value="待回执"></div>
+            <div><label>存管银行</label><input type="text" id="f_bank" placeholder="待协议生效" value="待协议生效"></div>
+            <div><label>资金存管账户</label><input type="text" id="f_acct" placeholder="待协议生效" value="待协议生效"></div>
+            <div><label>存管协议编号</label><input type="text" id="f_agr" placeholder="待协议生效" value="待协议生效"></div>
+            <div><label>存管比例（品牌 40% / 集团 30% / 规模 20%）</label><input type="text" id="f_ratio" value="40%"></div>
+            <div><label>合同负债科目</label><input type="text" id="f_subj" value="合同负债 / 预收账款—礼品卡"></div>
+            <div><label>收入结转规则</label><input type="text" id="f_rec" value="按子券核销进度逐项结转主营业务收入"></div>
+          </div>
+          <div style="margin-top:12px;padding:10px 12px;background:var(--line2);border-radius:8px;font-size:10px;color:var(--tx2);font-weight:700;line-height:1.9">
+            <b>LIVE 四项闸门（缺一不可）</b><br>
+            ① 法务书面定性：确认适用单用途卡（或改走持牌机构）<br>
+            ② 财务书面确认：合同负债科目、结转时点、存管比例与账户<br>
+            ③ 备案回执：备案编号 / 机关 / 日期 / 有效期<br>
+            ④ 资金存管协议生效：存管银行 / 账户 / 协议编号 / 存管比例<br>
+            <b>季度 / 年度业务报送</b>向商务主管部门填报；付款 7 日内未使用，消费者请求应返还预付款本金（地方加严规定）。
+          </div>
+        </div>
+      </div>
+
+      <div class="kpis" id="kpis"></div>
+
+      <div class="layout">
+        <div>
+          <div class="panel">
+            <div class="panel-h"><div class="panel-t"><span class="mi">list_alt</span>采购批次<small id="batchCount">3 批</small></div></div>
+            <div class="panel-b" id="batchList"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-h"><div class="panel-t"><span class="mi">post_add</span>新建采购批次</div><span class="tag warn">PREP 态 · 待备案回执</span></div>
+            <div class="panel-b">
+              <div class="form">
+                <div><label>企业名称</label><input type="text" id="f_ent" placeholder="某某科技有限公司"></div>
+                <div><label>采购金额（元）</label><input type="number" id="f_amt" value="500000"></div>
+                <div><label>发卡张数</label><input type="number" id="f_cnt" value="100"></div>
+                <div><label>单卡面额（元）</label><input type="number" id="f_face" value="5000"></div>
+                <div><label>有效期至</label><input type="text" id="f_exp" value="2027-11-01"></div>
+                <div><label>适用主题</label><select id="f_theme"><option>全平台</option><option>山林 forest</option><option>海洋 ocean</option><option>城市 city</option></select></div>
+              </div>
+              <button class="btn btn-pri" style="width:100%;justify-content:center;margin-top:12px" onclick="createBatch()"><span class="mi">qr_code</span>生成兑换码</button>
+              <div class="note"><b>科目：</b>企业采购款到账计入「合同负债 / 预收账款」，<b>不确认收入、不进 GMV</b>；员工兑换下单后按<b>子券核销进度</b>逐项结转收入，不是按兑换动作结转。<b>法规对齐：</b>预收资金余额 = 预收资金 − 已兑付商品或服务价款，正好对应按核销进度结转；预收资金只能用于主营业务，不得用于不动产、股权、证券投资及借贷。<br><b>单卡限额：</b>记名卡 ≤ ¥5,000 / 不记名卡 ≤ ¥1,000，当前示例 ¥5,000 <b>必须发记名卡并实名登记</b>；一次性购卡 ≥ ¥10,000 实名，单位 ≥ ¥5,000 / 个人 ≥ ¥50,000 须银行转账。<br><b>开票：</b>售卡 / 充值只能开<b>不征税增值税普通发票，不得开专票</b>，实际消费时不再开票（A9 财务端已联动）。</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel">
+            <div class="panel-h"><div class="panel-t"><span class="mi">account_balance_wallet</span>资金台账<small id="ledgerSub"></small></div><span class="tag gold">固定语义金 · 企业场景层</span></div>
+            <div class="panel-b">
+              <div class="tabs" id="tabs"></div>
+              <div id="ledger"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-h"><div class="panel-t"><span class="mi">qr_code_2</span>兑换码（脱敏）<small>明文仅生成后一次性展示，导出记 L3 日志</small></div></div>
+            <div class="panel-b">
+              <div class="codes" id="codes"></div>
+              <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+                <button class="btn btn-sec" onclick="genCodes()"><span class="mi">autorenew</span>补生成 5 个</button>
+                <button class="btn btn-sec" onclick="toast('导出动作已记入操作日志 L3 · 含操作人、时间、批次、码数量')"><span class="mi">download</span>导出明文</button>
+                <button class="btn btn-sec" onclick="toast('已冻结选中兑换码 · C 端兑换入口即时失效')"><span class="mi">block</span>冻结 / 作废</button>
+              </div>
+              <div class="note" id="codeNote"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-h"><div class="panel-t"><span class="mi">hub</span>与 C 端 P11 的对齐</div></div>
+            <div class="panel-b">
+              <div class="chain">
+                <span class="lc"><span class="mi">corporate_fare</span>企业采购批次</span>
+                <span class="lc"><span class="mi">confirmation_number</span>兑换码分发</span>
+                <span class="lc"><span class="mi">redeem</span>P11 输入兑换码</span>
+                <span class="lc"><span class="mi">account_balance_wallet</span>额度抵扣 + 差额自付</span>
+                <span class="lc"><span class="mi">qr_code_scanner</span>子券核销</span>
+                <span class="lc"><span class="mi">receipt_long</span>按核销进度结转收入</span>
+              </div>
+              <div class="note"><b>过期未兑换：</b>不得自动结转营业外收入，需财务单独审批并留 L3 日志。<b>PREP 态边界：</b>生成的码带 <code>demo_</code> 前缀，无法进入支付链路；切 LIVE 须四项闸门齐备 + 财务与法务双签。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-c">
+    <div class="modal-t"><span class="mi" style="color:var(--warn);vertical-align:-3px">gavel</span> 切换合规状态为 LIVE</div>
+    <div class="modal-d">此操作将开放企业对公收款并允许生成可支付的正式兑换码。按决策 4，必须先取得<b>法务书面定性</b>与<b>财务科目确认</b>，且需财务 + 法务双签。当前为演示原型，切换仅作交互演示，不产生真实资金流水。</div>
+    <div class="modal-a"><button class="btn btn-sec" onclick="closeModal()">取消</button><button class="btn btn-pri" onclick="doSwitch()"><span class="mi">verified_user</span>确认双签并切换</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const BATCHES=[
+ {id:'GC-2026-011',ent:'某某科技有限公司',amt:500000,cnt:100,face:5000,redeemed:37,used:185000,exp:'2027-11-01',theme:'全平台',state:'DEMO',days:356},
+ {id:'GC-2026-009',ent:'云启咨询（上海）',amt:200000,cnt:40,face:5000,redeemed:28,used:140000,exp:'2027-06-30',theme:'山林 forest',state:'DEMO',days:232},
+ {id:'GC-2026-004',ent:'远山制造集团',amt:300000,cnt:60,face:5000,redeemed:60,used:288000,exp:'2026-12-31',theme:'城市 city',state:'EXPIRING',days:51}
+];
+let cur=0,tab='负债',live=false;
+const $=id=>document.getElementById(id);
+const yuan=n=>'¥'+Number(n).toLocaleString('zh-CN');
+function B(){return BATCHES[cur]}
+function toast(t){const e=$('toast');e.textContent=t;e.className='toast show';clearTimeout(window._t);window._t=setTimeout(()=>e.className='toast',2600)}
+function renderKpis(){
+ const total=BATCHES.reduce((s,b)=>s+b.amt,0),liab=BATCHES.reduce((s,b)=>s+(b.amt-b.used),0),rec=BATCHES.reduce((s,b)=>s+b.used,0),codes=BATCHES.reduce((s,b)=>s+b.cnt,0);
+ $('kpis').innerHTML=[
+  {l:'累计采购款（合同负债）',v:yuan(total),s:'不计入 GMV · 决策 4',ic:'account_balance'},
+  {l:'未使用额度（负债）',v:yuan(liab),s:'期末挂账 · 不进收入',ic:'savings'},
+  {l:'已结转收入',v:yuan(rec),s:'按子券核销进度结转',ic:'trending_up'},
+  {l:'累计发放兑换码',v:codes+' 张',s:'已兑换 '+BATCHES.reduce((s,b)=>s+b.redeemed,0)+' 张',ic:'confirmation_number'}
+ ].map(k=>`<div class="kpi gold"><div class="kpi-l"><span class="mi">${k.ic}</span>${k.l}</div><div class="kpi-v">${k.v}</div><div class="kpi-d">${k.s}</div></div>`).join('');
+}
+function renderBatches(){
+ $('batchCount').textContent=BATCHES.length+' 批';
+ $('batchList').innerHTML=BATCHES.map((b,i)=>`
+  <div class="batch ${i===cur?'on':''}" onclick="pick(${i})">
+   <div class="batch-h"><div class="batch-n">${b.ent}</div><span class="tag ${b.state==='EXPIRING'?'warn':'gold'}">${b.state==='EXPIRING'?'即将到期':'演示态'}</span></div>
+   <div class="batch-m">${b.id} · ${b.cnt} 张 × ${yuan(b.face)} · 已兑换 ${b.redeemed} 张 · 到期 ${b.exp}</div>
+   <div class="batch-bar"><i style="width:${Math.round(b.used/b.amt*100)}%"></i></div>
+   <div class="batch-m">已结转 ${yuan(b.used)} / 负债 ${yuan(b.amt-b.used)}</div>
+  </div>`).join('');
+}
+function renderTabs(){
+ const tabs=['负债','结转','到期'];
+ $('tabs').innerHTML=tabs.map(t=>`<div class="tab ${t===tab?'on':''}" onclick="setTab('${t}')">${t==='负债'?'负债台账':(t==='结转'?'收入结转折解':'到期与过期处理')}</div>`).join('');
+ $('ledgerSub').textContent=B().id+' · '+B().ent;
+}
+function setTab(t){tab=t;renderTabs();renderLedger()}
+function renderLedger(){
+ const b=B(),liab=b.amt-b.used;
+ if(tab==='负债'){
+  $('ledger').innerHTML=`<table><thead><tr><th>科目</th><th>金额</th><th>口径</th><th>状态</th></tr></thead><tbody>
+   <tr><td>企业采购款（预收）</td><td class="num">${yuan(b.amt)}</td><td>合同负债</td><td><span class="tag gold">未确认收入</span></td></tr>
+   <tr><td>已核销结转</td><td class="num" style="color:var(--ok)">-${yuan(b.used)}</td><td>按子券核销进度</td><td><span class="tag ok">已结转</span></td></tr>
+   <tr><td>期末未使用额度</td><td class="num" style="color:var(--warn)">${yuan(liab)}</td><td>继续挂负债</td><td><span class="tag warn">挂账</span></td></tr>
+   <tr><td>计入 GMV</td><td class="num">¥0</td><td>预收不计 GMV</td><td><span class="tag pri">口径锁定</span></td></tr>
+  </tbody></table>
+  <div class="note"><b>结转时点是核销，不是兑换。</b>员工兑换后只是拿到额度，只有当订单里的子券被商家核销，平台才逐项确认收入；退款时按同一进度反向冲回。</div>`;
+ }else if(tab==='结转'){
+  $('ledger').innerHTML=`<table><thead><tr><th>来源订单</th><th>套餐</th><th>核销子券</th><th>结转金额</th><th>结转日期</th></tr></thead><tbody>
+   <tr><td>YQ2026101800126</td><td>东极岛听海两日</td><td>4 / 9 项</td><td class="num">${yuan(5600)}</td><td>10-19</td></tr>
+   <tr><td>YQ2026102400088</td><td>莫干山云端两日</td><td>9 / 9 项</td><td class="num">${yuan(16800)}</td><td>10-26</td></tr>
+   <tr><td>YQ2026110200031</td><td>上海屋顶周末两日</td><td>2 / 7 项</td><td class="num">${yuan(3200)}</td><td>11-03</td></tr>
+   <tr style="background:var(--line2)"><td colspan="3"><b>本批累计结转</b></td><td class="num"><b>${yuan(b.used)}</b></td><td></td></tr>
+  </tbody></table>`;
+ }else{
+  $('ledger').innerHTML=`<table><thead><tr><th>处理项</th><th>数量 / 金额</th><th>规则</th><th>动作</th></tr></thead><tbody>
+   <tr><td>距到期 ${b.days} 天</td><td class="num">${b.exp}</td><td>提前 30 天推送企业管理员</td><td><span class="tag warn">待提醒</span></td></tr>
+   <tr><td>未兑换码</td><td class="num">${b.cnt-b.redeemed} 张</td><td>到期冻结，不自动作废</td><td><span class="tag pri">可延期</span></td></tr>
+   <tr><td>过期未使用额度</td><td class="num" style="color:var(--err)">${yuan(liab)}</td><td>转营业外收入需财务单独审批</td><td><span class="tag err">禁止自动结转</span></td></tr>
+  </tbody></table>
+  <div class="note"><b>为什么不能自动结转：</b>单用途预付卡的过期余额处理涉及合规定性（决策 4）。在法务书面结论出来前，所有到期额度一律继续挂负债，由财务逐笔审批。</div>`;
+ }
+}
+function renderCodes(){
+ const b=B(),prefix=live?'GC':'demo_';
+ const list=[];for(let i=0;i<6;i++)list.push(prefix+b.id.slice(-3)+String(4821+i*7).padStart(4,'0')+'••••');
+ $('codes').innerHTML=list.map(c=>`<span class="code ${live?'':'demo'}">${c}</span>`).join('');
+ $('codeNote').innerHTML=live
+  ? '<b>LIVE 态：</b>码可用于真实兑换与支付；明文导出需财务角色 + 双人复核，日志按 L3 留存 3 年。'
+  : '<b>DEMO 态：</b>码带 <code>demo_</code> 前缀，仅用于原型演示，<b>无法进入支付链路</b>。对公收款接口在 LIVE 前一律返回 403。';
+}
+function pick(i){cur=i;renderBatches();renderTabs();renderLedger();renderCodes()}
+function genCodes(){toast('已补生成 5 个'+(live?'正式':'DEMO')+'兑换码 · 生成动作已记入操作日志')}
+function createBatch(){
+ const ent=$('f_ent').value||'未命名企业',amt=parseInt($('f_amt').value||'0',10),cnt=parseInt($('f_cnt').value||'0',10),exp=$('f_exp').value;
+ if(!amt||!cnt){toast('请填写采购金额与发卡张数');return}
+ BATCHES.unshift({id:'GC-2026-0'+(12+BATCHES.length),ent:ent,amt:amt,cnt:cnt,face:Math.round(amt/cnt),redeemed:0,used:0,exp:exp,theme:$('f_theme').value,state:'DEMO',days:365});
+ cur=0;renderKpis();renderBatches();renderTabs();renderLedger();renderCodes();
+ toast('已创建批次 '+ent+' · '+cnt+' 张码（DEMO）· 采购款计入合同负债');
+}
+function openModal(){$('modal').className='modal on'}
+function closeModal(){$('modal').className='modal'}
+function doSwitch(){
+ live=true;closeModal();
+ $('compText').innerHTML='<b>合规状态：LIVE（演示切换）</b> · <span>已模拟四项闸门齐备 + 财务与法务双签。真实上线必须先取得法务对「是否适用单用途卡」的书面定性、财务科目确认、备案回执与生效的存管协议；此处仅为原型交互演示，不产生真实资金流水。</span>';
+ $('compBtn').innerHTML='<span class="mi">verified</span>已切换 LIVE';
+ $('compBtn').className='btn btn-sec';
+ document.querySelector('.compliance').style.background='var(--ok-l)';
+ document.querySelector('.compliance').style.borderColor='#BBF7D0';
+ renderCodes();toast('已切换为 LIVE（演示）· 双签动作已写入 L3 操作日志');
+}
+renderKpis();renderBatches();renderTabs();renderLedger();renderCodes();
+</script>
+</body>
+</html>

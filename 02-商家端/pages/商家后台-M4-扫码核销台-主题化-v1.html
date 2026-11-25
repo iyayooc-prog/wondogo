@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · 商家端 · 扫码核销台（M4）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+/* ============================================================
+   商家端 M4 扫码核销台 · 主题化 v1
+   商家 App 手机端（375px） · 工具感强 · 中性骨架 + 凭证主题色
+   商家扫到用户的凭证后，凭证卡按该产品的主题色渲染，
+   让商家一眼识别"这是哪个目的地的哪个服务"
+   ============================================================ */
+:root{
+  --bg:#0E1217; --bg2:#161B22; --bg3:#1F262F; --bg4:#283039;
+  --card:#1F262F; --card2:#283039;
+  --tx:#E8ECF1; --tx2:#A3ACBA; --tx3:#6B7585;
+  --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.05);
+  --ok:#22C55E; --ok-l:#14532D; --ok-d:#16A34A;
+  --warn:#F59E0B; --warn-l:#422006;
+  --err:#EF4444; --err-l:#450A0A;
+  --r-sm:8px; --r-md:14px; --r-lg:18px; --r-full:999px;
+  --sh:0 4px 14px rgba(0,0,0,.35); --sh-m:0 8px 26px rgba(0,0,0,.4);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif;
+  --ease:cubic-bezier(.22,.75,.28,1);
+}
+/* 凭证主题（来自产品 theme_key） */
+[data-vtheme="ocean"]{--vt:#0E86C4;--vt-d:#0A6291;--vt-l:#E3F1FA;--vt-xl:rgba(14,134,196,.14);
+  --g1a:#8FE0F0;--g1b:#2E9BD4;--g1c:#14689E;--g2a:#FFE2B0;--g2b:#FFA96B;--g2c:#F0805A}
+[data-vtheme="forest"]{--vt:#12897C;--vt-d:#0C6B61;--vt-l:#E4F2F0;--vt-xl:rgba(18,137,124,.14);
+  --g1a:#C6E8B0;--g1b:#6FBF7F;--g1c:#2E8B57;--g2a:#A8E0C8;--g2b:#4FB894;--g2c:#1E8367}
+[data-vtheme="heritage"]{--vt:#8A5A3B;--vt-d:#6B4229;--vt-l:#F4EAE2;--vt-xl:rgba(138,90,59,.14);
+  --g1a:#E8DCCB;--g1b:#BFA78A;--g1c:#8A6F52;--g2a:#D9CBB8;--g2b:#A98F6E;--g2c:#6E5842}
+[data-vtheme="grassland"]{--vt:#6FA22E;--vt-d:#547C20;--vt-l:#EDF5E1;--vt-xl:rgba(111,162,46,.14);
+  --g1a:#DCF0A8;--g1b:#93C85A;--g1c:#5A9430;--g2a:#BFE8F5;--g2b:#79C0DC;--g2c:#3F8FB0}
+[data-vtheme="snow"]{--vt:#4C7FA8;--vt-d:#35607F;--vt-l:#E8F1F8;--vt-xl:rgba(76,127,168,.14);
+  --g1a:#F0F7FC;--g1b:#BDD8EA;--g1c:#7FA8C8;--g2a:#FFE0D0;--g2b:#F5A882;--g2c:#D4764E}
+[data-vtheme="city"]{--vt:#5A5BD0;--vt-d:#413FA8;--vt-l:#ECECFB;--vt-xl:rgba(90,91,208,.14);
+  --g1a:#CFCFFF;--g1b:#8A8AF0;--g1c:#5A5BD0;--g2a:#FFD3E2;--g2b:#FF92B4;--g2c:#E05A82}
+[data-vtheme="neutral"]{--vt:#6B7585;--vt-d:#4A5568;--vt-l:#E5E9EF;--vt-xl:rgba(107,117,133,.14);
+  --g1a:#4A5568;--g1b:#2D3748;--g1c:#1A202C;--g2a:#4A5568;--g2b:#2D3748;--g2c:#1A202C}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#000;color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;padding-bottom:66px;box-shadow:0 0 40px rgba(0,0,0,.6)}
+.mi{font-family:'Material Icons'}
+.g1{background:linear-gradient(160deg,var(--g1a),var(--g1b) 52%,var(--g1c))}
+.g2{background:linear-gradient(160deg,var(--g2a),var(--g2b) 50%,var(--g2c))}
+.page{display:none}.page.on{display:block}
+
+/* 顶部身份条 */
+.idbar{background:var(--bg2);padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:11px}
+.id-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#3B4554,#283039);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff}
+.id-b{flex:1;min-width:0}
+.id-n{font-size:13px;font-weight:800}
+.id-m{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600;display:flex;align-items:center;gap:4px}
+.id-m i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block}
+.id-ic{width:32px;height:32px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.id-ic .mi{font-size:17px;color:var(--tx2)}
+
+/* 演示条 */
+.demo{background:var(--bg2);padding:8px 12px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.demo-t{display:flex;align-items:center;gap:5px;font-size:8.5px;font-weight:800;color:var(--tx3);letter-spacing:.08em;margin-bottom:6px}
+.demo-t .mi{font-size:11px;color:var(--warn)}
+.themes{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none}
+.themes::-webkit-scrollbar{display:none}
+.th{flex-shrink:0;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:var(--r-full);background:var(--bg3);font-size:9.5px;font-weight:800;color:var(--tx2);cursor:pointer;border:1.5px solid transparent;transition:.18s}
+.th .sw{width:9px;height:9px;border-radius:50%}
+.th.on{background:var(--bg4);border-color:currentColor}
+
+/* 主扫描区 */
+.scan{margin:14px 14px 0;background:var(--card);border-radius:var(--r-lg);padding:18px 16px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.scan::before{content:'';position:absolute;top:-30px;right:-30px;width:130px;height:130px;background:radial-gradient(circle,rgba(255,255,255,.05),transparent 70%)}
+.scan-t{font-size:10px;font-weight:800;letter-spacing:.18em;color:var(--tx3);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.scan-t .mi{font-size:13px;color:var(--ok)}
+.scan-vp{position:relative;height:170px;background:var(--bg);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.scan-vp::before,.scan-vp::after{content:'';position:absolute;width:28px;height:28px;border:3px solid var(--ok);z-index:2}
+.scan-vp::before{top:10px;left:10px;border-right:none;border-bottom:none;border-top-left-radius:8px}
+.scan-vp::after{bottom:10px;right:10px;border-left:none;border-top:none;border-bottom-right-radius:8px}
+.scan-corner{position:absolute;width:28px;height:28px;border:3px solid var(--ok);z-index:2}
+.scan-corner.tl{top:10px;right:10px;border-left:none;border-bottom:none;border-top-right-radius:8px}
+.scan-corner.bl{bottom:10px;left:10px;border-right:none;border-top:none;border-bottom-left-radius:8px}
+.scan-line{position:absolute;left:20px;right:20px;height:2px;background:linear-gradient(90deg,transparent,var(--ok),transparent);z-index:3;animation:scan 2.2s ease-in-out infinite;box-shadow:0 0 10px var(--ok)}
+@keyframes scan{0%{top:18px}50%{top:calc(100% - 20px)}100%{top:18px}}
+.scan-hint{position:relative;z-index:4;text-align:center;font-size:12px;color:var(--tx2);font-weight:700;line-height:1.8}
+.scan-hint b{color:var(--tx);font-weight:800;display:block;font-size:13px;margin-bottom:4px}
+.scan-mock{position:absolute;inset:30px 40px;background:rgba(255,255,255,.08);display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);gap:1px;padding:6px;border-radius:4px;opacity:.55}
+.scan-mock i{background:var(--tx)}
+.scan-mock i.w{background:transparent}
+.scan-f{display:flex;gap:8px;margin-top:12px}
+.scan-btn{flex:1;padding:11px;border-radius:var(--r-md);background:var(--bg3);text-align:center;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.18s}
+.scan-btn:hover{background:var(--bg4)}
+.scan-btn .mi{font-size:18px;color:var(--tx)}
+.scan-btn.pri{background:var(--ok);color:#fff}
+.scan-btn.pri .mi{color:#fff}
+
+/* 手动输入 */
+.manual{margin:0 14px 14px;padding:13px 16px;background:var(--card);border-radius:var(--r-md);display:flex;gap:8px;align-items:center;box-shadow:var(--sh)}
+.manual .mi{font-size:19px;color:var(--tx3)}
+.manual input{flex:1;background:transparent;border:none;outline:none;color:var(--tx);font-family:'SF Mono',Menlo,monospace;font-size:15px;letter-spacing:.14em;font-weight:700}
+.manual input::placeholder{color:var(--tx3);font-weight:500;letter-spacing:.06em;font-family:var(--sans);font-size:12px}
+.manual-b{padding:8px 14px;background:var(--bg3);color:var(--tx);border-radius:7px;font-size:11px;font-weight:800;cursor:pointer}
+
+/* 今日数据 */
+.today{display:flex;gap:8px;margin:0 14px 14px}
+.tcard{flex:1;background:var(--card);border-radius:var(--r-md);padding:12px;box-shadow:var(--sh)}
+.tcard-v{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.tcard-v small{font-size:10px;font-weight:700;color:var(--tx3);margin-left:2px}
+.tcard-l{font-size:9.5px;color:var(--tx3);margin-top:5px;font-weight:700;letter-spacing:.04em}
+.tcard-d{display:inline-block;margin-top:6px;padding:1px 7px;border-radius:8px;font-size:8.5px;font-weight:800;background:rgba(34,197,94,.14);color:var(--ok)}
+
+/* 最近核销 */
+.sec{padding:16px 14px 8px}
+.sec-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-t{font-size:12px;font-weight:800;letter-spacing:.04em}
+.sec-a{font-size:10px;color:var(--tx3);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:2px}
+.sec-a .mi{font-size:13px}
+.hist{display:flex;flex-direction:column;gap:8px}
+.hi{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--card);border-radius:var(--r-md);box-shadow:var(--sh)}
+.hi-ic{width:34px;height:34px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.hi-ic .mi{font-size:17px;color:#fff}
+.hi-b{flex:1;min-width:0}
+.hi-n{font-size:12px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hi-m{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hi-m i{padding:1px 6px;border-radius:6px;font-style:normal;font-weight:800}
+.hi-m i.ok{background:var(--ok-l);color:var(--ok)}
+.hi-m i.tag{background:var(--bg3);color:var(--tx2)}
+.hi-r{text-align:right;flex-shrink:0}
+.hi-p{font-size:11.5px;font-weight:800;color:var(--tx)}
+.hi-t{font-size:9px;color:var(--tx3);margin-top:2px;font-weight:600}
+
+/* 凭证卡（主题化） */
+.vcard{margin:14px;background:var(--card);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-m);border-top:3px solid var(--vt)}
+.vc-hero{padding:18px 18px 14px;background:linear-gradient(180deg,var(--vt-xl),transparent);position:relative;overflow:hidden}
+.vc-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:140px;height:140px;background:radial-gradient(circle,rgba(255,255,255,.06),transparent 70%)}
+.vc-k{position:relative;font-size:8.5px;font-weight:800;letter-spacing:.22em;color:var(--vt);text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.vc-k i{width:8px;height:8px;border-radius:50%;display:block;background:var(--vt)}
+.vc-n{position:relative;font-size:20px;font-weight:800;letter-spacing:-.015em;margin-top:10px;line-height:1.35}
+.vc-sub{position:relative;font-size:11px;color:var(--tx2);margin-top:8px;line-height:1.75;font-weight:600}
+.vc-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px;padding:13px;background:var(--bg2);border-radius:var(--r-md)}
+.vc-g{display:flex;align-items:flex-start;gap:7px}
+.vc-g .mi{font-size:14px;color:var(--vt);margin-top:2px}
+.vc-g-b{flex:1}
+.vc-g-k{font-size:9px;font-weight:800;letter-spacing:.08em;color:var(--tx3);text-transform:uppercase}
+.vc-g-v{font-size:12px;font-weight:800;margin-top:2px;line-height:1.4}
+.vc-g-v small{font-size:10px;color:var(--tx3);font-weight:600}
+.vc-split{height:1px;background:var(--line);margin:0 14px}
+.vc-body{padding:14px}
+.vc-bt{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--tx3);margin-bottom:9px}
+.vc-row{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:12px}
+.vc-row .mi{font-size:15px;color:var(--tx3)}
+.vc-row-l{flex:1;color:var(--tx2);font-weight:600}
+.vc-row-v{font-weight:800;color:var(--tx)}
+.vc-actions{display:flex;gap:8px;padding:0 14px 14px}
+.vc-btn{flex:1;padding:13px;border-radius:var(--r-md);font-size:13px;font-weight:800;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.18s}
+.vc-btn .mi{font-size:17px}
+.vc-btn.pri{background:var(--ok);color:#fff;box-shadow:0 4px 14px rgba(34,197,94,.3)}
+.vc-btn.pri:active{transform:scale(.97)}
+.vc-btn.gh{background:var(--bg3);color:var(--tx2)}
+
+/* 异常卡 */
+.errc{margin:14px;background:var(--card);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-m);border-top:3px solid var(--err)}
+.errc-h{padding:16px 18px 12px;background:linear-gradient(180deg,var(--err-l),transparent);display:flex;align-items:center;gap:11px}
+.errc-ic{width:40px;height:40px;border-radius:12px;background:var(--err);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.errc-ic .mi{font-size:22px;color:#fff}
+.errc-b{flex:1}
+.errc-t{font-size:15px;font-weight:800;color:var(--err)}
+.errc-d{font-size:11px;color:var(--tx2);margin-top:4px;line-height:1.7;font-weight:600}
+.errc-body{padding:13px 18px}
+.errc-ctx{padding:10px 12px;background:var(--bg2);border-radius:var(--r-sm);font-size:11px;line-height:1.75;font-weight:600}
+.errc-ctx b{color:var(--err)}
+.errc-actions{display:flex;gap:8px;padding:12px 18px 16px}
+.errc-btn{flex:1;padding:11px;border-radius:var(--r-md);font-size:12px;font-weight:800;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.errc-btn .mi{font-size:15px}
+.errc-btn.pri{background:var(--bg3);color:var(--tx)}
+.errc-btn.danger{background:var(--err);color:#fff}
+
+/* 核销成功浮层 */
+.success{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;padding:30px;backdrop-filter:blur(6px)}
+.success.on{display:flex;animation:fade .25s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.suc-box{background:var(--bg2);border-radius:var(--r-lg);padding:28px 24px;width:100%;max-width:320px;text-align:center;box-shadow:var(--sh-m);border:1px solid var(--ok);animation:pop .4s var(--ease)}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.suc-ring{width:78px;height:78px;border-radius:50%;background:var(--ok);display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 0 0 8px rgba(34,197,94,.15)}
+.suc-ring .mi{font-size:42px;color:#fff}
+.suc-t{font-size:20px;font-weight:800;margin-top:18px;letter-spacing:-.01em}
+.suc-s{font-size:12px;color:var(--tx2);margin-top:8px;line-height:1.75;font-weight:600}
+.suc-info{margin-top:16px;padding:12px;background:var(--bg3);border-radius:var(--r-md);text-align:left;font-size:11.5px;line-height:1.75;font-weight:600}
+.suc-info b{color:var(--tx);font-weight:800}
+.suc-close{margin-top:16px;padding:13px;background:var(--ok);color:#fff;border-radius:var(--r-md);font-size:13px;font-weight:800;cursor:pointer}
+
+/* 底部 Tab */
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:375px;display:flex;background:var(--bg2);border-top:1px solid var(--line);padding:8px 0 10px;z-index:60}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:var(--tx3);font-weight:700;cursor:pointer}
+.tab .mi{font-size:22px}
+.tab.on{color:var(--ok)}
+
+/* 历史页 */
+.list-head{padding:14px 14px 0;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none}
+.list-head::-webkit-scrollbar{display:none}
+.filt{flex-shrink:0;padding:6px 12px;border-radius:var(--r-full);background:var(--bg3);font-size:10.5px;font-weight:800;color:var(--tx2);cursor:pointer}
+.filt.on{background:var(--ok);color:#fff}
+.hist-full{padding:14px}
+.hf{display:flex;gap:11px;padding:13px;background:var(--card);border-radius:var(--r-md);margin-bottom:9px;box-shadow:var(--sh)}
+.hf-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hf-ic .mi{font-size:18px;color:#fff}
+.hf-b{flex:1;min-width:0}
+.hf-n{font-size:12.5px;font-weight:800}
+.hf-m{font-size:10.5px;color:var(--tx3);margin-top:4px;line-height:1.6;font-weight:600}
+.hf-m i{font-style:normal;padding:1px 6px;border-radius:6px;font-weight:800}
+.hf-m i.ok{background:var(--ok-l);color:var(--ok)}
+.hf-m i.warn{background:var(--warn-l);color:var(--warn)}
+.hf-m i.err{background:var(--err-l);color:var(--err)}
+.hf-r{text-align:right;flex-shrink:0}
+.hf-p{font-size:12px;font-weight:800}
+.hf-t{font-size:9.5px;color:var(--tx3);margin-top:3px;font-weight:600}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(34,197,94,.94);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;box-shadow:0 4px 16px rgba(34,197,94,.35);max-width:290px}
+.toast.show{opacity:1}
+.toast.err{background:var(--err);box-shadow:0 4px 16px rgba(239,68,68,.35)}
+.toast.warn{background:var(--warn);box-shadow:0 4px 16px rgba(245,158,11,.35)}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+
+/* yx-deep-M4 */
+
+.yx-shift{margin:0 0 12px;padding:10px 13px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:9px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.yx-shift-t{font-size:11px;font-weight:800;color:#14532D;white-space:nowrap}
+.yx-shift-n{font-size:10.5px;color:#166534;font-weight:700;flex:1}
+.yx-shift-n b{font-size:14px}
+.yx-shift-a{display:flex;gap:6px}
+.yx-shift-a button{padding:6px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-shift-a button.on{background:#15803D;border-color:#15803D;color:#fff}
+.yx-degrade{margin:10px 0 0;padding:10px 12px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px}
+.yx-degrade-t{font-size:10.5px;font-weight:800;color:#9A3412;margin-bottom:8px}
+.yx-degrade-a{display:flex;gap:6px;flex-wrap:wrap}
+.yx-degrade-a button{padding:7px 10px;border:1px solid #FED7AA;background:#fff;color:#9A3412;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+
+</style>
+</head>
+<body>
+<!-- yx-deep-M4 -->
+
+<div class="yx-shift" id="yxShift">
+  <div class="yx-shift-t"><span class="mi">today</span> 今日班次</div>
+  <div class="yx-shift-n">已核销 <b>18</b> / 预计 24 张 · 剩余 6 张待接待 · 连续核销 <b id="yxContState">关</b></div>
+  <div class="yx-shift-a"><button type="button" id="yxContBtn">开启连续核销</button><button type="button" id="yxNextBtn">继续扫下一张</button></div>
+</div>
+<div class="yx-degrade" id="yxDegrade">
+  <div class="yx-degrade-t">扫不出来时的三步降级（不要反复重试，券不会被消耗）</div>
+  <div class="yx-degrade-a">
+    <button type="button" id="yxDg1">① 让用户调高亮度重扫</button>
+    <button type="button" id="yxDg2">② 手输 8 位应急码</button>
+    <button type="button" id="yxDg3">③ 呼叫平台管家</button>
+  </div>
+</div>
+
+
+<div class="app" id="app">
+  <div class="idbar">
+    <div class="id-av">竹</div>
+    <div class="id-b">
+      <div class="id-n">竹里馆 · 山野厨房</div>
+      <div class="id-m"><i></i>营业中 · 商家编号 B-0032 · 今日已核销 8 单</div>
+    </div>
+    <div class="id-ic" onclick="showToast('消息中心')"><span class="mi">notifications_none</span></div>
+    <div class="id-ic" onclick="showToast('商家设置')"><span class="mi">settings</span></div>
+  </div>
+
+  <div class="demo">
+    <div class="demo-t"><span class="mi">science</span>演示 · 切换模拟「扫到不同主题产品的用户凭证」</div>
+    <div class="themes" id="themes"></div>
+  </div>
+
+  <!-- ========== 核销台主页 ========== -->
+  <div class="page on" id="pgScan">
+    <div class="scan">
+      <div class="scan-t"><span class="mi">qr_code_scanner</span>扫 码 核 销</div>
+      <div class="scan-vp" id="scanVP">
+        <span class="scan-corner tl"></span><span class="scan-corner bl"></span>
+        <div class="scan-line"></div>
+        <div class="scan-mock" id="scanMock"></div>
+        <div class="scan-hint"><b>对准用户二维码</b>自动识别 · 0.3 秒响应<br>支持弱网环境 · 手输 8 位码兜底</div>
+      </div>
+      <div class="scan-f">
+        <div class="scan-btn" onclick="showToast('打开闪光灯')"><span class="mi">flash_on</span>闪光灯</div>
+        <div class="scan-btn pri" onclick="scanMock()"><span class="mi">qr_code_scanner</span>模拟扫码</div>
+        <div class="scan-btn" onclick="showToast('从相册选图识别')"><span class="mi">photo_library</span>相册</div>
+      </div>
+    </div>
+
+    <div class="manual">
+      <span class="mi">pin</span>
+      <input placeholder="手输 8 位核销码（弱网兜底）" maxlength="9" id="codeIn">
+      <div class="manual-b" onclick="manualVerify()">确认</div>
+    </div>
+
+    <div class="today">
+      <div class="tcard">
+        <div class="tcard-v">8<small>单</small></div>
+        <div class="tcard-l">今日已核销</div>
+        <div class="tcard-d">↑ 较昨日 +3</div>
+      </div>
+      <div class="tcard">
+        <div class="tcard-v">¥2,460</div>
+        <div class="tcard-l">今日应结收入</div>
+        <div class="tcard-d" style="background:rgba(245,158,11,.14);color:var(--warn)">T+7 结算</div>
+      </div>
+      <div class="tcard">
+        <div class="tcard-v">3<small>张</small></div>
+        <div class="tcard-l">待预约</div>
+        <div class="tcard-d" style="background:rgba(107,117,133,.2);color:var(--tx3)">含今日新增 1</div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h">
+        <div class="sec-t">最近核销</div>
+        <div class="sec-a" onclick="sw('pgList','tList')">全部记录 <span class="mi">chevron_right</span></div>
+      </div>
+      <div class="hist" id="hist"></div>
+    </div>
+  </div>
+
+  <!-- ========== 凭证详情页（扫码后） ========== -->
+  <div class="page" id="pgV">
+    <div style="padding:14px 14px 0;display:flex;align-items:center;gap:10px">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="backScan()"><span class="mi" style="font-size:17px;color:var(--tx)">arrow_back</span></div>
+      <div style="flex:1;font-size:14px;font-weight:800">凭证详情</div>
+      <div style="font-size:10px;font-weight:800;color:var(--tx3);letter-spacing:.06em">60s 防伪 · <span id="sec">58</span>s</div>
+    </div>
+
+    <div class="vcard" id="vcard" data-vtheme="ocean">
+      <div class="vc-hero">
+        <div class="vc-k"><i></i><span id="vThemeK">海洋主题 · OCEAN</span></div>
+        <div class="vc-n" id="vName">渔家海鲜午餐</div>
+        <div class="vc-sub" id="vSub">八道时令海鲜 · 含 2 大 1 小餐标 · 已按备注换掉虾类</div>
+      </div>
+      <div class="vc-grid">
+        <div class="vc-g"><span class="mi">storefront</span><div class="vc-g-b"><div class="vc-g-k">归属商家</div><div class="vc-g-v" id="vMer">海味厨房<br><small>商家 B · 距你 1.2 km</small></div></div></div>
+        <div class="vc-g"><span class="mi">event</span><div class="vc-g-b"><div class="vc-g-k">可用时段</div><div class="vc-g-v" id="vSlot">10-18 12:30-14:00<br><small>已预约</small></div></div></div>
+        <div class="vc-g"><span class="mi">person</span><div class="vc-g-b"><div class="vc-g-k">持有人</div><div class="vc-g-v" id="vHolder">张明远<br><small>138****6721</small></div></div></div>
+        <div class="vc-g"><span class="mi">receipt_long</span><div class="vc-g-b"><div class="vc-g-k">订单号</div><div class="vc-g-v" id="vOrd">YQ2026<br><small>092800328</small></div></div></div>
+      </div>
+      <div class="vc-split"></div>
+      <div class="vc-body">
+        <div class="vc-bt">核 销 校 验</div>
+        <div class="vc-row"><span class="mi">verified</span><div class="vc-row-l">凭证状态</div><div class="vc-row-v" style="color:var(--ok)">待使用 · 可核销</div></div>
+        <div class="vc-row"><span class="mi">storefront</span><div class="vc-row-l">归属商家</div><div class="vc-row-v" style="color:var(--ok)">匹配你（B-0032）</div></div>
+        <div class="vc-row"><span class="mi">schedule</span><div class="vc-row-l">当前时段</div><div class="vc-row-v">在可用时段内</div></div>
+        <div class="vc-row"><span class="mi">security</span><div class="vc-row-l">防伪校验</div><div class="vc-row-v">通过 · 动态 token 有效</div></div>
+        <div class="vc-row"><span class="mi">block</span><div class="vc-row-l">防重放</div><div class="vc-row-v">首次扫码 · 未重复</div></div>
+      </div>
+      <div class="vc-actions">
+        <div class="vc-btn gh" onclick="backScan()"><span class="mi">close</span>取消</div>
+        <div class="vc-btn pri" data-yx-risk="确认核销" data-yx-impact="影响面：子券状态置为已核销、不可撤销；触发按核销进度结转收入与 M5 结算。" onclick="confirmUse()"><span class="mi">check_circle</span>确认核销</div>
+      </div>
+    </div>
+
+    <div style="padding:0 14px;font-size:10.5px;color:var(--tx3);line-height:1.85;font-weight:600">
+      <b style="color:var(--tx)">核销说明：</b>确认后系统将立即记录本次核销，不可撤销。核销后平台按供货价 ¥280 计入你今日应结收入，T+7 结算周期。凭证对应子项状态同步变更为「已核销」。
+    </div>
+  </div>
+
+  <!-- ========== 异常示例 ========== -->
+  <div class="page" id="pgErr">
+    <div style="padding:14px 14px 0;display:flex;align-items:center;gap:10px">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="backScan()"><span class="mi" style="font-size:17px;color:var(--tx)">arrow_back</span></div>
+      <div style="flex:1;font-size:14px;font-weight:800">核销失败</div>
+    </div>
+
+    <div class="errc">
+      <div class="errc-h">
+        <div class="errc-ic"><span class="mi">error_outline</span></div>
+        <div class="errc-b">
+          <div class="errc-t">凭证不属于你的商家</div>
+          <div class="errc-d">该凭证的归属商家与你当前登录账号不匹配，无法核销。</div>
+        </div>
+      </div>
+      <div class="errc-body">
+        <div class="errc-ctx">
+          <b>归属商家：</b>老陈船队（B-0031）<br>
+          <b>你当前登录：</b>竹里馆 · 山野厨房（B-0032）<br>
+          <b>凭证类型：</b>出海海钓 4 小时 · 玩乐类<br>
+          <b>建议：</b>请让用户联系对应商家，或呼叫平台管家协助
+        </div>
+      </div>
+      <div class="errc-actions">
+        <div class="errc-btn pri" onclick="backScan()"><span class="mi">arrow_back</span>返回扫描</div>
+        <div class="errc-btn danger" onclick="showToast('已呼叫平台管家','err')"><span class="mi">support_agent</span>呼叫平台</div>
+      </div>
+    </div>
+
+    <div style="padding:16px 14px 6px;font-size:10.5px;font-weight:800;color:var(--tx3);letter-spacing:.1em">常 见 异 常 场 景</div>
+    <div class="hist-full" style="padding:8px 14px 0">
+      <div class="hf" onclick="showToast('示例：已核销','warn')">
+        <div class="hf-ic" style="background:linear-gradient(135deg,#78716C,#44403C)"><span class="mi">fact_check</span></div>
+        <div class="hf-b"><div class="hf-n">凭证已核销</div><div class="hf-m"><i class="warn">WARNING</i> 防重放拦截 · 3 分钟前已由你核销</div></div>
+        <div class="hf-r"><div class="hf-p" style="color:var(--warn)">拒绝</div><div class="hf-t">查看原记录</div></div>
+      </div>
+      <div class="hf" onclick="showToast('示例：已过期','err')">
+        <div class="hf-ic" style="background:linear-gradient(135deg,#991B1B,#7F1D1D)"><span class="mi">hourglass_disabled</span></div>
+        <div class="hf-b"><div class="hf-n">凭证已过期</div><div class="hf-m"><i class="err">ERROR</i> 已过有效期 · 用户可申请退款</div></div>
+        <div class="hf-r"><div class="hf-p" style="color:var(--err)">拒绝</div><div class="hf-t">引导退款</div></div>
+      </div>
+      <div class="hf" onclick="showToast('示例：冻结中','err')">
+        <div class="hf-ic" style="background:linear-gradient(135deg,#7C2D12,#9A3412)"><span class="mi">ac_unit</span></div>
+        <div class="hf-b"><div class="hf-n">凭证已冻结</div><div class="hf-m"><i class="err">ERROR</i> 用户申请退款中 · 等待平台仲裁</div></div>
+        <div class="hf-r"><div class="hf-p" style="color:var(--err)">拒绝</div><div class="hf-t">查看仲裁</div></div>
+      </div>
+      <div class="hf" onclick="showToast('示例：时段外','warn')">
+        <div class="hf-ic" style="background:linear-gradient(135deg,#854D0E,#713F12)"><span class="mi">schedule</span></div>
+        <div class="hf-b"><div class="hf-n">当前不在可用时段</div><div class="hf-m"><i class="warn">WARNING</i> 可用时段 12:00-14:00 · 现在是 15:42</div></div>
+        <div class="hf-r"><div class="hf-p" style="color:var(--warn)">协商</div><div class="hf-t">改期 / 拒绝</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 核销记录 ========== -->
+  <div class="page" id="pgList">
+    <div style="padding:14px 14px 0;display:flex;align-items:center;gap:10px">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="sw('pgScan','tScan')"><span class="mi" style="font-size:17px;color:var(--tx)">arrow_back</span></div>
+      <div style="flex:1;font-size:14px;font-weight:800">核销记录</div>
+      <div style="font-size:11px;color:var(--tx3);font-weight:700">10 月</div>
+    </div>
+    <div class="list-head">
+      <div class="filt on" onclick="filtPick(this)">全部</div>
+      <div class="filt" onclick="filtPick(this)">今日</div>
+      <div class="filt" onclick="filtPick(this)">本周</div>
+      <div class="filt" onclick="filtPick(this)">海洋</div>
+      <div class="filt" onclick="filtPick(this)">山林</div>
+      <div class="filt" onclick="filtPick(this)">古镇</div>
+      <div class="filt" onclick="filtPick(this)">已退款</div>
+    </div>
+    <div class="hist-full" id="histFull"></div>
+  </div>
+
+  <!-- 核销成功浮层 -->
+  <div class="success" id="success" onclick="closeSuccess()">
+    <div class="suc-box" onclick="event.stopPropagation()">
+      <div class="suc-ring"><span class="mi">check</span></div>
+      <div class="suc-t">核销成功</div>
+      <div class="suc-s">本次核销已同步至平台<br>用户侧即时收到核销通知</div>
+      <div class="suc-info">
+        <b id="sucName">渔家海鲜午餐</b> · <span id="sucHolder">张明远</span><br>
+        供货价 <b id="sucP">¥280</b> · 计入今日应结收入<br>
+        核销时间 <b id="sucT">16:32:08</b> · 操作员 你
+      </div>
+      <div class="suc-close" onclick="closeSuccess()">完成，继续扫码</div>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <div class="tab on" id="tScan" onclick="sw('pgScan','tScan')"><span class="mi">qr_code_scanner</span><span>扫码</span></div>
+    <div class="tab" id="tList" onclick="sw('pgList','tList')"><span class="mi">history</span><span>记录</span></div>
+    <div class="tab" id="tErr" onclick="sw('pgErr','tErr')"><span class="mi">error_outline</span><span>异常</span></div>
+    <div class="tab" onclick="showToast('经营看板')"><span class="mi">leaderboard</span><span>经营</span></div>
+    <div class="tab" onclick="showToast('商家设置')"><span class="mi">settings</span><span>设置</span></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const LIB={
+  ocean:{n:'海洋',sw:'#0E86C4'},forest:{n:'山林',sw:'#12897C'},heritage:{n:'古镇',sw:'#8A5A3B'},
+  grassland:{n:'草原',sw:'#6FA22E'},snow:{n:'雪域温泉',sw:'#4C7FA8'},city:{n:'城市',sw:'#5A5BD0'}
+};
+const VDATA={
+  ocean:{ic:'restaurant',g:'g2',n:'渔家海鲜午餐',d:'八道时令海鲜 · 含 2 大 1 小餐标 · 已按备注换掉虾类',mer:'海味厨房',mid:'B-0032',dist:'1.2 km',slot:'10-18 12:30-14:00',slotN:'已预约',holder:'张明远',phone:'138****6721',ord:'YQ2026092800328',p:280},
+  forest:{ic:'local_fire_department',g:'g2',n:'星空围炉晚宴',d:'户外围炉 8 道菜 · 含自酿桂花酒 · 雨天转室内',mer:'竹里馆 · 山野厨房',mid:'B-0032',dist:'0.8 km',slot:'10-01 19:00-21:30',slotN:'已预约',holder:'张明远',phone:'138****6721',ord:'YQ2026092400328',p:460},
+  heritage:{ic:'brush',g:'g2',n:'徽墨手作体验',d:'非遗师傅带练 · 90 分钟 · 成品可带走',mer:'胡氏墨坊',mid:'B-0087',dist:'1.1 km',slot:'11-06 10:00-11:30',slotN:'已预约',holder:'张明远',phone:'138****6721',ord:'YQ2026091000122',p:260},
+  grassland:{ic:'local_fire_department',g:'g2',n:'篝火烤全羊晚宴',d:'含长调表演 · 需提前 1 天报人数',mer:'星空营地',mid:'B-0112',dist:'18 km',slot:'07-12 19:00-22:00',slotN:'已预约 4 人',holder:'张明远',phone:'138****6721',ord:'YQ2026082000045',p:680},
+  snow:{ic:'hot_tub',g:'g2',n:'户外温泉 90 分钟',d:'落雪场 · 含浴巾与热饮 · 需预约时段',mer:'蓝景温泉',mid:'B-0204',dist:'2.4 km',slot:'01-08 20:30-22:00',slotN:'已预约',holder:'张明远',phone:'138****6721',ord:'YQ2026092700301',p:380},
+  city:{ic:'local_bar',g:'g2',n:'屋顶酒吧黄昏场',d:'27 层 · 含 2 杯指定鸡尾酒 · 座位已预留',mer:'Bar 27',mid:'B-0301',dist:'0.1 km',slot:'10-23 18:30-20:00',slotN:'长桌 3 号位',holder:'张明远',phone:'138****6721',ord:'YQ2026090500288',p:380}
+};
+const HIST=[
+  {t:'ocean',ic:'local_fire_department',g:'g2',n:'沙滩长桌晚宴',holder:'李思（同行）',time:'10-18 19:42',p:460,tag:'ok'},
+  {t:'ocean',ic:'restaurant',g:'g2',n:'渔家海鲜午餐',holder:'张明远',time:'10-18 12:26',p:280,tag:'ok'},
+  {t:'forest',ic:'local_fire_department',g:'g2',n:'星空围炉晚宴',holder:'周先生（团建）',time:'10-17 19:15',p:14960,tag:'ok'},
+  {t:'ocean',ic:'restaurant',g:'g2',n:'渔家海鲜午餐',holder:'Y. Lin',time:'10-16 12:30',p:280,tag:'ok'},
+  {t:'forest',ic:'restaurant',g:'g2',n:'山野午餐',holder:'王芳',time:'10-15 12:20',p:280,tag:'ok'},
+  {t:'ocean',ic:'restaurant',g:'g2',n:'渔家海鲜午餐',holder:'陈磊',time:'10-14 12:34',p:280,tag:'refund',note:'已退款 ¥280 · 用户行程变更'}
+];
+let CUR='forest';
+const $=id=>document.getElementById(id);
+
+function renderThemes(){
+  $('themes').innerHTML=Object.keys(LIB).map(k=>
+    `<div class="th${k===CUR?' on':''}" style="color:${LIB[k].sw}" onclick="pick('${k}')"><span class="sw" style="background:${LIB[k].sw}"></span>${LIB[k].n}</div>`).join('');
+}
+function renderHist(){
+  $('hist').innerHTML=HIST.slice(0,4).map(h=>{
+    const t=LIB[h.t];
+    return `<div class="hi" onclick="showToast('核销详情：${h.n}')">
+      <div class="hi-ic ${h.g}"><span class="mi">${h.ic}</span></div>
+      <div class="hi-b"><div class="hi-n">${h.n}</div>
+      <div class="hi-m"><i class="tag" style="background:${t.sw}20;color:${t.sw}">${t.n}</i><i class="${h.tag==='refund'?'warn':'ok'}">${h.tag==='refund'?'已退款':'核销成功'}</i><span>${h.holder}</span></div></div>
+      <div class="hi-r"><div class="hi-p">¥${h.p.toLocaleString()}</div><div class="hi-t">${h.time}</div></div></div>`;
+  }).join('');
+}
+function renderHistFull(){
+  $('histFull').innerHTML=HIST.map(h=>{
+    const t=LIB[h.t];
+    return `<div class="hf" onclick="showToast('核销详情：${h.n}')">
+      <div class="hf-ic ${h.g}"><span class="mi">${h.ic}</span></div>
+      <div class="hf-b"><div class="hf-n">${h.n}</div>
+      <div class="hf-m"><i class="tag" style="background:${t.sw}20;color:${t.sw}">${t.n}</i><i class="${h.tag==='refund'?'warn':'ok'}">${h.tag==='refund'?'已退款':'核销成功'}</i><span>${h.holder} · ${h.time}</span></div>
+      ${h.note?`<div style="font-size:10px;color:var(--warn);margin-top:4px;font-weight:600">${h.note}</div>`:''}</div>
+      <div class="hf-r"><div class="hf-p">¥${h.p.toLocaleString()}</div><div class="hf-t">查看详情</div></div></div>`;
+  }).join('');
+}
+function pick(k){
+  CUR=k;renderThemes();
+  const v=VDATA[k];
+  $('vcard').setAttribute('data-vtheme',k);
+  $('vThemeK').textContent=LIB[k].n+'主题 · '+k.toUpperCase();
+  $('vName').textContent=v.n;
+  $('vSub').textContent=v.d;
+  $('vMer').innerHTML=v.mer+'<br><small>商家 '+v.mid+' · 距你 '+v.dist+'</small>';
+  $('vSlot').innerHTML=v.slot+'<br><small>'+v.slotN+'</small>';
+  $('vHolder').innerHTML=v.holder+'<br><small>'+v.phone+'</small>';
+  $('vOrd').innerHTML=v.ord.slice(0,8)+'<br><small>'+v.ord.slice(8)+'</small>';
+  $('sucName').textContent=v.n;$('sucP').textContent='¥'+v.p;
+  showToast('已切换到「'+LIB[k].n+'」主题 · 凭证卡与图标同步');
+}
+function scanMock(){
+  pick(CUR);
+  setTimeout(()=>{$('pgScan').classList.remove('on');$('pgV').classList.add('on');window.scrollTo(0,0);},300);
+  showToast('识别成功 · '+VDATA[CUR].n);
+  startSec();
+}
+function manualVerify(){
+  const code=$('codeIn').value.trim().toUpperCase();
+  if(!code){showToast('请输入 8 位核销码','warn');return;}
+  if(code.length<8){showToast('核销码应为 8 位','warn');return;}
+  scanMock();
+}
+function backScan(){$('pgV').classList.remove('on');$('pgErr').classList.remove('on');$('pgList').classList.remove('on');$('pgScan').classList.add('on');window.scrollTo(0,0);}
+function confirmUse(){
+  const now=new Date();const t=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  $('sucT').textContent=t;
+  $('success').classList.add('on');
+  stopSec();
+}
+function closeSuccess(){$('success').classList.remove('on');backScan();}
+function sw(p,t){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));$(p).classList.add('on');
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));$(t).classList.add('on');
+  window.scrollTo(0,0);
+}
+function filtPick(el){document.querySelectorAll('.filt').forEach(f=>f.classList.remove('on'));el.classList.add('on');showToast('已筛选：'+el.textContent);}
+function showToast(x,t){const el=$('toast');el.textContent=x;el.className='toast show'+(t?' '+t:'');clearTimeout(window._tt);window._tt=setTimeout(()=>el.className='toast',2000);}
+let secT=58,secI=null;
+function startSec(){secT=58;stopSec();secI=setInterval(()=>{secT--;if(secT<0)secT=58;$('sec').textContent=secT;},1000);}
+function stopSec(){clearInterval(secI);}
+/* 扫描框模拟二维码 */
+function drawMock(){let h=2026;const ps=[];for(let i=0;i<11*11;i++){h=(h*9301+49297)%233280;const r=h/233280;const row=Math.floor(i/11),col=i%11;
+ const corner=(row<3&&col<3)||(row<3&&col>7)||(row>7&&col<3);
+ if(corner){ps.push((row===0||row===2||col===0||col===2||(row===1&&col===1))?'<i></i>':'<i class="w"></i>');}
+ else ps.push(r>0.5?'<i></i>':'<i class="w"></i>');}
+ $('scanMock').innerHTML=ps.join('');}
+drawMock();
+renderThemes();renderHist();renderHistFull();pick(CUR);
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+
+<script>
+
+(function(){
+  var cont=false;
+  var host=document.getElementById('pgScan');
+  var shift=document.getElementById('yxShift'), dg=document.getElementById('yxDegrade');
+  if(host&&shift)host.insertBefore(shift,host.firstChild);
+  if(host&&dg)host.appendChild(dg);
+  var t=document.getElementById('yxContBtn'), st=document.getElementById('yxContState');
+  if(t)t.onclick=function(){cont=!cont;t.classList.toggle('on',cont);t.textContent=cont?'关闭连续核销':'开启连续核销';if(st)st.textContent=cont?'开':'关';YX.toast(cont?'连续核销已开：核销成功后停留结果并直接准备下一张':'已关闭连续核销','ok');};
+  var n=document.getElementById('yxNextBtn');
+  if(n)n.onclick=function(){if(typeof backScan==='function')backScan();YX.toast('已回到扫码位 · 可直接扫下一张','ok');};
+  var a=[['yxDg1','已提示用户调高屏幕亮度 · 二维码亮度由页面自动拉满','ok'],['yxDg2','已切到手输模式 · 请让 C 端出示 8 位应急码','warn'],['yxDg3','已呼叫平台管家 · 携带订单号与本次失败 rule_code','ok']];
+  for(var i=0;i<a.length;i++){(function(x){var el=document.getElementById(x[0]);if(el)el.onclick=function(){YX.toast(x[1],x[2]);};})(a[i]);}
+})();
+
+</script>
+</body>
+</html>

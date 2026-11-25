@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>云栖度假 · 企业与管家端 · 保真整合原型</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#EEF0EE;color:#1F2937}
+header{background:#1A2138;color:#fff;padding:14px 20px}
+header h1{margin:0;font-size:19px}header p{margin:5px 0 0;font-size:12.5px;color:#B9C2D8}
+.flow{background:#fff;border-bottom:1px solid #E2E6E2;padding:10px 20px;font-size:13px;line-height:2}
+.flow b{color:#2B5FE0}.flow span{background:#F1F5F9;border-radius:999px;padding:3px 10px;margin-right:4px;white-space:nowrap}
+.wrap{display:flex;min-height:calc(100vh - 118px)}
+nav{width:264px;flex:0 0 264px;background:#fff;border-right:1px solid #E2E6E2;padding:12px;overflow:auto}
+nav h3{font-size:12px;color:#8A94A6;margin:14px 6px 6px}
+nav button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:9px 10px;border-radius:8px;font-size:13.5px;cursor:pointer;color:#24304A}
+nav button:hover{background:#F1F5F9}nav button.on{background:#EAF0FE;color:#2B5FE0;font-weight:600}
+main{flex:1;display:flex;flex-direction:column;min-width:0}
+.bar{background:#fff;border-bottom:1px solid #E2E6E2;padding:8px 14px;font-size:12.5px;color:#667085;display:flex;gap:14px;flex-wrap:wrap}
+iframe{flex:1;border:0;width:100%;min-height:72vh;background:#fff}
+.note{font-size:12px;color:#667085;padding:8px 14px;background:#F8F9F8;border-top:1px solid #E2E6E2}
+@media(max-width:760px){.wrap{flex-direction:column}nav{width:100%;flex:none}}
+</style></head><body>
+<header><h1>云栖度假 · 企业与管家端</h1><p>桌面工作台 · B1 需求跟进 + AI方案 + 企业采购协同 + 通知｜保真整合版：右侧页面为原始 HTML 逐字节副本，样式、布局、功能与原件完全一致；本壳只负责分端导航与业务流程串联，不改动页面内部。</p></header>
+<div class="flow"><b>业务闭环：</b> <span>1. 企业提交需求（C端P11）</span> <span>2. 需求跟进</span> <span>3. AI生成方案</span> <span>4. 发方案</span> <span>5. 批量下单</span> <span>6. 对公结算（见财务端A9）</span> <span>7. 行后回访</span></div>
+<div class="wrap"><nav id="nav"><h3>跟进台</h3><button data-i="0">B1 企业需求跟进台 · 决策落地版</button><button data-i="1">B1 企业需求跟进台 · 重建版（备查）</button><h3>协同</h3><button data-i="2">A11 企业采购与礼品卡（平台协同）</button><h3>AI能力</h3><button data-i="3">AI 企业方案生成（二期）</button><h3>横切</h3><button data-i="4">通知中心（企业相关）</button></nav>
+<main><div class="bar"><span id="cur"></span><span>原件文件名：<span id="fn"></span></span><a id="open" href="#" target="_blank">在新窗口打开原页 ↗</a></div>
+<iframe id="fr" title="原页"></iframe>
+<div class="note">衔接说明：本端与其它端以同一订单状态 code、同一状态文案映射、同一资金口径（实付 ¥1,940 − 已核销 ¥740×1.2 → 实退 ¥1,052、佣金 ¥148 不退）对齐；跨端页面在各自端的原型中查看。</div>
+</main></div>
+<script>
+const pages=[{"group": "跟进台", "label": "B1 企业需求跟进台 · 决策落地版", "file": "B1-企业需求跟进台-重建v1-决策落地v1.html", "src": "B1-企业需求跟进台-重建v1-决策落地v1.html", "md5": "3f4676c66c7117b1a4066ade623c0666"}, {"group": "跟进台", "label": "B1 企业需求跟进台 · 重建版（备查）", "file": "B1-企业需求跟进台-重建v1.html", "src": "B1-企业需求跟进台-重建v1.html", "md5": "2a85bb4fd6715ba03d4326207e6e88d3"}, {"group": "协同", "label": "A11 企业采购与礼品卡（平台协同）", "file": "平台后台-A11-企业采购与礼品卡-主题化-v1.html", "src": "平台后台-A11-企业采购与礼品卡-主题化-v1.html", "md5": "f1a0902ae2045b5d98ac37e040c20cee"}, {"group": "AI能力", "label": "AI 企业方案生成（二期）", "file": "原型-AI企业方案生成-v1.html", "src": "原型-AI企业方案生成-v1.html", "md5": "a57e3e6f0d6009c75505534d32ccc5b9"}, {"group": "横切", "label": "通知中心（企业相关）", "file": "通知中心-三端合一-主题化-v1.html", "src": "通知中心-三端合一-主题化-v1.html", "md5": "efa260666999409fc0fbad9b926b436c"}];
+const nav=document.getElementById('nav'),fr=document.getElementById('fr'),cur=document.getElementById('cur'),fn=document.getElementById('fn'),op=document.getElementById('open');
+function go(i){const p=pages[i];fr.src='pages/'+p.file;cur.textContent=p.group+' · '+p.label;fn.textContent=p.src;op.href='pages/'+p.file;document.querySelectorAll('nav button').forEach((b,j)=>b.classList.toggle('on',j===i));}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(+b.dataset.i));
+go(0);
+</script></body></html>

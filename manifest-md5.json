@@ -1,0 +1,394 @@
+[
+ {
+  "end": "01-C端消费者",
+  "label": "P1 首页发现（含热门榜单）",
+  "src": "原型-01-首页发现-主题化-v2(含热门榜单).html",
+  "md5": "f0afbac8984b6a45e0385720023caf7c",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "P2/P3 搜索筛选与产品列表",
+  "src": "原型-06-搜索筛选与产品列表-主题化-v1.html",
+  "md5": "7e707b41f11b5b9b163470c992059325",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "P4 产品详情",
+  "src": "原型-02-产品详情-主题化-v2.html",
+  "md5": "196074023ea913fa1725f3b3854f53a7",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "P5/P6 填写订单与支付 · 决策落地版",
+  "src": "原型-03-填写订单与支付-主题化-v2-决策落地v1.html",
+  "md5": "a6b6616935b6c205c292c1fd333d6087",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "P5/P6 填写订单与支付 · 基线v2（备查）",
+  "src": "原型-03-填写订单与支付-主题化-v2.html",
+  "md5": "c9d1084bf31c3823d6b226e956503962",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "P9 我的行程（产品定义版）",
+  "src": "原型-09-我的行程-产品定义v1.html",
+  "md5": "88e776dbf0666ec8895ad757ce139246",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "P9/P11/P12 行程·企业·个人 · 决策落地版",
+  "src": "原型-05-行程企业个人-主题化-v2(最新版)-决策落地v1.html",
+  "md5": "15f7a5899bf1061d519e0682c0b18792",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "P7/P8 订单与核销凭证",
+  "src": "原型-04-订单与核销凭证-主题化-v2.html",
+  "md5": "6594ae4574a1b124ffc62f7b81220782",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "P7/P8 订单凭证 · 收口补丁（异常兜底）",
+  "src": "原型-04-订单与核销凭证-主题化-v2-收口补丁-v1.1.html",
+  "md5": "919f4a9748702e2d86f75b593a814569",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "预约发起",
+  "src": "原型-预约-用户预约发起-v1.html",
+  "md5": "36f2c6f1c1a11ae4b12b9da6d405bffd",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "改期取消（用户侧）",
+  "src": "原型-改期取消-用户侧-v1.html",
+  "md5": "dc3761f6392ab30b574435a8e555e616",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "营销闭环：拼团·优惠券·积分",
+  "src": "原型-营销闭环-拼团优惠券积分-v1.html",
+  "md5": "f9857988de4dec8037e05db347cc98d4",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "P10 内容社区",
+  "src": "原型-07-内容社区-主题化-v1.html",
+  "md5": "8e0e6112f3c0282d5f1264b5f1fc5238",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "P13 管家客服 IM",
+  "src": "原型-08-管家客服IM-主题化-v1.html",
+  "md5": "5f02325b498ab82ab2ca748498add322",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "AI 智能管家问答（一期）",
+  "src": "原型-AI智能管家问答-v1.html",
+  "md5": "b3a9b4f518fc7670b1a96bf68c726103",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "AI 智能推荐（一期）",
+  "src": "原型-AI智能推荐-v1.html",
+  "md5": "f7c35bfd4ec7aad239fda0fcc9f4b259",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "AI 行程规划器",
+  "src": "原型-AI行程规划器-v1.html",
+  "md5": "95b5b6463410c608afbd6e12e97dea5f",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "AI 拍照识景（二期）",
+  "src": "原型-AI拍照识景-v1.html",
+  "md5": "dbebf80407051279f7fd9dae236621e7",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "AI 游记评价生成（二期）",
+  "src": "原型-AI游记评价生成-v1.html",
+  "md5": "57cbc013f45dcbf750751222b541d6ba",
+  "match": true
+ },
+ {
+  "end": "01-C端消费者",
+  "label": "通知中心（C端视角）",
+  "src": "通知中心-三端合一-主题化-v1.html",
+  "md5": "efa260666999409fc0fbad9b926b436c",
+  "match": true
+ },
+ {
+  "end": "02-商家端",
+  "label": "M1 经营看板",
+  "src": "商家后台-M1-经营看板-主题化-v1.html",
+  "md5": "2cd3be1c7d3ace667d3f1d7668098d06",
+  "match": true
+ },
+ {
+  "end": "02-商家端",
+  "label": "M2 资源项管理 · 决策落地版",
+  "src": "商家后台-M2-资源项管理-主题化-v1-决策落地v1.html",
+  "md5": "5a8b9a9298134cea8605e814661991d7",
+  "match": true
+ },
+ {
+  "end": "02-商家端",
+  "label": "M2 资源项管理 · 基线（备查）",
+  "src": "商家后台-M2-资源项管理-主题化-v1.html",
+  "md5": "4b7569227ce1aaf683389bec33bdee81",
+  "match": true
+ },
+ {
+  "end": "02-商家端",
+  "label": "M3 参与套餐",
+  "src": "商家后台-M3-参与套餐-主题化-v1.html",
+  "md5": "8ff71f79b52b7d3ed411324d6c392c59",
+  "match": true
+ },
+ {
+  "end": "02-商家端",
+  "label": "预约管理台",
+  "src": "原型-预约-商家预约管理台-v1.html",
+  "md5": "609ff86d28bed586c5d1dd8c3d1fc171",
+  "match": true
+ },
+ {
+  "end": "02-商家端",
+  "label": "M4 扫码核销台",
+  "src": "商家后台-M4-扫码核销台-主题化-v1.html",
+  "md5": "1311e3a8e13f09f90bdde2f6b1d0d145",
+  "match": true
+ },
+ {
+  "end": "02-商家端",
+  "label": "M5 订单结算",
+  "src": "商家后台-M5-订单结算-主题化-v1.html",
+  "md5": "c1803b60fd8c6685f7201f5ec9c4c8ef",
+  "match": true
+ },
+ {
+  "end": "02-商家端",
+  "label": "M6 评价管理",
+  "src": "商家后台-M6-评价管理-主题化-v1.html",
+  "md5": "6ca2ee195b7131f6e1b6843cc06125fd",
+  "match": true
+ },
+ {
+  "end": "02-商家端",
+  "label": "AI 商家运营辅助（二期）",
+  "src": "原型-AI商家运营辅助-v1.html",
+  "md5": "f6e0d11b79444d235d604971945db3c2",
+  "match": true
+ },
+ {
+  "end": "02-商家端",
+  "label": "通知中心（商家视角）",
+  "src": "通知中心-三端合一-主题化-v1.html",
+  "md5": "efa260666999409fc0fbad9b926b436c",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "A1 数据看板 · 决策落地版",
+  "src": "平台后台-A1-数据看板-主题化-v1-决策落地v1.html",
+  "md5": "40d213f90e2f32f7ded92fc0ce6ae7fa",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "A1 数据看板 · 基线（备查）",
+  "src": "平台后台-A1-数据看板-主题化-v1.html",
+  "md5": "9643627bba3fcebd97dbd420820b6911",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "A2 套餐组货工具",
+  "src": "平台后台-A2-套餐组货工具-主题化-v1.html",
+  "md5": "2b90bd08cc8e0ddd6698932879486903",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "A3 商家审核",
+  "src": "平台后台-A3-商家审核-主题化-v1.html",
+  "md5": "aa1430d09cc4bf22d4f43a327345016c",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "A12 库存占用与配额 · 决策落地版",
+  "src": "平台后台-A12-库存占用与配额-主题化-v1-决策落地v1.html",
+  "md5": "4aac0f49f1229d76477cc8e9cb505586",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "A5 订单仲裁 · 决策落地版",
+  "src": "平台后台-A5-订单仲裁-主题化-v1-决策落地v1.html",
+  "md5": "47d38db624eadef291ad7ae77f38376f",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "A13 退款资金影响对账 · 决策落地版",
+  "src": "平台后台-A13-退款资金影响对账-主题化-v1-决策落地v1.html",
+  "md5": "4d3d5d49a9af9669f5e3f014c7180b90",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "A4 内容 CMS",
+  "src": "平台后台-A4-内容CMS-主题化-v1.html",
+  "md5": "efecdf56985d621d08ac658bb999b2c7",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "A6 营销中心 · 决策落地版",
+  "src": "平台后台-A6-营销中心-主题化-v1-决策落地v1.html",
+  "md5": "34720e1e71d2c1d03254f63528f9e519",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "A10 主题库维护",
+  "src": "平台后台-A10-主题库维护-主题化-v1.html",
+  "md5": "10d8bf6dea641bf5e54fdc62f05f0a80",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "A11 企业采购与礼品卡 · 决策落地版",
+  "src": "平台后台-A11-企业采购与礼品卡-主题化-v1-决策落地v1.html",
+  "md5": "cccb138f951d7077cc69746302227dbe",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "A7 分账权限配置 · 决策落地版",
+  "src": "平台后台-A7-分账权限配置-主题化-v1-决策落地v1.html",
+  "md5": "0c99fd556245ab9dbcd034e42f995c00",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "A8 租户管理",
+  "src": "A8-租户管理-v1.html",
+  "md5": "07d0a03285556c55f84e81f46a920633",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "AI 平台风控（二期）",
+  "src": "原型-AI平台风控-v1.html",
+  "md5": "822fde1acc88add7ce4f5dc0f3b32976",
+  "match": true
+ },
+ {
+  "end": "03-平台运营端",
+  "label": "通知中心（平台视角）",
+  "src": "通知中心-三端合一-主题化-v1.html",
+  "md5": "efa260666999409fc0fbad9b926b436c",
+  "match": true
+ },
+ {
+  "end": "04-租户端",
+  "label": "T1 租户工作台",
+  "src": "T1-租户工作台-v1.html",
+  "md5": "cef4f1eb5ba9a7578ef21c81a1f626da",
+  "match": true
+ },
+ {
+  "end": "04-租户端",
+  "label": "通知中心（租户相关）",
+  "src": "通知中心-三端合一-主题化-v1.html",
+  "md5": "efa260666999409fc0fbad9b926b436c",
+  "match": true
+ },
+ {
+  "end": "05-企业与管家端",
+  "label": "B1 企业需求跟进台 · 决策落地版",
+  "src": "B1-企业需求跟进台-重建v1-决策落地v1.html",
+  "md5": "3f4676c66c7117b1a4066ade623c0666",
+  "match": true
+ },
+ {
+  "end": "05-企业与管家端",
+  "label": "B1 企业需求跟进台 · 重建版（备查）",
+  "src": "B1-企业需求跟进台-重建v1.html",
+  "md5": "2a85bb4fd6715ba03d4326207e6e88d3",
+  "match": true
+ },
+ {
+  "end": "05-企业与管家端",
+  "label": "A11 企业采购与礼品卡（平台协同）",
+  "src": "平台后台-A11-企业采购与礼品卡-主题化-v1.html",
+  "md5": "f1a0902ae2045b5d98ac37e040c20cee",
+  "match": true
+ },
+ {
+  "end": "05-企业与管家端",
+  "label": "AI 企业方案生成（二期）",
+  "src": "原型-AI企业方案生成-v1.html",
+  "md5": "a57e3e6f0d6009c75505534d32ccc5b9",
+  "match": true
+ },
+ {
+  "end": "05-企业与管家端",
+  "label": "通知中心（企业相关）",
+  "src": "通知中心-三端合一-主题化-v1.html",
+  "md5": "efa260666999409fc0fbad9b926b436c",
+  "match": true
+ },
+ {
+  "end": "06-平台财务端",
+  "label": "A9 对公转账与发票管理 · 决策落地版",
+  "src": "A9-对公转账与发票管理-v1-决策落地v1.html",
+  "md5": "af465da38decd4316dfa525d820ad630",
+  "match": true
+ },
+ {
+  "end": "06-平台财务端",
+  "label": "A9 对公转账与发票管理 · 收口补丁v1.1（退款冲减）",
+  "src": "A9-对公转账与发票管理-收口补丁-v1.1.html",
+  "md5": "ae730c8bdb416707f93bca76e1322e87",
+  "match": true
+ },
+ {
+  "end": "06-平台财务端",
+  "label": "A9 对公转账与发票管理 · 基线（备查）",
+  "src": "A9-对公转账与发票管理-v1.html",
+  "md5": "ab30e2e444b8bd37b224e3cf7cf5e601",
+  "match": true
+ },
+ {
+  "end": "06-平台财务端",
+  "label": "通知中心（财务相关）",
+  "src": "通知中心-三端合一-主题化-v1.html",
+  "md5": "efa260666999409fc0fbad9b926b436c",
+  "match": true
+ }
+]

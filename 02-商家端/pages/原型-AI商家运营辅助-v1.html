@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>云栖度假 · AI 商家运营辅助</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{--bg:#0F1115;--card:#1A1D24;--card2:#232730;--tx:#E8EAED;--tx2:#9BA3B5;--tx3:#6C7690;--line:#2A2E38;--line2:#1E2128;--pri:#4E7FEF;--pri-d:#2B5FE0;--pri-l:#1A2238;--ok:#22C55E;--ok-l:#0E2B18;--warn:#F59E0B;--warn-l:#2B2010;--err:#EF4444;--err-l:#2B1414;--gold:#C9952B;--sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#2a2e38;color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.mi{font-family:'Material Icons'}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;padding-bottom:20px}
+
+.idbar{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+.idbar-av{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#12897C,#0C6B61);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
+.idbar-b{flex:1}
+.idbar-n{font-size:14px;font-weight:800}
+.idbar-s{font-size:10.5px;color:var(--ok);margin-top:3px;font-weight:600}
+
+.scene-tabs{display:flex;background:var(--card);border-bottom:1px solid var(--line);padding:0 16px;overflow-x:auto;scrollbar-width:none}
+.scene-tabs::-webkit-scrollbar{display:none}
+.scene-tab{flex-shrink:0;padding:13px 14px;font-size:12px;font-weight:700;color:var(--tx3);cursor:pointer;position:relative}
+.scene-tab.on{color:var(--tx)}
+.scene-tab.on::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--pri);border-radius:2px}
+.scene{display:none;padding:0}.scene.on{display:block}
+
+/* AI周报 */
+.ai-report{margin:14px 16px;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,#1A2238,#1A1D24);border:1px solid rgba(78,127,239,.3)}
+.ai-report-h{padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(78,127,239,.2)}
+.ai-report-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4E7FEF,#2B5FE0);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-report-av .mi{font-size:17px;color:#fff}
+.ai-report-n{font-size:13px;font-weight:800}
+.ai-report-tag{padding:1px 6px;border-radius:4px;font-size:8px;font-weight:800;background:rgba(78,127,239,.3);color:#7FB4FF}
+.ai-report-body{padding:14px 16px}
+.ai-report-kpi{display:flex;gap:10px;margin-bottom:14px}
+.ai-kpi{flex:1;padding:12px;background:rgba(78,127,239,.1);border-radius:8px}
+.ai-kpi-l{font-size:9px;color:var(--tx2);font-weight:600}
+.ai-kpi-v{font-size:18px;font-weight:800;margin-top:4px}
+.ai-kpi-v.up{color:var(--ok)}.ai-kpi-v.down{color:var(--err)}
+.ai-kpi-d{font-size:8.5px;color:var(--tx3);margin-top:3px;font-weight:600}
+
+.ai-section{margin-bottom:14px}
+.ai-section-t{font-size:11px;font-weight:800;color:var(--tx2);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.ai-section-t .mi{font-size:14px}
+
+.ai-warn{padding:12px 14px;background:var(--warn-l);border-radius:8px;border-left:3px solid var(--warn);margin-bottom:8px}
+.ai-warn-t{font-size:11.5px;font-weight:800;color:var(--warn);display:flex;align-items:center;gap:5px}
+.ai-warn-t .mi{font-size:14px}
+.ai-warn-d{font-size:10.5px;color:var(--tx2);margin-top:5px;font-weight:600;line-height:1.6}
+.ai-warn-btn{margin-top:8px;padding:6px 12px;background:var(--warn);color:#fff;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:3px}
+.ai-warn-btn .mi{font-size:13px}
+
+.ai-opportunity{padding:12px 14px;background:var(--ok-l);border-radius:8px;border-left:3px solid var(--ok);margin-bottom:8px}
+.ai-opportunity-t{font-size:11.5px;font-weight:800;color:var(--ok);display:flex;align-items:center;gap:5px}
+.ai-opportunity-t .mi{font-size:14px}
+.ai-opportunity-d{font-size:10.5px;color:var(--tx2);margin-top:5px;font-weight:600;line-height:1.6}
+.ai-opportunity-btn{margin-top:8px;padding:6px 12px;background:var(--ok);color:#fff;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:3px}
+
+.ai-summary{padding:12px 14px;background:rgba(78,127,239,.1);border-radius:8px;margin-bottom:8px}
+.ai-summary-t{font-size:11.5px;font-weight:800;color:#7FB4FF;display:flex;align-items:center;gap:5px}
+.ai-summary-t .mi{font-size:14px}
+.ai-summary-d{font-size:10.5px;color:var(--tx2);margin-top:5px;font-weight:600;line-height:1.6}
+
+/* 数据解读 */
+.data-box{margin:14px 16px;background:var(--card);border-radius:12px;padding:14px}
+.data-h{font-size:12px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.data-h .mi{font-size:15px;color:var(--pri)}
+.data-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2)}
+.data-row:last-child{border-bottom:none}
+.data-ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--line2)}
+.data-ic .mi{font-size:15px;color:var(--tx2)}
+.data-b{flex:1}
+.data-n{font-size:12px;font-weight:700}
+.data-d{font-size:9.5px;color:var(--tx3);margin-top:2px;font-weight:600}
+.data-r{text-align:right;flex-shrink:0}
+.data-v{font-size:13px;font-weight:800}
+.data-v.up{color:var(--ok)}.data-v.down{color:var(--err)}
+.data-sub{font-size:8.5px;color:var(--tx3);margin-top:2px;font-weight:600}
+.ai-interpret{margin-top:12px;padding:12px;background:rgba(78,127,239,.1);border-radius:8px;border-left:3px solid var(--pri)}
+.ai-interpret-t{font-size:10.5px;font-weight:800;color:#7FB4FF;display:flex;align-items:center;gap:4px;margin-bottom:6px}
+.ai-interpret-d{font-size:10.5px;color:var(--tx2);font-weight:600;line-height:1.6}
+
+/* 评价摘要 */
+.review-summary{margin:14px 16px;background:var(--card);border-radius:12px;overflow:hidden}
+.review-h{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.review-t{font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px}
+.review-t .mi{font-size:16px;color:var(--pri)}
+.review-ai{font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;background:rgba(78,127,239,.3);color:#7FB4FF}
+.review-body{padding:14px 16px}
+.review-stat{display:flex;gap:10px;margin-bottom:14px}
+.review-stat-item{flex:1;text-align:center;padding:10px;background:var(--line2);border-radius:8px}
+.review-stat-v{font-size:16px;font-weight:800}
+.review-stat-v.good{color:var(--ok)}.review-stat-v.mid{color:var(--warn)}.review-stat-v.bad{color:var(--err)}
+.review-stat-l{font-size:9px;color:var(--tx3);margin-top:3px;font-weight:600}
+
+.kw-cloud{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.kw{padding:5px 11px;border-radius:var(--r-full);font-size:10.5px;font-weight:700;cursor:pointer}
+.kw.good{background:var(--ok-l);color:var(--ok)}
+.kw.bad{background:var(--err-l);color:var(--err)}
+.kw .mi{font-size:12px;margin-right:3px}
+
+.review-item{padding:12px;background:var(--line2);border-radius:8px;margin-bottom:10px}
+.review-item-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.review-item-n{font-size:11.5px;font-weight:700}
+.review-item-star{font-size:10px;font-weight:800}
+.review-item-star.good{color:var(--ok)}.review-item-star.bad{color:var(--err)}
+.review-item-t{font-size:10.5px;color:var(--tx2);line-height:1.6;font-weight:600}
+.review-item-ai{margin-top:8px;padding:8px;background:rgba(78,127,239,.1);border-radius:6px}
+.review-item-ai-t{font-size:9px;font-weight:800;color:#7FB4FF;display:flex;align-items:center;gap:3px;margin-bottom:4px}
+.review-item-ai-d{font-size:10px;color:var(--tx2);font-weight:600;line-height:1.5}
+.review-reply{margin-top:8px;padding:8px 12px;background:var(--pri-l);border-radius:6px;font-size:10.5px;font-weight:600;color:var(--tx2);display:flex;align-items:center;justify-content:space-between}
+.review-reply .mi{font-size:13px;color:var(--pri)}
+
+/* 底部 */
+.foot{padding:14px 16px;font-size:10px;color:var(--tx3);text-align:center;font-weight:600}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(15,17,21,.92);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;max-width:320px}
+.toast.show{opacity:1}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+<div class="idbar">
+  <div class="idbar-av">竹</div>
+  <div class="idbar-b"><div class="idbar-n">竹里馆·山野食堂</div><div class="idbar-s">营业中 · 评分4.9 · M-2026-008</div></div>
+</div>
+<div class="scene-tabs">
+  <div class="scene-tab on" onclick="loadScene('report')">AI周报</div>
+  <div class="scene-tab" onclick="loadScene('data')">数据解读</div>
+  <div class="scene-tab" onclick="loadScene('review')">评价摘要</div>
+</div>
+
+<!-- AI周报 -->
+<div class="scene on" id="scene-report">
+  <div class="ai-report">
+    <div class="ai-report-h">
+      <div class="ai-report-av"><span class="mi">auto_awesome</span></div>
+      <div><div class="ai-report-n">AI 经营周报 <span class="ai-report-tag">AI</span></div><div style="font-size:10px;color:var(--tx3);margin-top:2px;font-weight:600">10/28-11/3 · 自动生成</div></div>
+    </div>
+    <div class="ai-report-body">
+      <div class="ai-report-kpi">
+        <div class="ai-kpi"><div class="ai-kpi-l">本周GMV</div><div class="ai-kpi-v up">¥42,680</div><div class="ai-kpi-d">环比+18.6%</div></div>
+        <div class="ai-kpi"><div class="ai-kpi-l">核销单数</div><div class="ai-kpi-v up">248</div><div class="ai-kpi-d">环比+12.3%</div></div>
+      </div>
+      <div class="ai-section">
+        <div class="ai-section-t"><span class="mi" style="color:var(--ok)">trending_up</span>本周亮点</div>
+        <div class="ai-summary">
+          <div class="ai-summary-t"><span class="mi">verified</span>主要增长来源</div>
+          <div class="ai-summary-d">山林主题套餐（莫干山+安吉）贡献 62% GMV，环比增长 28%。星空围炉晚宴加购率达 45%，为本周最大增长点。</div>
+        </div>
+      </div>
+      <div class="ai-section">
+        <div class="ai-section-t"><span class="mi" style="color:var(--warn)">warning</span>需关注</div>
+        <div class="ai-warn">
+          <div class="ai-warn-t"><span class="mi">trending_down</span>海洋主题套餐销量下降12%</div>
+          <div class="ai-warn-d">东极岛船期本周有调整，建议检查并考虑增加促销或推荐替代套餐。</div>
+          <div class="ai-warn-btn" onclick="showToast('进入海洋套餐分析')"><span class="mi">analytics</span>查看分析</div>
+        </div>
+        <div class="ai-warn" style="border-left-color:var(--err)">
+          <div class="ai-warn-t" style="color:var(--err)"><span class="mi">inventory_2</span>山野午餐库存预警</div>
+          <div class="ai-warn-d">预计3天后耗尽，建议立即补货或调整供应量。</div>
+          <div class="ai-warn-btn" style="background:var(--err)" onclick="showToast('进入库存管理')"><span class="mi">inventory</span>去补货</div>
+        </div>
+      </div>
+      <div class="ai-section">
+        <div class="ai-section-t"><span class="mi" style="color:var(--ok)">lightbulb</span>机会推荐</div>
+        <div class="ai-opportunity">
+          <div class="ai-opportunity-t"><span class="mi">trending_up</span>草原主题套餐搜索量增长35%</div>
+          <div class="ai-opportunity-d">呼伦贝尔相关套餐搜索量快速增长，但你当前未参与此类套餐。建议增加草原主题套餐供给。</div>
+          <div class="ai-opportunity-btn" onclick="showToast('进入套餐组货')"><span class="mi">add</span>参与组货</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">AI 周报每周一自动生成 · 基于历史数据和行业均值分析</div>
+</div>
+
+<!-- 数据解读 -->
+<div class="scene" id="scene-data">
+  <div class="data-box">
+    <div class="data-h"><span class="mi">analytics</span>核心数据</div>
+    <div class="data-row">
+      <div class="data-ic"><span class="mi" style="color:var(--ok)">payments</span></div>
+      <div class="data-b"><div class="data-n">本周GMV</div><div class="data-d">10/28-11/3</div></div>
+      <div class="data-r"><div class="data-v up">¥42,680</div><div class="data-sub">+18.6%</div></div>
+    </div>
+    <div class="data-row">
+      <div class="data-ic"><span class="mi" style="color:var(--ok)">receipt_long</span></div>
+      <div class="data-b"><div class="data-n">核销单数</div><div class="data-d">已核销248单</div></div>
+      <div class="data-r"><div class="data-v up">248</div><div class="data-sub">+12.3%</div></div>
+    </div>
+    <div class="data-row">
+      <div class="data-ic"><span class="mi" style="color:var(--warn)">inventory_2</span></div>
+      <div class="data-b"><div class="data-n">库存使用率</div><div class="data-d">山野午餐 87%</div></div>
+      <div class="data-r"><div class="data-v down">87%</div><div class="data-sub">预警</div></div>
+    </div>
+    <div class="data-row">
+      <div class="data-ic"><span class="mi" style="color:var(--pri)">review</span></div>
+      <div class="data-b"><div class="data-n">平均评分</div><div class="data-d">326条评价</div></div>
+      <div class="data-r"><div class="data-v">4.9</div><div class="data-sub">行业4.6</div></div>
+    </div>
+    <div class="ai-interpret">
+      <div class="ai-interpret-t"><span class="mi">auto_awesome</span>AI 数据解读</div>
+      <div class="ai-interpret-d">GMV增长主要来自山林主题套餐（贡献62%），星空围炉晚宴加购率45%是最大增长点。库存使用率87%偏高，建议本周补货。评分4.9高于行业均值4.6，口碑表现良好。</div>
+    </div>
+  </div>
+  <div class="data-box">
+    <div class="data-h"><span class="mi">category</span>主题分布</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:4px"><span>山林</span><span style="color:var(--ok)">62%</span></div><div style="height:6px;background:var(--line2);border-radius:3px;overflow:hidden"><div style="height:100%;width:62%;background:var(--ok);border-radius:3px"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:4px"><span>古镇</span><span>18%</span></div><div style="height:6px;background:var(--line2);border-radius:3px;overflow:hidden"><div style="height:100%;width:18%;background:var(--gold);border-radius:3px"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:4px"><span>海洋</span><span style="color:var(--err)">12%</span></div><div style="height:6px;background:var(--line2);border-radius:3px;overflow:hidden"><div style="height:100%;width:12%;background:var(--err);border-radius:3px"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:4px"><span>城市</span><span>8%</span></div><div style="height:6px;background:var(--line2);border-radius:3px;overflow:hidden"><div style="height:100%;width:8%;background:var(--pri);border-radius:3px"></div></div></div>
+    </div>
+    <div class="ai-interpret" style="margin-top:12px">
+      <div class="ai-interpret-t"><span class="mi">auto_awesome</span>AI 分析</div>
+      <div class="ai-interpret-d">山林主题占比62%，是你的核心收入来源。海洋主题占比从上周17%下降至12%，主要受船期调整影响。建议增加古镇主题套餐供给，当前占比仅18%但搜索量在增长。</div>
+    </div>
+  </div>
+  <div class="foot">AI 自动分析数据变化 · 给出可执行建议</div>
+</div>
+
+<!-- 评价摘要 -->
+<div class="scene" id="scene-review">
+  <div class="review-summary">
+    <div class="review-h">
+      <div class="review-t"><span class="mi">review</span>评价智能摘要 <span class="review-ai">AI</span></div>
+    </div>
+    <div class="review-body">
+      <div class="review-stat">
+        <div class="review-stat-item"><div class="review-stat-v good">4.9</div><div class="review-stat-l">平均评分</div></div>
+        <div class="review-stat-item"><div class="review-stat-v good">289</div><div class="review-stat-l">好评</div></div>
+        <div class="review-stat-item"><div class="review-stat-v mid">24</div><div class="review-stat-l">中评</div></div>
+        <div class="review-stat-item"><div class="review-stat-v bad">13</div><div class="review-stat-l">差评</div></div>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--tx2);margin-bottom:8px">AI 提取关键词</div>
+      <div class="kw-cloud">
+        <div class="kw good"><span class="mi">check_circle</span>食材新鲜</div>
+        <div class="kw good"><span class="mi">check_circle</span>服务好</div>
+        <div class="kw good"><span class="mi">check_circle</span>环境安静</div>
+        <div class="kw good"><span class="mi">check_circle</span>适合亲子</div>
+        <div class="kw bad"><span class="mi">warning</span>价格偏高</div>
+        <div class="kw bad"><span class="mi">warning</span>需预约</div>
+        <div class="kw bad"><span class="mi">warning</span>周末人多</div>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--tx2);margin-bottom:10px">待回复差评 (3)</div>
+      <div class="review-item">
+        <div class="review-item-h"><div class="review-item-n">周先生</div><div class="review-item-star bad">★★★☆☆</div></div>
+        <div class="review-item-t">温泉时段人比较多，建议错峰。整体还行。</div>
+        <div class="review-item-ai">
+          <div class="review-item-ai-t"><span class="mi">auto_awesome</span>AI 回复建议</div>
+          <div class="review-item-ai-d">关键词：人多、错峰。建议回复："感谢反馈！周末温泉确实较忙，建议工作日来体验更舒适。已补充时段说明。"</div>
+        </div>
+        <div class="review-reply"><span>建议回复</span><span class="mi" onclick="showToast('已应用建议')">check</span></div>
+      </div>
+      <div class="review-item">
+        <div class="review-item-h"><div class="review-item-n">Y. Lin</div><div class="review-item-star bad">★★☆☆☆</div></div>
+        <div class="review-item-t">价格有点贵，一份套餐280觉得不太值。</div>
+        <div class="review-item-ai">
+          <div class="review-item-ai-t"><span class="mi">auto_awesome</span>AI 回复建议</div>
+          <div class="review-item-ai-d">关键词：价格贵、不值。建议回复："感谢反馈！套餐含8道菜+桂花酒，单点总价约¥520。如觉得量多，下次可点小份。已考虑增加小份选项。"</div>
+        </div>
+        <div class="review-reply"><span>建议回复</span><span class="mi" onclick="showToast('已应用建议')">check</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">AI 自动提取评价关键词 · 生成个性化回复建议</div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+<script>
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2400)}
+function loadScene(scene){
+  document.querySelectorAll('.scene-tab').forEach(function(t){t.classList.remove('on')});
+  event.currentTarget.classList.add('on');
+  document.querySelectorAll('.scene').forEach(function(s){s.classList.remove('on')});
+  document.getElementById('scene-'+scene).classList.add('on');
+}
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · AI 拍照识景</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{--card:#FFFFFF;--tx:#1B2E2C;--tx2:#5E7370;--tx3:#9BAEAB;--line:#E8EFEE;--line2:#F2F6F5;--r-sm:10px;--r-md:16px;--r-lg:22px;--r-full:999px;--sh-s:0 2px 10px rgba(27,46,44,.05);--sh-m:0 6px 22px rgba(27,46,44,.08);--sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',Roboto,sans-serif}
+[data-theme="neutral"]{--pri:#4A5D59;--pri-d:#33423F;--pri-l:#EDF1F0;--pri-xl:#F6F8F7;--acc:#FF6B4A;--acc-l:#FFEFEB;--acc2:#F2A93B;--bg:#F4F6F5;--g1a:#E2E7E5;--g1b:#B9C4C1;--g1c:#8D9C99;--g2a:#EDE7DE;--g2b:#CFC3B2;--g2c:#A3937F;--g3a:#E0E6E4;--g3b:#B4C1BD;--g3c:#889994;--g4a:#E6E9EC;--g4b:#BCC5CD;--g4c:#909BA5}
+[data-theme="ocean"]{--pri:#0E86C4;--pri-d:#0A6291;--pri-l:#E3F1FA;--pri-xl:#F2F9FD;--acc:#FF7A59;--acc-l:#FFF0EB;--acc2:#FFB648;--g1a:#8FE0F0;--g1b:#2E9BD4;--g1c:#14689E;--g2a:#FFE2B0;--g2b:#FFA96B;--g2c:#F0805A;--g3a:#A8E8DC;--g3b:#4FBFAE;--g3c:#2A8A80;--g4a:#BFD9F2;--g4b:#6E9FD0;--g4c:#3F6E9E}
+[data-theme="forest"]{--pri:#12897C;--pri-d:#0C6B61;--pri-l:#E4F2F0;--pri-xl:#F1F8F7;--acc:#FF7A59;--acc-l:#FFF0EB;--acc2:#FFB648;--g1a:#C6E8B0;--g1b:#6FBF7F;--g1c:#2E8B57;--g2a:#A8E0C8;--g2b:#4FB894;--g2c:#1E8367;--g3a:#FFE0B2;--g3b:#FFAE6B;--g3c:#E08A4A;--g4a:#D8E8C0;--g4b:#93C07A;--g4c:#5A8C46}
+[data-theme="grassland"]{--pri:#6FA22E;--pri-d:#547C20;--pri-l:#EDF5E1;--pri-xl:#F6FAF0;--acc:#D9701F;--acc-d:#C2410C;--acc-l:#FFF2E6;--acc2:#E8C33C;--g1a:#DCF0A8;--g1b:#93C85A;--g1c:#5A9430;--g2a:#BFE8F5;--g2b:#79C0DC;--g2c:#3F8FB0;--g3a:#FFE9A8;--g3b:#FFC65C;--g3c:#E09A2E;--g4a:#E8F2C0;--g4b:#B5D483;--g4c:#7CA84E}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#dfe3e2;color:var(--tx);line-height:1.55;-webkit-font-smoothing:antialiased}
+.mi{font-family:'Material Icons'}
+.g1{background:linear-gradient(160deg,var(--g1a),var(--g1b) 52%,var(--g1c))}
+.g2{background:linear-gradient(160deg,var(--g2a),var(--g2b) 50%,var(--g2c))}
+.g3{background:linear-gradient(160deg,var(--g3a),var(--g3b) 50%,var(--g3c))}
+.g4{background:linear-gradient(160deg,var(--g4a),var(--g4b) 52%,var(--g4c))}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;box-shadow:0 0 40px rgba(0,0,0,.12)}
+.scene-tabs{display:flex;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.scene-tabs::-webkit-scrollbar{display:none}
+.scene-tab{flex-shrink:0;padding:13px 16px;font-size:12.5px;font-weight:700;color:var(--tx3);cursor:pointer;position:relative;white-space:nowrap}
+.scene-tab.on{color:var(--pri-d);font-weight:800}
+.scene-tab.on::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--pri);border-radius:2px}
+.scene{display:none;padding-bottom:30px}.scene.on{display:block}
+.topbar{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#fff}
+.top-t{font-size:17px;font-weight:800;flex:1}
+
+/* 拍照界面 */
+.camera-area{height:calc(100vh - 110px);position:relative;overflow:hidden}
+.camera-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.camera-bg .mi{font-size:80px;color:rgba(255,255,255,.3);position:relative;z-index:2}
+.camera-scan{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;border:2px solid rgba(255,255,255,.5);border-radius:var(--r-md)}
+.camera-scan::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--acc);animation:scanLine 2s infinite}
+@keyframes scanLine{0%{top:0}50%{top:100%}100%{top:0}}
+.camera-corners::before,.camera-corners::after{content:'';position:absolute;width:30px;height:30px;border:3px solid var(--acc)}
+.camera-corners::before{top:-2px;left:-2px;border-right:none;border-bottom:none;border-radius:8px 0 0 0}
+.camera-corners::after{bottom:-2px;right:-2px;border-left:none;border-top:none;border-radius:0 0 8px 0}
+.camera-bottom{position:absolute;bottom:0;left:0;right:0;padding:20px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.5));display:flex;align-items:center;justify-content:space-around}
+.camera-shutter{width:64px;height:64px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.camera-shutter::before{content:'';width:52px;height:52px;border-radius:50%;background:var(--acc);border:4px solid #fff}
+.camera-alt{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.camera-alt .mi{font-size:24px;color:#fff}
+.camera-alt span{font-size:9px;color:#fff;font-weight:600}
+
+/* AI识别结果 */
+.识别-result{margin:14px 16px;background:#fff;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-m)}
+.识别-img{height:180px;position:relative;display:flex;align-items:center;justify-content:center}
+.识别-img .mi{font-size:50px;color:rgba(255,255,255,.4);position:relative;z-index:2}
+.识别-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.45))}
+.识别-badge{position:absolute;top:14px;left:16px;z-index:3;padding:4px 10px;background:rgba(255,255,255,.92);border-radius:var(--r-full);font-size:9px;font-weight:800;color:var(--pri-d)}
+.识别-ai{position:absolute;top:14px;right:16px;z-index:3;padding:4px 10px;background:var(--acc);color:#fff;border-radius:var(--r-full);font-size:8.5px;font-weight:800;display:flex;align-items:center;gap:3px}
+.识别-ai .mi{font-size:12px}
+.识别-body{padding:14px 16px}
+.识别-t{font-size:16px;font-weight:800}
+.识别-loc{font-size:11px;color:var(--tx2);margin-top:6px;font-weight:600;display:flex;align-items:center;gap:4px}
+.识别-loc .mi{font-size:13px;color:var(--tx3)}
+.识别-tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.识别-tag{padding:3px 9px;background:var(--pri-xl);border-radius:var(--r-sm);font-size:9.5px;font-weight:700;color:var(--pri-d)}
+.识别-ai-text{margin-top:10px;padding:10px;background:var(--pri-l);border-radius:var(--r-sm);font-size:11px;font-weight:600;color:var(--pri-d);line-height:1.6}
+
+/* 推荐服务 */
+.reco-h{padding:16px 16px 10px;font-size:13px;font-weight:800;display:flex;align-items:center;gap:6px}
+.reco-h .mi{font-size:16px;color:var(--acc)}
+.reco-item{margin:0 16px 10px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);padding:13px;display:flex;align-items:center;gap:12px}
+.reco-ic{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.reco-ic .mi{font-size:22px;color:#fff}
+.reco-b{flex:1;min-width:0}
+.reco-n{font-size:12.5px;font-weight:800}
+.reco-d{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.reco-voucher{margin-top:6px;padding:3px 8px;background:var(--ok-l);color:var(--ok);border-radius:var(--r-sm);font-size:8.5px;font-weight:800;display:inline-flex;align-items:center;gap:3px}
+.reco-voucher .mi{font-size:11px}
+.reco-r{text-align:right;flex-shrink:0}
+.reco-dist{font-size:9px;color:var(--tx3);font-weight:600}
+.reco-btn{padding:6px 12px;border-radius:var(--r-full);font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:3px;margin-top:4px}
+.reco-btn.pri{background:var(--pri);color:#fff}
+.reco-btn.sec{background:var(--line2);color:var(--tx2)}
+
+/* 核销成功 */
+.核销-success{padding:40px 20px;text-align:center}
+.核销-ic{width:72px;height:72px;border-radius:50%;background:var(--ok);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.核销-ic .mi{font-size:36px;color:#fff}
+.核销-t{font-size:16px;font-weight:800}
+.核销-d{font-size:12px;color:var(--tx2);margin-top:8px;font-weight:600;line-height:1.7}
+.核销-card{margin:20px 16px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);padding:14px;text-align:left}
+.核销-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line2)}
+.核销-row:last-child{border-bottom:none}
+.核销-row .mi{font-size:15px;color:var(--tx3);width:18px;flex-shrink:0}
+.核销-row b{font-size:12px;font-weight:700}
+.核销-row small{font-size:10px;color:var(--tx3);font-weight:600;margin-left:auto}
+.核销-btn{margin-top:20px;padding:14px;background:var(--pri);color:#fff;border-radius:var(--r-md);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(27,46,44,.92);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;max-width:320px}
+.toast.show{opacity:1}
+/* AI悬浮球 + 底部Tab + 空状态 */
+.fab{position:fixed;bottom:85px;right:16px;width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 28px rgba(255,107,74,.45);border:3px solid rgba(255,255,255,.6);z-index:80;transition:.3s;animation:fabPulse 2.5s infinite}
+.fab .mi{font-size:30px;color:#fff}
+.fab::before{content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--acc);opacity:.4;animation:fabRing 2.5s infinite}
+@keyframes fabPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes fabRing{0%{transform:scale(1);opacity:.3}100%{transform:scale(1.4);opacity:0}}
+.fab.hide{transform:scale(0);opacity:0}
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:375px;display:flex;background:#fff;border-top:1px solid var(--line);padding:8px 0 10px;z-index:60}
+.tabbar .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:var(--tx3);font-weight:700;cursor:pointer}
+.tabbar .tab .mi{font-size:22px}
+.tabbar .tab.on{color:var(--pri)}
+.tabbar .tab.on span{font-weight:800}
+.empty{padding:50px 30px;text-align:center}
+.empty-ic{width:72px;height:72px;border-radius:50%;background:var(--line2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.empty-ic .mi{font-size:36px;color:var(--tx3)}
+.empty-t{font-size:16px;font-weight:800}
+.empty-d{font-size:12px;color:var(--tx2);margin-top:8px;font-weight:600;line-height:1.7}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+</style>
+</head>
+<body>
+<div class="app" data-theme="neutral">
+<div class="scene-tabs">
+  <div class="scene-tab on" onclick="loadScene('camera')">拍照</div>
+  <div class="scene-tab" onclick="loadScene('result')">AI识别</div>
+  <div class="scene-tab" onclick="loadScene('reco')">推荐服务</div>
+  <div class="scene-tab" onclick="loadScene('verify')">核销成功</div>
+</div>
+
+<!-- 拍照 -->
+<div class="scene on" id="scene-camera">
+  <div class="topbar"><div class="top-t">AI 拍照识景</div><div style="font-size:11px;color:var(--tx3);font-weight:600">对准目的地拍照</div></div>
+  <div class="camera-area">
+    <div class="camera-bg g1"><span class="mi">waves</span></div>
+    <div class="camera-scan"><div class="camera-corners"></div></div>
+    <div class="camera-bottom">
+      <div class="camera-alt" onclick="showToast('从相册选择')"><span class="mi">photo_library</span><span>相册</span></div>
+      <div class="camera-shutter" onclick="loadScene('result')"></div>
+      <div class="camera-alt" onclick="showToast('切换前后摄像头')"><span class="mi">switch_camera</span><span>翻转</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- AI识别 -->
+<div class="scene" id="scene-result">
+  <div class="topbar"><div class="top-t">AI 识别结果</div></div>
+  <div class="识别-result" data-theme="ocean">
+    <div class="识别-img g1"><span class="mi">waves</span><div class="识别-badge"><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#0E86C4;margin-right:4px"></i>海洋</div><div class="识别-ai"><span class="mi">auto_awesome</span>AI</div></div>
+    <div class="识别-body">
+      <div class="识别-t">东极岛 · 海边日落</div>
+      <div class="识别-loc"><span class="mi">location_on</span>东极岛 · 距你 0.3km · 东经122.4°</div>
+      <div class="识别-tags">
+        <div class="识别-tag">海洋</div><div class="识别-tag">日落</div><div class="识别-tag">礁石</div><div class="识别-tag">东极岛</div>
+      </div>
+      <div class="识别-ai-text">💡 AI 识别到你在东极岛看日落。你今天的行程中有赶海体验和海鲜餐厅的子券，以下是推荐：</div>
+    </div>
+  </div>
+</div>
+
+<!-- 推荐服务 -->
+<div class="scene" id="scene-reco">
+  <div class="topbar"><div class="top-t">周边服务推荐</div></div>
+  <div class="reco-h"><span class="mi">autorenew</span>AI 基于识别结果和你的子券推荐</div>
+
+  <div class="reco-item">
+    <div class="reco-ic" style="background:linear-gradient(135deg,#FFB648,#E8734A)"><span class="mi">wb_twilight</span></div>
+    <div class="reco-b">
+      <div class="reco-n">日落观景台</div>
+      <div class="reco-d">最佳观赏点 · 距你 0.5km</div>
+      <div class="reco-voucher"><span class="mi">qr_code_2</span>你的子券已包含</div>
+    </div>
+    <div class="reco-r">
+      <div class="reco-dist">0.5km</div>
+      <div class="reco-btn pri" onclick="loadScene('verify')"><span class="mi">near_me</span>导航</div>
+    </div>
+  </div>
+
+  <div class="reco-item">
+    <div class="reco-ic" style="background:linear-gradient(135deg,#FF7A59,#F0805A)"><span class="mi">restaurant</span></div>
+    <div class="reco-b">
+      <div class="reco-n">海屿海鲜餐厅</div>
+      <div class="reco-d">当前营业中 · 距你 0.8km</div>
+      <div class="reco-voucher"><span class="mi">qr_code_2</span>你的子券已包含</div>
+    </div>
+    <div class="reco-r">
+      <div class="reco-dist">0.8km</div>
+      <div class="reco-btn pri" onclick="loadScene('verify')"><span class="mi">qr_code_2</span>核销</div>
+    </div>
+  </div>
+
+  <div class="reco-item">
+    <div class="reco-ic" style="background:linear-gradient(135deg,#0E86C4,#0A6291)"><span class="mi">beach_access</span></div>
+    <div class="reco-b">
+      <div class="reco-n">赶海体验</div>
+      <div class="reco-d">距你 0.3km · 潮汐窗口 17:00-19:00</div>
+      <div class="reco-voucher"><span class="mi">qr_code_2</span>你的子券已包含</div>
+    </div>
+    <div class="reco-r">
+      <div class="reco-dist">0.3km</div>
+      <div class="reco-btn pri" onclick="loadScene('verify')"><span class="mi">qr_code_2</span>核销</div>
+    </div>
+  </div>
+
+  <div class="reco-item">
+    <div class="reco-ic" style="background:linear-gradient(135deg,#9BA3B5,#5B6477)"><span class="mi">hotel</span></div>
+    <div class="reco-b">
+      <div class="reco-n">海景石屋民宿</div>
+      <div class="reco-d">距你 1.2km · 今晚可入住</div>
+      <div class="reco-d" style="color:var(--tx3)">未包含在你的套餐中</div>
+    </div>
+    <div class="reco-r">
+      <div class="reco-dist">1.2km</div>
+      <div class="reco-btn sec" onclick="showToast('查看民宿详情')"><span class="mi">visibility</span>查看</div>
+    </div>
+  </div>
+</div>
+
+<!-- 核销成功 -->
+<div class="scene" id="scene-verify">
+  <div class="topbar"><div class="top-t">核销成功</div></div>
+  <div class="核销-success">
+    <div class="核销-ic"><span class="mi">check</span></div>
+    <div class="核销-t">赶海体验 · 已核销</div>
+    <div class="核销-d">核销时间：2026-11-07 17:25<br>操作商家：海屿海鲜餐厅</div>
+    <div class="核销-card">
+      <div class="核销-row"><span class="mi">restaurant</span><b>赶海体验</b><small>已核销</small></div>
+      <div class="核销-row"><span class="mi">storefront</span><b>海屿海鲜餐厅</b></div>
+      <div class="核销-row"><span class="mi">access_time</span><b>17:25</b></div>
+      <div class="核销-row"><span class="mi">qr_code_2</span><b>子券 DV-20261107-003</b></div>
+    </div>
+    <div class="核销-btn" onclick="showToast('返回推荐列表')"><span class="mi">autorenew</span>继续识别下一个</div>
+  </div>
+
+  <!-- AI悬浮球 -->
+  <div class="fab" onclick="showToast('唤起AI管家')"><span class="mi">auto_awesome</span></div>
+
+  <!-- 底部Tab -->
+  <div class="tabbar">
+    <div class="tab" onclick="showToast('返回发现')"><span class="mi">explore</span><span>发现</span></div>
+    <div class="tab" onclick="showToast('进入行程')"><span class="mi">timeline</span><span>行程</span></div>
+    <div class="tab" onclick="showToast('进入企业')"><span class="mi">business_center</span><span>企业</span></div>
+    <div class="tab" onclick="showToast('进入我的')"><span class="mi">person_outline</span><span>我的</span></div>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+<script>
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2400)}
+function loadScene(scene){
+  document.querySelectorAll('.scene-tab').forEach(function(t){t.classList.remove('on')});
+  event.currentTarget.classList.add('on');
+  document.querySelectorAll('.scene').forEach(function(s){s.classList.remove('on')});
+  document.getElementById('scene-'+scene).classList.add('on');
+}
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+</body>
+</html>

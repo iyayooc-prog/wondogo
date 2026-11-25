@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · 订单与核销凭证（主题化 v2）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+/* ============================================================
+   订单列表 P7 + 订单详情/核销凭证 P8 · 主题化 v2
+   列表页：每张订单卡 = 该产品的主题（一屏多主题混排，骨架中性）
+   详情页：容器与凭证 = 产品主题；每张子券的图标块按「服务类型」
+           取主题内四档渐变（g1 住宿 / g2 餐饮 / g3 玩乐 / g4 交通）
+   线下掏出的凭证带目的地配色 —— 这就是记忆点
+   ============================================================ */
+:root{
+  --card:#FFFFFF; --tx:#1B2E2C; --tx2:#5E7370; --tx3:#9BAEAB;
+  --line:#E8EFEE; --line2:#F2F6F5;
+  --r-sm:10px; --r-md:16px; --r-lg:22px; --r-full:999px;
+  --sh-s:0 2px 10px rgba(27,46,44,.05); --sh-m:0 6px 22px rgba(27,46,44,.08);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',Roboto,sans-serif;
+  --ease:cubic-bezier(.22,.75,.28,1);
+}
+[data-theme="neutral"]{--pri:#4A5D59;--pri-d:#33423F;--pri-l:#EDF1F0;--pri-xl:#F6F8F7;--acc:#FF6B4A;--acc-l:#FFEFEB;--bg:#F4F6F5;
+  --g1a:#E2E7E5;--g1b:#B9C4C1;--g1c:#8D9C99;--g2a:#EDE7DE;--g2b:#CFC3B2;--g2c:#A3937F;--g3a:#E0E6E4;--g3b:#B4C1BD;--g3c:#889994;--g4a:#E6E9EC;--g4b:#BCC5CD;--g4c:#909BA5}
+[data-theme="ocean"]{--pri:#0E86C4;--pri-d:#0A6291;--pri-l:#E3F1FA;--pri-xl:#F2F9FD;--acc:#FF7A59;--acc-l:#FFF0EB;--bg:#F2F8FB;
+  --g1a:#8FE0F0;--g1b:#2E9BD4;--g1c:#14689E;--g2a:#FFE2B0;--g2b:#FFA96B;--g2c:#F0805A;--g3a:#A8E8DC;--g3b:#4FBFAE;--g3c:#2A8A80;--g4a:#BFD9F2;--g4b:#6E9FD0;--g4c:#3F6E9E}
+[data-theme="forest"]{--pri:#12897C;--pri-d:#0C6B61;--pri-l:#E4F2F0;--pri-xl:#F1F8F7;--acc:#FF7A59;--acc-l:#FFF0EB;--bg:#F4F8F7;
+  --g1a:#C6E8B0;--g1b:#6FBF7F;--g1c:#2E8B57;--g2a:#A8E0C8;--g2b:#4FB894;--g2c:#1E8367;--g3a:#FFE0B2;--g3b:#FFAE6B;--g3c:#E08A4A;--g4a:#D8E8C0;--g4b:#93C07A;--g4c:#5A8C46}
+[data-theme="heritage"]{--pri:#8A5A3B;--pri-d:#6B4229;--pri-l:#F4EAE2;--pri-xl:#FBF6F1;--acc:#C0453A;--acc-l:#FCEDEB;--bg:#F8F5F1;
+  --g1a:#E8DCCB;--g1b:#BFA78A;--g1c:#8A6F52;--g2a:#D9CBB8;--g2b:#A98F6E;--g2c:#6E5842;--g3a:#E5C9A8;--g3b:#C9976A;--g3c:#9A6742;--g4a:#DCD6CC;--g4b:#9E968A;--g4c:#6B6459}
+[data-theme="grassland"]{--pri:#6FA22E;--pri-d:#547C20;--pri-l:#EDF5E1;--pri-xl:#F6FAF0;--acc:#D9701F;--acc-d:#C2410C;--acc-l:#FFF2E6;--bg:#F6FAF1;
+  --g1a:#DCF0A8;--g1b:#93C85A;--g1c:#5A9430;--g2a:#BFE8F5;--g2b:#79C0DC;--g2c:#3F8FB0;--g3a:#FFE9A8;--g3b:#FFC65C;--g3c:#E09A2E;--g4a:#E8F2C0;--g4b:#B5D483;--g4c:#7CA84E}
+[data-theme="snow"]{--pri:#4C7FA8;--pri-d:#35607F;--pri-l:#E8F1F8;--pri-xl:#F4F9FC;--acc:#E8734A;--acc-l:#FCEEE8;--bg:#F5F9FC;
+  --g1a:#F0F7FC;--g1b:#BDD8EA;--g1c:#7FA8C8;--g2a:#E4EEF6;--g2b:#A9C6DC;--g2c:#6E92B0;--g3a:#FFE0D0;--g3b:#F5A882;--g3c:#D4764E;--g4a:#EDF4FA;--g4b:#C2D8E8;--g4c:#8AAAC4}
+[data-theme="city"]{--pri:#5A5BD0;--pri-d:#413FA8;--pri-l:#ECECFB;--pri-xl:#F6F6FD;--acc:#FF5C8A;--acc-l:#FFEDF3;--bg:#F6F6FB;
+  --g1a:#CFCFFF;--g1b:#8A8AF0;--g1c:#5A5BD0;--g2a:#FFD3E2;--g2b:#FF92B4;--g2c:#E05A82;--g3a:#FFE3B8;--g3b:#FFBE6B;--g3c:#E0913A;--g4a:#C9D8F5;--g4b:#8AA6E0;--g4c:#5A78C0}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#dfe3e2;color:var(--tx);line-height:1.55;-webkit-font-smoothing:antialiased}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;padding-bottom:26px;box-shadow:0 0 40px rgba(0,0,0,.12);transition:background-color .5s var(--ease)}
+.mi{font-family:'Material Icons'}
+.g1{background:linear-gradient(160deg,var(--g1a),var(--g1b) 52%,var(--g1c))}
+.g2{background:linear-gradient(160deg,var(--g2a),var(--g2b) 50%,var(--g2c))}
+.g3{background:linear-gradient(160deg,var(--g3a),var(--g3b) 50%,var(--g3c))}
+.g4{background:linear-gradient(160deg,var(--g4a),var(--g4b) 52%,var(--g4c))}
+.page{display:none}.page.on{display:block}
+
+.nav{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:12px;padding:13px 16px;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav .mi{font-size:20px;cursor:pointer;color:var(--tx)}
+.nav-t{flex:1;font-size:16px;font-weight:800;letter-spacing:-.01em}
+.demo-note{padding:9px 16px;background:#fff;border-bottom:1px solid var(--line);font-size:9.5px;color:var(--tx3);font-weight:700;display:flex;align-items:center;gap:6px}
+.demo-note .mi{font-size:13px;color:#4A5D59}
+
+/* 骨架 Tab */
+.otabs{display:flex;background:rgba(255,255,255,.97);border-bottom:1px solid var(--line);position:sticky;top:47px;z-index:50;overflow-x:auto;scrollbar-width:none}
+.otabs::-webkit-scrollbar{display:none}
+.otab{flex-shrink:0;padding:12px 14px;font-size:12px;color:var(--tx3);font-weight:800;cursor:pointer;position:relative;white-space:nowrap}
+.otab.on{color:var(--tx)}
+.otab.on::after{content:'';position:absolute;left:14px;right:14px;bottom:0;height:2.5px;background:#33423F;border-radius:2px}
+.otab b{display:inline-block;margin-left:4px;padding:0 5px;background:#FF6B4A;color:#fff;font-size:9px;border-radius:8px;font-weight:800}
+
+/* 订单卡（主题作用域在卡内） */
+.olist{padding:12px 16px 20px}
+.ocard{background:#fff;border-radius:var(--r-lg);margin-bottom:12px;overflow:hidden;box-shadow:var(--sh-s);cursor:pointer;transition:.26s var(--ease)}
+.ocard:active{transform:scale(.985)}
+.oc-top{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;background:var(--pri-xl);border-bottom:1px solid var(--line2)}
+.oc-dest{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--pri-d);font-weight:800}
+.oc-dest .mi{font-size:14px}
+.oc-st{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;color:var(--acc)}
+.oc-st i{width:7px;height:7px;border-radius:50%;background:var(--acc);display:block}
+.oc-st.done{color:var(--tx3)}.oc-st.done i{background:var(--tx3)}
+.oc-b{display:flex;gap:12px;padding:14px 15px}
+.oc-img{width:84px;height:98px;border-radius:var(--r-sm);flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.oc-img .mi{font-size:28px;color:rgba(255,255,255,.72);position:relative;z-index:2}
+.oc-tkey{position:absolute;bottom:0;left:0;right:0;z-index:3;padding:3px 0;text-align:center;background:rgba(0,0,0,.34);backdrop-filter:blur(3px);font-size:8px;font-weight:800;color:#fff;letter-spacing:.05em}
+.oc-info{flex:1;min-width:0}
+.oc-t{font-size:14.5px;font-weight:800;line-height:1.45;letter-spacing:-.01em}
+.oc-m{font-size:10.5px;color:var(--tx3);margin-top:7px;line-height:1.75;font-weight:600}
+.oc-bar{height:5px;background:var(--line2);border-radius:3px;margin-top:11px;overflow:hidden}
+.oc-bar i{display:block;height:100%;background:var(--pri);border-radius:3px;transition:width 1s var(--ease)}
+.oc-prog{display:flex;justify-content:space-between;font-size:9.5px;color:var(--tx3);margin-top:6px;font-weight:700}
+.oc-p{font-size:17px;font-weight:800;color:var(--acc);margin-top:9px;letter-spacing:-.01em}
+.oc-p small{font-size:9.5px;color:var(--tx3);font-weight:700;margin-left:4px}
+.oc-f{display:flex;gap:8px;padding:0 15px 14px;flex-wrap:wrap}
+.ob{padding:8px 14px;border:1px solid var(--line);border-radius:var(--r-full);font-size:11px;color:var(--tx2);cursor:pointer;font-weight:700;transition:.2s}
+.ob:hover{border-color:var(--pri);color:var(--pri)}
+.ob.pri{background:var(--acc);color:#fff;border-color:var(--acc);box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.countdown{display:flex;align-items:center;gap:6px;padding:9px 15px;background:var(--acc-l);font-size:10.5px;color:var(--acc);font-weight:800}
+.countdown .mi{font-size:14px}
+
+/* P8 详情：主题作用域在 app */
+.dhero{padding:26px 20px 22px;background:linear-gradient(180deg,var(--pri-l),var(--bg));position:relative;overflow:hidden}
+.dhero::before{content:'';position:absolute;top:-80px;right:-50px;width:230px;height:230px;background:radial-gradient(circle,var(--acc-l),transparent 68%);opacity:.85}
+.d-k{position:relative;font-size:9px;font-weight:800;letter-spacing:.24em;color:var(--pri-d);text-transform:uppercase}
+.d-st{position:relative;font-size:27px;font-weight:800;letter-spacing:-.02em;margin-top:10px;line-height:1.3}
+.d-sub{position:relative;font-size:11.5px;color:var(--tx2);margin-top:10px;line-height:1.85;font-weight:600}
+.d-prog{position:relative;margin-top:20px;padding-top:16px;border-top:1px dashed var(--line)}
+.d-prog-t{display:flex;justify-content:space-between;align-items:baseline;font-size:10.5px;color:var(--tx3);font-weight:700}
+.d-prog-t b{font-size:16px;font-weight:800;color:var(--pri-d)}
+.d-bar{height:6px;background:rgba(255,255,255,.7);border-radius:3px;margin-top:10px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.06)}
+.d-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--pri),var(--acc));border-radius:3px;transition:width 1.2s var(--ease)}
+.d-steps{display:flex;justify-content:space-between;margin-top:12px}
+.d-step{font-size:9.5px;color:var(--tx3);text-align:center;flex:1;font-weight:700}
+.d-step.on{color:var(--pri-d)}
+
+/* 总凭证 */
+.master{margin:14px 16px 0;background:#fff;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-m);border:1px solid var(--pri-l)}
+.m-top{padding:18px;display:flex;gap:16px;align-items:center}
+.qr{width:104px;height:104px;background:#F5F2EC;border-radius:var(--r-sm);flex-shrink:0;display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);padding:7px;gap:1px;cursor:pointer;position:relative;overflow:hidden}
+.qr i{background:var(--pri-d);border-radius:0}
+.qr i.w{background:transparent}
+.qr::after{content:'';position:absolute;left:0;right:0;top:0;height:22px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.55),transparent);animation:scan 2.6s var(--ease) infinite}
+@keyframes scan{0%{transform:translateY(-22px)}50%{transform:translateY(104px)}100%{transform:translateY(104px)}}
+.m-info{flex:1;min-width:0}
+.m-k{font-size:8.5px;font-weight:800;letter-spacing:.22em;color:var(--pri);text-transform:uppercase}
+.m-t{font-size:16px;font-weight:800;margin-top:8px;line-height:1.45;letter-spacing:-.01em}
+.m-meta{font-size:10px;color:var(--tx3);margin-top:9px;line-height:1.75;font-weight:600}
+.m-btn{margin-top:11px;display:inline-flex;align-items:center;gap:5px;padding:8px 15px;background:var(--pri);color:#fff;border-radius:var(--r-full);font-size:11px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.m-btn .mi{font-size:14px}
+.m-body{padding:16px 18px 4px;border-top:1px dashed var(--line)}
+.m-body-t{font-size:10px;color:var(--tx3);font-weight:800;letter-spacing:.14em;margin-bottom:13px;display:flex;align-items:center;gap:9px}
+.m-body-t::after{content:'';flex:1;height:1px;background:var(--line)}
+
+/* 子券（图标块按服务类型取四档渐变） */
+.vt{display:flex;gap:12px;padding:13px;background:#fff;border:1px solid var(--line2);border-radius:var(--r-md);margin-bottom:9px;box-shadow:var(--sh-s);transition:.26s}
+.vt:active{transform:scale(.99)}
+.vt.used{opacity:.55}
+.vt.soon{border-color:var(--acc);box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.vt-ic{width:40px;height:40px;border-radius:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.vt-ic .mi{font-size:19px;color:#fff}
+.vt-b{flex:1;min-width:0}
+.vt-n{font-size:13px;font-weight:800}
+.vt-d{font-size:10.5px;color:var(--tx3);margin-top:5px;line-height:1.7;font-weight:600}
+.vt-f{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap}
+.vst{padding:3px 9px;border-radius:var(--r-full);font-size:9px;font-weight:800;flex-shrink:0}
+.vst.wait{background:var(--pri-l);color:var(--pri-d)}
+.vst.used{background:#EDF6EE;color:#1E8367}
+.vst.soon{background:var(--acc-l);color:var(--acc)}
+.vst.exp{background:var(--line2);color:var(--tx3)}
+.mini{padding:6px 11px;border:1px solid var(--line);border-radius:var(--r-full);font-size:10px;color:var(--tx2);cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-weight:800;transition:.2s}
+.mini .mi{font-size:13px}
+.mini.pri{border-color:var(--pri);color:var(--pri-d);background:var(--pri-xl)}
+.mini.acc{border-color:var(--acc);color:var(--acc);background:var(--acc-l)}
+
+/* 骨架卡 */
+.card{margin:14px 16px 0;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);overflow:hidden}
+.card-h{padding:15px 15px 0;display:flex;align-items:center;justify-content:space-between}
+.card-t{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:7px}
+.card-t .mi{font-size:17px;color:var(--pri)}
+.card-a{font-size:11px;color:var(--pri);font-weight:800;cursor:pointer}
+.row{display:flex;align-items:center;gap:12px;padding:12px 15px;border-bottom:1px solid var(--line2);font-size:12px}
+.row:last-child{border-bottom:none}
+.row-l{color:var(--tx3);width:80px;flex-shrink:0;font-size:11px;font-weight:700}
+.row-v{flex:1;color:var(--tx2);text-align:right;font-weight:600;line-height:1.6}
+.row-v b{color:var(--tx);font-weight:800}
+.tl{padding:16px 15px 4px}
+.tli{display:flex;gap:12px;padding-bottom:17px;position:relative}
+.tli::before{content:'';position:absolute;left:4px;top:15px;width:1px;height:calc(100% - 12px);background:var(--line)}
+.tli:last-child::before{display:none}
+.tlid{width:9px;height:9px;border-radius:50%;background:var(--line);margin-top:5px;flex-shrink:0;z-index:1}
+.tlid.done{background:#1E8367}.tlid.now{background:var(--pri);box-shadow:0 0 0 3px var(--pri-l)}
+.tln{font-size:12px;font-weight:700}.tlm{font-size:10px;color:var(--tx3);margin-top:4px;font-weight:600}
+.refund{margin:14px 16px 0;padding:15px;background:#FFF8F0;border:1px solid #FFE7CE;border-radius:var(--r-md);font-size:10.5px;color:#8A7350;line-height:1.9;font-weight:600}
+.refund-t{font-size:11.5px;font-weight:800;color:#C97E10;display:flex;align-items:center;gap:5px;margin-bottom:8px}
+.refund-t .mi{font-size:14px}
+.refund b{color:#C0453A}
+.acts{display:flex;gap:9px;padding:16px;margin:14px 16px 0;flex-wrap:wrap;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s)}
+.ab{flex:1;min-width:calc(50% - 5px);padding:12px;border:1px solid var(--line);border-radius:var(--r-sm);text-align:center;font-size:12px;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:700;transition:.2s}
+.ab:hover{border-color:var(--pri);color:var(--pri-d)}
+.ab .mi{font-size:15px}
+.ab.danger:hover{border-color:#FF6B4A;color:#FF6B4A}
+
+/* 二维码全屏 */
+.qrfull{position:fixed;inset:0;background:#0d1014;z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;padding:26px}
+.qrfull.on{display:flex;animation:fade .28s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.qrfull-x{position:absolute;top:20px;right:20px;cursor:pointer}.qrfull-x .mi{font-size:26px;color:#fff}
+.qbig{width:236px;height:236px;background:#F5F2EC;border-radius:var(--r-md);display:grid;grid-template-columns:repeat(21,1fr);grid-template-rows:repeat(21,1fr);padding:16px;gap:1px;box-shadow:0 0 0 6px rgba(255,255,255,.06)}
+.qbig i{background:#0D1014}.qbig i.w{background:transparent}
+.qf-theme{display:flex;align-items:center;gap:6px;margin-top:22px;padding:5px 12px;border-radius:var(--r-full);background:rgba(255,255,255,.08);font-size:9.5px;font-weight:800;color:#fff;letter-spacing:.06em}
+.qf-theme i{width:9px;height:9px;border-radius:50%;display:block}
+.qf-t{font-family:var(--sans);font-size:19px;font-weight:800;color:#fff;margin-top:14px;text-align:center;letter-spacing:-.01em}
+.qf-d{font-size:11px;color:rgba(255,255,255,.6);margin-top:9px;text-align:center;line-height:1.8;font-weight:600}
+.qf-code{font-size:23px;color:#D9B26A;letter-spacing:.3em;margin-top:16px;font-weight:800}
+.qf-tip{display:flex;align-items:center;gap:6px;margin-top:20px;font-size:10px;color:rgba(255,255,255,.45);font-weight:700}
+.qf-tip .mi{font-size:14px;color:#1E8367}
+.qf-alt{margin-top:16px;padding-top:14px;border-top:1px dashed rgba(255,255,255,.16);font-size:10px;color:rgba(255,255,255,.5);text-align:center;line-height:1.8;font-weight:600}
+
+/* 弹层 */
+.mask{position:fixed;inset:0;background:rgba(27,46,44,.5);backdrop-filter:blur(2px);z-index:150;opacity:0;pointer-events:none;transition:.3s}
+.mask.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;bottom:0;left:50%;transform:translate(-50%,100%);width:100%;max-width:375px;background:var(--bg);border-radius:24px 24px 0 0;z-index:160;transition:.4s var(--ease);max-height:88vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,.2)}
+.sheet.on{transform:translate(-50%,0)}
+.grip{width:38px;height:4px;background:var(--line);border-radius:2px;margin:11px auto 0}
+.sheet-h{padding:12px 18px 14px;display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg);z-index:2;border-bottom:1px solid var(--line)}
+.sheet-t{font-size:16px;font-weight:800}
+.sheet-s{font-size:10.5px;color:var(--tx3);margin-top:5px;font-weight:700}
+.sheet-x{cursor:pointer;background:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-s)}
+.sheet-x .mi{font-size:17px;color:var(--tx3)}
+.sheet-pad{padding:16px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:9px;color:var(--tx3);margin-bottom:6px;letter-spacing:.06em;font-weight:800}
+.field input,.field select,.field textarea{width:100%;padding:11px;background:#fff;border:1.5px solid var(--line);border-radius:var(--r-sm);color:var(--tx);font-size:12px;outline:none;font-family:var(--sans);font-weight:600;appearance:none}
+.field textarea{resize:none;line-height:1.75}
+.field input:focus,.field select:focus{border-color:var(--pri)}
+.btn{padding:14px;background:#FF6B4A;color:#fff;font-size:14px;font-weight:800;border-radius:var(--r-full);cursor:pointer;text-align:center;box-shadow:0 6px 18px rgba(255,107,74,.26);transition:.2s}
+.btn:active{transform:scale(.97)}
+.calc{padding:15px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);margin-bottom:14px}
+.calc-t{font-size:10px;color:var(--tx3);font-weight:800;letter-spacing:.14em;margin-bottom:11px}
+.cr{display:flex;justify-content:space-between;font-size:11.5px;padding:5px 0;color:var(--tx2);font-weight:700}
+.cr.minus{color:#FF6B4A}
+.cr-tot{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px dashed var(--line);margin-top:10px;padding-top:12px}
+.cr-tot span{font-size:10px;color:var(--tx3);line-height:1.7;font-weight:700}
+.cr-tot b{font-size:25px;font-weight:800;color:#0C8F5E;letter-spacing:-.02em}
+.slots{display:flex;flex-direction:column;gap:8px;margin-bottom:13px}
+.slot{padding:12px 14px;background:#fff;border:1.5px solid var(--line);border-radius:var(--r-sm);cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;transition:.2s}
+.slot.on{border-color:var(--pri);background:var(--pri-xl);color:var(--pri-d)}
+.slot small{font-size:10px;color:var(--tx3);font-weight:700}
+.slot.on small{color:var(--pri)}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);padding:13px 22px;background:rgba(27,46,44,.92);color:#fff;border-radius:14px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;max-width:290px;font-weight:600;line-height:1.7}
+.toast.show{opacity:1}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+
+/* yx-deep-P4 */
+
+body{padding-bottom:66px}
+.yx-sos{position:fixed;z-index:8800;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #FECACA;box-shadow:0 -6px 22px rgba(0,0,0,.09);padding:9px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.yx-sos-l{font-size:10.5px;font-weight:800;color:#9A3412;display:flex;gap:5px;align-items:center;white-space:nowrap}
+.yx-sos-l .mi{font-size:16px}
+.yx-sos-a{display:flex;gap:6px;flex:1;flex-wrap:wrap}
+.yx-sos-a button{padding:8px 10px;border-radius:7px;border:1px solid #FECACA;background:#FFF7F7;color:#9A3412;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-sos-a button.pri{background:#C2410C;border-color:#C2410C;color:#fff}
+.yx-stateline{margin:0 12px 10px;padding:9px 12px;background:#F8FAFC;border:1px solid #E5E7EB;border-radius:8px;font-size:10.5px;color:#475569;line-height:1.85;font-weight:600}
+.yx-stateline b{color:#1F2937}
+@media (max-width:640px){.yx-sos-l{width:100%}.yx-sos-a button{flex:1}}
+
+
+/* yx-prod-P4-DEF */
+
+.yx-defbar{margin:8px 12px 10px;padding:11px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid #15803D;border-radius:9px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.yx-defbar-b{flex:1;font-size:10.5px;color:#14532D;line-height:1.8;font-weight:700}
+.yx-defbar-b b{color:#166534}
+.yx-defbar button{padding:7px 11px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:7px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+
+</style>
+</head>
+<body>
+<!-- yx-deep-P4 -->
+
+<div class="yx-stateline" id="yxStateLine"><b>状态对照：</b>你看到「待使用」= 商家端「待核销」= 平台端「可履约」；若显示「已冻结」，说明订单进入退款仲裁，到店也无法核销，请先联系管家。</div>
+<div class="yx-sos" id="yxSos" role="group" aria-label="现场求助">
+  <div class="yx-sos-l"><span class="mi">support_agent</span>现场遇到问题？</div>
+  <div class="yx-sos-a">
+    <button type="button" class="pri" id="yxSosCode">出示 8 位应急码</button>
+    <button type="button" id="yxSosState">对照券状态</button>
+    <button type="button" id="yxSosButler">带订单呼叫管家</button>
+  </div>
+</div>
+
+
+<div class="app" data-theme="neutral" id="app">
+
+  <!-- ========== P7 订单列表 ========== -->
+  <div class="page on" id="pgList">
+    <div class="nav"><span class="mi" onclick="showToast('返回个人中心')">arrow_back</span><div class="nav-t">我的订单</div><span class="mi" onclick="showToast('联系管家客服')">support_agent</span></div>
+    <div class="demo-note"><span class="mi">palette</span>每张订单卡沿用「该产品的主题」，列表骨架保持中性</div>
+    <div class="otabs">
+      <div class="otab on" onclick="ftab(this,'all')">全部</div>
+      <div class="otab" onclick="ftab(this,'pay')">待支付<b>1</b></div>
+      <div class="otab" onclick="ftab(this,'use')">待使用<b>2</b></div>
+      <div class="otab" onclick="ftab(this,'part')">部分核销<b>1</b></div>
+      <div class="otab" onclick="ftab(this,'group')">待成团<b>1</b></div>
+      <div class="otab" onclick="ftab(this,'done')">已完成</div>
+      <div class="otab" onclick="ftab(this,'ref')">退款售后<b>1</b></div>
+    </div>
+    <div class="olist" id="olist"></div>
+  </div>
+
+  <!-- ========== P8 订单详情 + 核销凭证 ========== -->
+  <div class="page" id="pgDetail">
+    <div class="nav"><span class="mi" onclick="backList()">arrow_back</span><div class="nav-t" id="navT">订单详情</div><span class="mi" onclick="showToast('分享订单给同行的人')">ios_share</span></div>
+    <div id="detailBox"></div>
+  </div>
+</div>
+
+<!-- 二维码全屏 -->
+<div class="qrfull" id="qrfull" onclick="closeQR()">
+  <div class="qrfull-x" onclick="closeQR()"><span class="mi">close</span></div>
+  <div class="qbig" id="qrBig"></div>
+  <div class="qf-theme" id="qrTheme"></div>
+  <div class="qf-t" id="qrName"></div>
+  <div class="qf-d" id="qrDesc"></div>
+  <div class="qf-code" id="qrCode">7A4K 2M9P</div>
+  <div class="qf-tip"><span class="mi">verified_user</span>动态防伪码 · <span id="qrSec">60</span> 秒后自动刷新</div>
+  <div class="qf-alt">弱网或扫码失败时，可向商家口述上方 8 位核销码<br>亮度已自动调至最高</div>
+</div>
+
+<div class="veil" id="veil" style="position:fixed;inset:0;z-index:130;background:#fff;opacity:0;pointer-events:none;transition:.3s"></div>
+<div class="mask" id="mask" onclick="closeSheet()"></div>
+
+<!-- 预约 -->
+<div class="sheet" id="shReserve">
+  <div class="grip"></div>
+  <div class="sheet-h"><div><div class="sheet-t">预约服务时段</div><div class="sheet-s" id="rsvSub">选择商家可接待的时段</div></div><div class="sheet-x" onclick="closeSheet()"><span class="mi">close</span></div></div>
+  <div class="sheet-pad">
+    <div class="field"><label>预约日期</label><select id="rsvDate"></select></div>
+    <div class="field" style="margin-bottom:6px"><label>可用时段（商家实时库存）</label></div>
+    <div class="slots" id="rsvSlots"></div>
+    <div class="field"><label>人数</label><select><option>2 成人 1 儿童</option><option>2 成人</option><option>3 成人</option><option>4 成人 2 儿童</option></select></div>
+    <div class="field"><label>给商家的备注</label><textarea rows="2">孩子对虾过敏，希望安排靠窗位置</textarea></div>
+    <div class="btn" onclick="closeSheet();showToast('预约成功，商家已确认<br>确认短信已发送到你的手机')">确认预约</div>
+    <div style="margin-top:12px;font-size:10px;color:var(--tx3);line-height:1.85;font-weight:600">预约成功后商家会收到通知并锁定库存。如需变更，请提前 4 小时修改，或联系管家代为处理。</div>
+  </div>
+</div>
+
+<!-- 退款 -->
+<div class="sheet" id="shRefund">
+  <div class="grip"></div>
+  <div class="sheet-h"><div><div class="sheet-t">申请退款</div><div class="sheet-s" id="refSub">部分核销订单 · 按结算价 ×1.2 扣除已使用项</div></div><div class="sheet-x" onclick="closeSheet()"><span class="mi">close</span></div></div>
+  <div class="sheet-pad">
+    <div class="calc" id="refCalc"></div>
+    <div class="field"><label>退款原因</label><select><option>行程有变，无法出行</option><option>天气原因</option><option>商家无法接待</option><option>服务质量问题</option><option>其他</option></select></div>
+    <div class="field"><label>补充说明（选填）</label><textarea rows="3">因临时出差，后半段行程无法继续，申请退还未使用的服务。</textarea></div>
+    <div class="field"><label>上传凭证（选填，最多 6 张）</label>
+      <div style="display:flex;gap:8px">
+        <div style="width:62px;height:62px;border:1.5px dashed var(--line);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="showToast('选择图片')"><span class="mi" style="color:var(--tx3)">add_a_photo</span></div>
+      </div>
+    </div>
+    <div class="btn" onclick="closeSheet();showToast('退款申请已提交<br>平台将在 24 小时内审核')">提交退款申请</div>
+    <div style="margin-top:12px;font-size:10px;color:var(--tx3);line-height:1.85;font-weight:600">提交后未核销凭证将<b style="color:#FF6B4A">立即冻结</b>，审核期间不可使用；若审核未通过自动恢复。有争议时进入平台人工仲裁。</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const LIB={ocean:{n:'海洋',sw:'#0E86C4'},forest:{n:'山林',sw:'#12897C'},heritage:{n:'古镇',sw:'#8A5A3B'},
+ grassland:{n:'草原',sw:'#6FA22E'},snow:{n:'雪域温泉',sw:'#4C7FA8'},city:{n:'城市',sw:'#5A5BD0'}};
+/* 服务类型 → 主题内渐变色块 */
+const SLOT={住宿:'g1',餐饮:'g2',玩乐:'g3',交通:'g4',服务:'g1'};
+
+const ORDERS=[
+ {id:'YQ2026092800328',th:'ocean',ic:'sailing',st:'part',stTxt:'部分核销 3/11',name:'东极岛听海两日',dest:'舟山 · 东极岛',date:'2026-10-18 出发',
+  meta:'固定套餐 · 海景石屋大床房 · 2 成人 1 儿童<br>已加购：黄浦江游船夜场 → 潜水体验 +¥320',used:3,total:11,paid:1800,old:'¥2,960',
+  vouchers:[
+   ['交通','local_taxi','码头专车接站','东极客运 · 商家A','used','10-18 08:34 已核销｜操作人 王师傅（浙A·****2）'],
+   ['交通','directions_boat','渡轮登岛 · 靠窗座位','东极客运 · 商家A','used','10-18 10:42 已核销｜船票 2 大 1 小'],
+   ['餐饮','restaurant','渔家海鲜午餐','海味厨房 · 商家B','used','10-18 12:26 已核销｜已按备注换掉虾类'],
+   ['玩乐','directions_boat','出海海钓 4 小时','老陈船队 · 商家C','soon','今日 15:00-19:00｜码头 B 集合，请提前 15 分钟'],
+   ['餐饮','local_fire_department','沙滩长桌晚宴','海味厨房 · 商家B','wait','今日 19:30｜已预约 · 雨天转室内'],
+   ['玩乐','photo_camera','星空摄影跟拍（加购）','独立摄影师','wait','今日 20:30 · 90 分钟｜精修 18 张'],
+   ['住宿','hotel','海景石屋大床房 1 晚','海隅·石屋民宿 · 商家D','wait','14:00 后办理入住｜含双早，已加儿童床'],
+   ['餐饮','free_breakfast','石屋早餐 ×2','海隅·石屋民宿 · 商家D','wait','明日 07:00-09:30｜凭房号 + 子券'],
+   ['玩乐','hiking','环岛徒步与灯塔','山野向导 · 商家C','need','明日 10:00｜尚未预约，需提前 4 小时'],
+   ['交通','local_taxi','渡轮返航 + 送站','东极客运 · 商家A','need','明日 13:30｜尚未预约，按返程车次确认'],
+   ['服务','support_agent','专属旅行管家','阿海 · 全程在线','wait','有效期至 2027-01-16｜无需核销，一键呼叫']],
+  timeline:[['出海海钓已核销 · 老陈船队','10-18 15:02 · 操作人 陈船长','done'],
+   ['沙滩晚宴预约成功 · 海味厨房','10-18 13:10 · 已保留长桌 3 号位','now'],
+   ['渔家海鲜午餐已核销','10-18 12:26 · 已按备注调整忌口','done'],
+   ['11 张子券凭证已生成','10-18 08:20','done'],
+   ['支付成功 ¥1,800','10-18 08:18 · 微信支付','done']],
+  ref:'本订单已核销 <b>3 项</b>（结算价合计 ¥268）。若现在申请退款，可退金额 = 实付 ¥1,800 − 已核销项结算价 ×1.2（¥322）= <b>¥1,478</b>。剩余 8 项未核销服务将在退款通过后立即失效。超过有效期（2027-01-16）未使用的部分将<b>自动全额退款</b>。'},
+
+ {id:'YQ2026092400328',th:'forest',ic:'filter_hdr',st:'use',stTxt:'待使用',name:'莫干山云端两日',dest:'湖州 · 莫干山',date:'2026-10-01 出发',
+  meta:'固定套餐 · 云海大床房 · 2 成人 1 儿童<br>已加购：星空摄影跟拍 +¥360',used:0,total:10,paid:1940,old:'¥3,640',
+  vouchers:[
+   ['交通','local_taxi','高铁站专车接站','云栖出行 · 商家A','need','10-01 09:30｜尚未预约'],
+   ['餐饮','restaurant','山野午餐 · 八道时令','竹里馆 · 商家B','need','10-01 12:00｜尚未预约'],
+   ['玩乐','hiking','溪谷徒步 · 向导随行','山野向导俱乐部 · 商家C','wait','10-01 15:00｜已包含，无需预约'],
+   ['餐饮','local_fire_department','星空围炉晚宴','竹里馆 · 商家B','need','10-01 19:00｜尚未预约'],
+   ['玩乐','photo_camera','星空摄影跟拍（加购）','独立摄影师','wait','10-01 20:30'],
+   ['住宿','hotel','云海大床房 1 晚','云景·山居 · 商家D','wait','10-01 14:00 后入住｜含双早'],
+   ['餐饮','free_breakfast','山景餐厅自助早餐 ×2','云景·山居 · 商家D','wait','10-02 07:00-09:30'],
+   ['交通','local_taxi','专车送返高铁站','云栖出行 · 商家A','need','10-02 14:00｜尚未预约'],
+   ['服务','support_agent','专属旅行管家','小林 · 全程在线','wait','有效期 90 天内'],
+   ['玩乐','egg_alt','农场采摘与手工烘焙（加购）','青禾农场','wait','10-02 10:00']],
+  timeline:[['凭证已生成，10 张子券可用','09-24 16:52','now'],['支付成功 ¥1,940','09-24 16:52 · 微信支付','done'],['订单创建','09-24 16:50','done']],
+  ref:'本订单<b>尚未开始核销</b>，可随时申请全额退款 ¥1,940，1-3 个工作日原路退回。'},
+
+ {id:'YQ2026091000122',th:'heritage',ic:'temple_buddhist',st:'group',stTxt:'待成团 4/6',name:'徽州古村三日私享',dest:'黄山 · 宏村',date:'2026-11-06 出发',
+  meta:'高端定制小团 · 6 人成行 · 已报 4 人<br>已付定金 ¥1,000 / 人，未成团全额自动退',used:0,total:11,paid:4280,old:'¥6,120',
+  vouchers:[
+   ['住宿','night_shelter','承志堂天井大床房 2 晚','承志堂 · 商家A','wait','成团后生效'],
+   ['餐饮','restaurant','徽州家宴 4 次','叙园 · 商家B','wait','成团后生效'],
+   ['玩乐','brush','徽墨手作 + 古法造纸','胡氏墨坊 · 商家C','wait','成团后生效'],
+   ['玩乐','palette','写生与摄影导览','画友社 · 商家D','wait','成团后生效'],
+   ['交通','local_taxi','黄山北站往返接送','徽州出行','wait','成团后生效'],
+   ['服务','support_agent','定制顾问 1v1','阿徽 · 全程跟进','wait','成团前可随时沟通行程']],
+  timeline:[['邀请 1 位好友加入，成团进度 67%','09-26 20:14','now'],['已付定金 ¥1,000 / 人','09-10 21:02 · 微信支付','done'],['订单创建','09-10 20:58','done']],
+  ref:'本订单为<b>定制小团</b>，距成团截止还有 6 天。未成团将<b>自动全额退还定金</b>，无需申请；成团后若个人退出，按商家退改政策处理。'},
+
+ {id:'YQ2026082000045',th:'grassland',ic:'park',st:'done',stTxt:'已完成',name:'呼伦贝尔草原四日',dest:'呼伦贝尔 · 海拉尔',date:'2026-07-12 出发',
+  meta:'固定套餐 · 蒙古包 2 晚 + 酒店 1 晚 · 2 大 1 小<br>全部 12 项服务已核销 · 获得 3,700 积分',used:12,total:12,paid:3700,old:'¥5,480',
+  vouchers:[
+   ['住宿','holiday_village','星空蒙古包 2 晚','星空营地 · 商家A','used','07-14 09:20 已核销'],
+   ['玩乐','sports_martial_arts','骑马穿越 2 小时','巴尔虎马队 · 商家B','used','07-13 15:40 已核销'],
+   ['餐饮','local_fire_department','篝火烤全羊晚宴','星空营地 · 商家A','used','07-12 19:10 已核销'],
+   ['交通','directions_car','越野车 4 天（含油费司机）','草原出行 · 商家C','used','07-15 13:00 已核销'],
+   ['服务','support_agent','专属旅行管家','巴特 · 全程在线','used','07-15 已完成']],
+  timeline:[['全部 12 项服务已核销，订单完成','07-15 13:02','done'],['发布游记获得 286 赞','07-18 10:20','done'],['已发放 3,700 积分','07-15 13:05','done']],
+  ref:'本订单已完成，不支持退款。可在 30 天内修改评价或发布游记。'},
+
+ {id:'YQ2026092700301',th:'snow',ic:'ac_unit',st:'pay',stTxt:'待支付',name:'长白山雪季三日',dest:'长白山 · 二道白河',date:'2027-01-08 出发',
+  meta:'固定套餐 · 雪场标准双床房 · 2 成人 1 儿童<br>已加购：私教升级一对一 +¥680',used:0,total:10,paid:3460,old:'¥4,680',
+  vouchers:[
+   ['住宿','hotel','雪场酒店 2 晚','雪场酒店 · 商家A','exp','支付后发放'],
+   ['玩乐','downhill_skiing','滑雪教学 + 全天雪票','滑雪学校 · 商家B','exp','支付后发放'],
+   ['玩乐','hot_tub','户外温泉 90 分钟','蓝景温泉 · 商家C','exp','支付后发放'],
+   ['交通','local_taxi','机场往返接送','雪原出行 · 商家D','exp','支付后发放']],
+  timeline:[['订单已创建，等待支付','09-27 21:32','now']],
+  ref:'本订单尚未支付，超时 15 分钟将自动取消，不产生任何费用。'},
+
+ {id:'YQ2026090500288',th:'city',ic:'location_city',st:'ref',stTxt:'退款审核中',name:'上海屋顶周末两日',dest:'上海 · 外滩',date:'2026-09-20 出发',
+  meta:'固定套餐 · 江景套房 · 2 成人<br>已核销 3/8 项 · 申请退还剩余 5 项',used:3,total:8,paid:2200,old:'¥3,540',
+  vouchers:[
+   ['住宿','hotel','外滩江景套房 1 晚','外滩酒店 · 商家A','used','09-20 16:10 已核销'],
+   ['餐饮','local_bar','屋顶酒吧黄昏场','Bar 27 · 商家B','used','09-20 18:42 已核销'],
+   ['餐饮','restaurant_menu','八道菜餐酒晚宴','叁·创意料理 · 商家C','used','09-20 20:15 已核销'],
+   ['玩乐','map','City Walk 本地导览','城市漫步社 · 商家D','exp','09-21 未使用 · 已冻结'],
+   ['交通','local_taxi','专车送站','城市专车','exp','09-21 未使用 · 已冻结'],
+   ['服务','support_agent','专属旅行管家','Vivian','exp','已冻结']],
+  timeline:[['退款申请已提交，平台审核中','09-22 09:14 · 原因：行程有变','now'],['3 项服务已核销','09-20','done'],['凭证已生成','09-18 14:20','done']],
+  ref:'已核销 <b>3 项</b>（结算价合计 ¥1,246）。预计可退 = 实付 ¥2,200 − ¥1,246 ×1.2（¥1,495）= <b>¥705</b>。审核 1-3 个工作日，未核销凭证已冻结。'}
+];
+const STK={pay:'待支付',use:'待使用',part:'部分核销',group:'待成团',done:'已完成',ref:'退款售后',all:'全部'};
+let CUR=0,FILTER='all';
+const $=id=>document.getElementById(id);
+
+function renderList(){
+  $('olist').innerHTML=ORDERS.map((o,i)=>{
+    const show=FILTER==='all'||o.st===FILTER;
+    const pct=o.total?Math.round(o.used/o.total*100):0;
+    return `<div class="ocard" data-theme="${o.th}" style="display:${show?'block':'none'}" data-k="${o.st}" onclick="openDetail(${i})">
+      ${o.st==='pay'?'<div class="countdown"><span class="mi">timer</span>订单将在 09:12 后自动取消，请尽快完成支付</div>':''}
+      <div class="oc-top"><div class="oc-dest"><span class="mi">${o.ic==='ac_unit'?'ac_unit':'place'}</span>${o.dest} · ${o.date}</div>
+      <div class="oc-st ${o.st==='done'?'done':''}"><i></i>${o.stTxt}</div></div>
+      <div class="oc-b">
+        <div class="oc-img g1"><span class="mi">${o.ic}</span><div class="oc-tkey">${LIB[o.th].n}主题</div></div>
+        <div class="oc-info"><div class="oc-t">${o.name}</div><div class="oc-m">${o.meta}</div>
+        ${o.total>1?`<div class="oc-bar"><i style="width:${pct}%"></i></div>
+        <div class="oc-prog"><span>已核销 ${o.used}/${o.total} 项</span><span>${o.st==='done'?'订单已完成':(o.total-o.used)+' 项待使用'}</span></div>`:''}
+        <div class="oc-p">${o.paid.toLocaleString()}<small>元 · ${o.st==='pay'?'待支付':(o.st==='group'?'已付定金':'已支付')}</small></div></div>
+      </div>
+      <div class="oc-f" onclick="event.stopPropagation()">
+        ${o.st==='pay'?`<div class="ob" onclick="showToast('订单已取消')">取消订单</div><div class="ob pri" style="margin-left:auto" onclick="showToast('唤起微信支付')">立即支付</div>`
+        :o.st==='done'?`<div class="ob" onclick="showToast('发布游记')">写游记</div><div class="ob" onclick="showToast('再次预订同款')">再来一单</div><div class="ob pri" style="margin-left:auto" onclick="openDetail(${i})">查看凭证</div>`
+        :o.st==='ref'?`<div class="ob" onclick="showToast('查看退款进度')">退款进度</div><div class="ob" onclick="showToast('撤销退款申请')">撤销申请</div><div class="ob pri" style="margin-left:auto" onclick="showToast('联系平台客服')">联系平台</div>`
+        :o.st==='group'?`<div class="ob" onclick="showToast('生成邀请海报')">邀请好友</div><div class="ob" onclick="showToast('联系定制顾问')">联系顾问</div><div class="ob pri" style="margin-left:auto" onclick="showToast('支付尾款 ¥3,280')">支付尾款</div>`
+        :`<div class="ob" onclick="showToast('打开行程助手')">行程助手</div><div class="ob" onclick="openSheet('Refund')">申请退款</div><div class="ob pri" style="margin-left:auto" onclick="openDetail(${i})">出示核销码</div>`}
+      </div></div>`;}).join('');
+}
+function ftab(el,k){
+  document.querySelectorAll('.otab').forEach(t=>t.classList.remove('on'));el.classList.add('on');FILTER=k;
+  document.querySelectorAll('.ocard').forEach(c=>{c.style.display=(k==='all'||c.dataset.k===k)?'block':'none';});
+}
+function vstClass(s){return {wait:'wait',used:'used',soon:'soon',need:'soon',exp:'exp'}[s]||'wait'}
+function vstTxt(s){return {wait:'待使用',used:'已核销',soon:'即将使用',need:'需预约',exp:'已失效'}[s]||'待使用'}
+
+function openDetail(i){
+  CUR=i;const o=ORDERS[i];
+  $('veil').classList.add('on');
+  setTimeout(()=>{
+    $('app').setAttribute('data-theme',o.th);
+    $('navT').textContent=o.name;
+    const pct=Math.round(o.used/o.total*100);
+    $('detailBox').innerHTML=`
+     <div class="dhero">
+       <div class="d-k">${LIB[o.th].n}主题 · theme_key=${o.th}</div>
+       <div class="d-st">${o.stTxt}</div>
+       <div class="d-sub">${o.name} · ${o.date} 出发 · 2 成人 1 儿童<br>订单号 ${o.id} · 实付 ¥${o.paid.toLocaleString()}（单买 ${o.old}）</div>
+       <div class="d-prog"><div class="d-prog-t"><span>核销进度</span><b>${o.used} / ${o.total} 项已使用</b></div>
+       <div class="d-bar"><i style="width:${pct}%"></i></div>
+       <div class="d-steps"><div class="d-step ${o.st!=='pay'?'on':''}">已支付</div><div class="d-step ${o.used>0?'on':''}">${o.st==='group'?'待成团':'部分核销'}</div><div class="d-step ${o.used>0&&o.used<o.total?'on':''}">全部使用</div><div class="d-step ${o.st==='done'?'on':''}">已完成</div></div></div>
+     </div>
+
+     <div class="master">
+       <div class="m-top">
+         <div class="qr" id="qrSmall" onclick="openQR(0)"></div>
+         <div class="m-info">
+           <div class="m-k">Master Voucher · 总凭证</div>
+           <div class="m-t">一码通行<br>出示给任一合作商家</div>
+           <div class="m-meta">有效期至 2027-01-16<br>含 ${o.total} 张分项子券 · 二维码 60 秒自动刷新</div>
+           <div class="m-btn" onclick="openQR(0)"><span class="mi">fullscreen</span>放大出示</div>
+         </div>
+       </div>
+       <div class="m-body">
+         <div class="m-body-t">分 项 核 销 券 · ${o.total} 张</div>
+         ${o.vouchers.map((v,vi)=>{
+           const [type,ic,name,mer,st,desc]=v;
+           return `<div class="vt ${st==='used'?'used':''} ${st==='soon'?'soon':''}">
+             <div class="vt-ic ${SLOT[type]||'g1'}"><span class="mi">${ic}</span></div>
+             <div class="vt-b">
+               <div class="vt-n">${name}</div><div class="vt-d">${mer}<br>${desc}</div>
+               <div class="vt-f"><span class="vst ${vstClass(st)}">${vstTxt(st)}</span>
+               ${st==='used'?`<span class="mini" onclick="showToast('核销详情：${name}')"><span class="mi">receipt_long</span>核销详情</span>`
+                 :st==='need'?`<span class="mini acc" onclick="openSheet('Reserve')"><span class="mi">event_available</span>立即预约</span><span class="mini" onclick="showToast('管家将代为预约')"><span class="mi">support_agent</span>管家代约</span>`
+                 :st==='exp'?`<span class="mini" onclick="showToast('该子券已失效或已冻结')"><span class="mi">help_outline</span>说明</span>`
+                 :`<span class="mini pri" onclick="openQR(${vi+1})"><span class="mi">qr_code_2</span>出示二维码</span><span class="mini" onclick="showToast('打开地图导航')"><span class="mi">near_me</span>导航</span><span class="mini" onclick="showToast('拨打商家电话')"><span class="mi">call</span>联系</span>`}
+               </div>
+             </div></div>`;}).join('')}
+         ${o.vouchers.length<o.total?`<div style="padding:10px 0 4px;text-align:center;font-size:11px;color:var(--tx3);font-weight:700;cursor:pointer" onclick="showToast('展开全部 ${o.total} 张凭证')">查看全部 ${o.total} 张凭证 <span class="mi" style="font-size:14px;vertical-align:-3px">expand_more</span></div>`:''}
+       </div>
+     </div>
+
+     <div class="card"><div class="card-h"><div class="card-t"><span class="mi">luggage</span>出行信息</div><div class="card-a" onclick="showToast('修改出行人')">修改</div></div>
+       <div class="row"><div class="row-l">出行日期</div><div class="row-v"><b>${o.date}</b></div></div>
+       <div class="row"><div class="row-l">出行人</div><div class="row-v">张明远（成人）· 李思（成人）· 张小满（6 岁）</div></div>
+       <div class="row"><div class="row-l">联系人</div><div class="row-v">张明远 138****6721</div></div>
+       <div class="row"><div class="row-l">特殊备注</div><div class="row-v">${o.meta.includes('虾')?'孩子对虾过敏 · 需儿童座椅 · G7531 10:12 到德清站':'已同步至全部 4 家服务商家'}</div></div>
+     </div>
+
+     <div class="card"><div class="card-h"><div class="card-t"><span class="mi">payments</span>费用明细</div><div class="card-a" onclick="showToast('展开完整明细')">明细</div></div>
+       <div class="row"><div class="row-l">套餐基础价</div><div class="row-v">${o.paid.toLocaleString()}<b> 元</b>（含 ${o.total} 项服务）</div></div>
+       <div class="row"><div class="row-l">支付方式</div><div class="row-v">微信支付 · ${o.date.slice(0,7)}</div></div>
+       <div class="row"><div class="row-l">发票</div><div class="row-v">企业电子发票 · 服务完成后开具</div></div>
+       <div class="row"><div class="row-l">分账说明</div><div class="row-v">平台统一收款，服务完成后与各商家结算</div></div>
+     </div>
+
+     <div class="card"><div class="card-h"><div class="card-t"><span class="mi">history</span>订单动态</div></div>
+       <div class="tl">${o.timeline.map(t=>`<div class="tli"><div class="tlid ${t[2]}"></div><div><div class="tln">${t[0]}</div><div class="tlm">${t[1]}</div></div></div>`).join('')}</div>
+     </div>
+
+     <div class="refund"><div class="refund-t"><span class="mi">policy</span>当前订单的退款规则</div>${o.ref}</div>
+
+     <div class="card" style="border:1px solid #FECACA;background:#FFF7F7"><div class="card-h"><div class="card-t" style="color:#B91C1C"><span class="mi">error_outline</span>券扫不出来？· 核销异常兜底</div></div>
+       <div style="padding:0 14px 12px;font-size:10.5px;color:var(--tx2);font-weight:600;line-height:1.85">
+         商家扫码失败时不要反复重试。先对照状态，再出示下方应急码给商家手输，或直接带着本订单进管家会话。
+         <div style="margin-top:9px;display:flex;flex-wrap:wrap;gap:5px">
+           <span class="mini" onclick="showToast('rule_code=NOT_MINE · 该券不属于当前商家，请核对门店')">不属于本商家</span>
+           <span class="mini" onclick="showToast('rule_code=ALREADY_USED · 已核销，防重放已拦截')">已核销</span>
+           <span class="mini" onclick="showToast('rule_code=EXPIRED · 已过有效期，可申请改期')">已过期</span>
+           <span class="mini" data-yx-risk="冻结" data-yx-impact="影响面：兑换码即时失效，C 端兑换入口关闭；需人工工单解冻。" onclick="showToast('rule_code=FROZEN · 仲裁中已冻结，平台 24 小时内响应')">已冻结</span>
+           <span class="mini" onclick="showToast('rule_code=OUT_OF_WINDOW · 不在可核销时段，请联系管家协调')">时段外</span>
+         </div>
+         <div style="margin-top:11px;padding:11px 12px;background:#fff;border:1px dashed #FCA5A5;border-radius:10px;display:flex;align-items:center;gap:10px">
+           <div style="flex:1"><div style="font-size:9px;color:var(--tx3);font-weight:800;letter-spacing:.08em">本次会话应急码 · 60 秒刷新</div><div style="font-size:17px;font-weight:800;letter-spacing:.16em;color:#B91C1C;margin-top:3px">YL-8F3K92Q</div></div>
+           <div class="mini acc" onclick="showToast('应急码已复制 · 请交给商家在 M4 手输核销')"><span class="mi">content_copy</span>复制</div>
+         </div>
+         <div style="margin-top:10px;font-size:9.5px;color:var(--tx3);font-weight:600;line-height:1.75">应急码与 M4 扫码台的防重放校验共用一套 rule_code；一码一次有效，核销成功后子券状态实时回写本页。退款仲裁中剩余子券会自动冻结。</div>
+         <div class="ab" style="margin-top:11px;background:#B91C1C;color:#fff" onclick="showToast('已进入管家会话 · 携带 order_id / voucher_id / from_page=P8 / rule_code')"><span class="mi">support_agent</span>带订单上下文联系管家</div>
+       </div>
+     </div>
+
+     <div class="acts">
+       <div class="ab" onclick="openSheet('Reserve')"><span class="mi">event_available</span>预约服务</div>
+       <div class="ab" onclick="showToast('申请改期需提前 48 小时')"><span class="mi">date_range</span>申请改期</div>
+       <div class="ab danger" onclick="openSheet('Refund')"><span class="mi">currency_yen</span>申请退款</div>
+       <div class="ab" onclick="showToast('呼叫管家')"><span class="mi">support_agent</span>联系管家</div>
+       <div class="ab danger" onclick="showToast('提交投诉，平台 24 小时内响应')"><span class="mi">flag</span>投诉商家</div>
+       <div class="ab" onclick="showToast('凭证已分享给同行的人')"><span class="mi">ios_share</span>分享凭证</div>
+     </div>
+     <div style="height:16px"></div>`;
+    makeQR($('qrSmall'),11,20260928+i*7);
+    setTimeout(()=>$('veil').classList.remove('on'),90);
+    window.scrollTo(0,0);
+  },200);
+}
+function backList(){
+  $('veil').classList.add('on');
+  setTimeout(()=>{$('pgDetail').classList.remove('on');$('pgList').classList.add('on');$('app').setAttribute('data-theme','neutral');
+    setTimeout(()=>$('veil').classList.remove('on'),90);window.scrollTo(0,0);},200);
+}
+/* 二维码 */
+function makeQR(el,n,seed){
+  let h=seed;const parts=[];
+  for(let i=0;i<n*n;i++){h=(h*9301+49297)%233280;const r=h/233280;const row=Math.floor(i/n),col=i%n;
+    const corner=(row<7&&col<7)||(row<7&&col>n-8)||(row>n-8&&col<7);
+    if(corner){parts.push((row===0||row===6||col===0||col===6||(row>=2&&row<=4&&col>=2&&col<=4))?'<i></i>':'<i class="w"></i>');}
+    else parts.push(r>0.52?'<i></i>':'<i class="w"></i>');}
+  el.innerHTML=parts.join('');
+}
+function openQR(vi){
+  const o=ORDERS[CUR];const v=vi===0?null:o.vouchers[vi-1];
+  makeQR($('qrBig'),21,88421+vi*137);
+  $('qrTheme').innerHTML=`<i style="background:${LIB[o.th].sw}"></i>${LIB[o.th].n}主题 · ${o.name}`;
+  $('qrName').textContent=v?v[2]:'总凭证 · 一码通行';
+  $('qrDesc').textContent=v?v[3]+'｜'+v[5]:'含 '+o.total+' 张分项子券 · 商家扫码可查看本券范围';
+  $('qrfull').classList.add('on');
+  document.body.style.filter='brightness(1.35)';
+}
+function closeQR(){$('qrfull').classList.remove('on');document.body.style.filter='';}
+let sec=60;setInterval(()=>{sec--;if(sec<=0){sec=60;if($('qrfull').classList.contains('on'))makeQR($('qrBig'),21,Math.floor(Math.random()*99999));
+  $('qrCode').textContent='7A4K '+Math.random().toString(36).slice(2,6).toUpperCase();}
+  $('qrSec').textContent=sec;},1000);
+/* 预约 / 退款 */
+function openSheet(n){
+  const o=ORDERS[CUR];
+  if(n==='Reserve'){
+    const need=o.vouchers.filter(v=>v[4]==='need');
+    $('rsvSub').textContent=need.length?need.map(v=>v[2]).join(' · '):'所有需预约项已处理';
+    $('rsvDate').innerHTML=`<option>${o.date}（今日）</option><option>次日</option><option>第三天</option>`;
+    $('rsvSlots').innerHTML=[['11:30 - 14:00','剩余 3 桌',1],['12:00 - 14:30','剩余 1 桌（紧张）',0],['17:30 - 20:00','剩余 6 桌',0],['18:30 - 21:00','剩余 2 桌',0]]
+      .map(s=>`<div class="slot${s[2]?' on':''}" onclick="slotPick(this)">${s[0]}<small>${s[1]}</small></div>`).join('');
+  }
+  if(n==='Refund'){
+    $('refSub').textContent=`订单 ${o.id} · 已核销 ${o.used}/${o.total} 项`;
+    const settled=Math.round(o.paid*0.18),cut=Math.round(settled*1.2),back=Math.max(0,o.paid-cut);
+    $('refCalc').innerHTML=`<div class="calc-t">可 退 金 额 试 算</div>
+      <div class="cr"><span>订单实付金额</span><span>¥${o.paid.toLocaleString()}</span></div>
+      <div class="cr minus"><span>已核销 ${o.used} 项结算价合计</span><span>-¥${settled.toLocaleString()}</span></div>
+      <div class="cr minus"><span>已使用项加价系数 ×1.2</span><span>-¥${(cut-settled).toLocaleString()}</span></div>
+      <div class="cr"><span>手续费</span><span>-¥0</span></div>
+      <div class="cr-tot"><span>预计可退（1-3 个工作日原路退回）</span><b>¥${back.toLocaleString()}</b></div>`;
+  }
+  $('mask').classList.add('on');$('sh'+n).classList.add('on');
+}
+function slotPick(el){el.parentNode.querySelectorAll('.slot').forEach(s=>s.classList.remove('on'));el.classList.add('on');}
+function closeSheet(){$('mask').classList.remove('on');document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('on'));}
+function showToast(x){const t=$('toast');t.innerHTML=x;t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),2200);}
+renderList();
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeQR();closeSheet();}});
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+
+<script>
+
+(function(){
+  YX.next('这笔订单还差 3 件事',[
+    {label:'3 项待预约 → 去预约',fn:function(){YX.toast('已打开预约：山野午餐 / 星空围炉晚宴 / 返程送站','ok');}},
+    {label:'查看 10 张子券',fn:function(){YX.toast('已定位到子券列表 · 8 张待使用 / 2 张已核销');}},
+    {label:'行程前置提醒',fn:function(){YX.toast('晚宴需提前 4 小时锁座 · 含手电筒与热姜茶已备');}}
+  ],'#yxStateLine');
+  var c=document.getElementById('yxSosCode');
+  if(c)c.onclick=function(){YX.toast('应急码 8 4 7 2 9 1 6 3 · 60 秒后刷新，请口述给正确商家','ok');YX.say('应急码已显示');};
+  var s=document.getElementById('yxSosState');
+  if(s)s.onclick=function(){var l=document.getElementById('yxStateLine');if(l){l.scrollIntoView({behavior:'smooth',block:'center'});l.style.boxShadow='0 0 0 3px #FECACA';setTimeout(function(){l.style.boxShadow='';},1600);}};
+  var b=document.getElementById('yxSosButler');
+  if(b)b.onclick=function(){YX.toast('已进入管家会话 · 自动携带订单 YQ2026092400328 与券状态','ok');};
+})();
+
+</script>
+
+<!-- yx-prod-P4-DEF -->
+
+<div class="yx-defbar" id="yxDefBar">
+  <div class="yx-defbar-b"><b>本页是二级页。</b>C 端主入口已改为「我的行程」——用户只看一条按时间排好的行程、一个管家、一个「一切就绪」状态。<b>10 张子券属于后台核销对象</b>，仅在现场需配合商家核对时进入本页。</div>
+  <button type="button" id="yxGoItin">回到我的行程</button>
+</div>
+
+<script>
+
+(function(){
+  var bar=document.getElementById('yxDefBar');
+  if(bar&&document.body)document.body.insertBefore(bar,document.body.firstChild);
+  var b=document.getElementById('yxGoItin');
+  if(b)b.onclick=function(){YX.toast('打开「我的行程」· 原型-09-我的行程-产品定义v1.html','ok');};
+})();
+
+</script>
+</body>
+</html>

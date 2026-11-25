@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>云栖度假 · 平台后台 · 分账权限配置（A7）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F7; --card:#fff; --tx:#1A2138; --tx2:#5B6477; --tx3:#9BA3B5;
+  --line:#E5E9EF; --line2:#F0F3F7;
+  --pri:#2B5FE0; --pri-d:#1E48B8; --pri-l:#EEF2FE; --pri-xl:#F6F8FE;
+  --ok:#16A34A; --ok-l:#ECFDF5;
+  --warn:#D97706; --warn-l:#FFF7ED;
+  --err:#DC2626; --err-l:#FEF2F2;
+  --r-sm:6px; --r-md:10px; --r-lg:14px;
+  --sh:0 1px 3px rgba(26,33,56,.06),0 1px 2px rgba(26,33,56,.04);
+  --sh-m:0 4px 14px rgba(26,33,56,.08);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+
+.side{background:#1A2138;color:#C5CCDE;padding:20px 14px;display:flex;flex-direction:column;gap:3px}
+.brand{display:flex;align-items:center;gap:8px;padding:6px 10px 22px;color:#fff;font-weight:800;font-size:15px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px}
+.brand .mi{font-size:20px;color:#4E7FEF}
+.brand small{font-size:9px;font-weight:600;letter-spacing:.1em;color:#6C7690;margin-left:4px}
+.nav{font-size:10.5px;font-weight:700;letter-spacing:.08em;color:#6C7690;padding:14px 10px 6px}
+.sit{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+.sit .mi{font-size:18px;color:#8993A8}
+.sit:hover{background:rgba(255,255,255,.05);color:#fff}
+.sit.on{background:linear-gradient(90deg,#2B5FE0,rgba(43,95,224,.3));color:#fff}
+.sit.on .mi{color:#fff}
+.sit b{margin-left:auto;padding:1px 6px;background:var(--warn);color:#fff;font-size:9px;border-radius:8px;font-weight:700}
+.sfoot{margin-top:auto;padding:12px 10px 0;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:#8993A8;display:flex;align-items:center;gap:8px}
+.sfoot-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4E7FEF,#2B5FE0);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px}
+
+.main{display:flex;flex-direction:column;min-width:0}
+.top{height:62px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.bread{font-size:12.5px;color:var(--tx3);font-weight:600;display:flex;align-items:center;gap:6px}
+.bread .mi{font-size:14px}
+.bread b{color:var(--tx);font-weight:800}
+.top-r{display:flex;align-items:center;gap:14px;margin-left:auto}
+.top-ic{position:relative;cursor:pointer}
+.top-ic .mi{font-size:20px;color:var(--tx2)}
+.top-ic b{position:absolute;top:-4px;right:-6px;padding:0 5px;background:var(--err);color:#fff;font-size:9px;border-radius:8px;font-weight:800}
+
+.page{padding:24px 28px 40px;max-width:1520px;width:100%}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:14px}
+.pt{font-size:22px;font-weight:800;letter-spacing:-.015em}
+.ps{font-size:12px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.6}
+.ph-r{display:flex;gap:10px;align-items:center}
+.btn{padding:9px 17px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;transition:.15s}
+.btn .mi{font-size:16px}
+.btn-pri{background:var(--pri);color:#fff;box-shadow:var(--sh)}
+.btn-pri:hover{background:var(--pri-d)}
+.btn-sec{background:#fff;color:var(--tx2);border-color:var(--line)}
+.btn-sec:hover{border-color:var(--pri);color:var(--pri-d)}
+
+/* Tab */
+.tabs{display:flex;background:#fff;border-radius:var(--r-lg) var(--r-lg) 0 0;border-bottom:1px solid var(--line);padding:0 20px;position:sticky;top:62px;z-index:5}
+.tab{padding:14px 18px;font-size:13px;font-weight:700;color:var(--tx2);cursor:pointer;position:relative;transition:.18s}
+.tab.on{color:var(--pri-d)}
+.tab.on::after{content:'';position:absolute;left:18px;right:18px;bottom:0;height:2.5px;background:var(--pri);border-radius:2px}
+.tab b{display:inline-block;margin-left:5px;padding:1px 7px;background:var(--pri-l);color:var(--pri-d);font-size:10px;border-radius:10px;font-weight:800}
+
+/* 资金流图 */
+.flow-diagram{margin-bottom:22px;background:#fff;border-radius:var(--r-lg);padding:22px;box-shadow:var(--sh)}
+.fd-title{font-size:14px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.fd-title .mi{font-size:18px;color:var(--pri)}
+.fd-canvas{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 0;position:relative}
+.fd-node{flex:1;text-align:center;padding:16px 12px;background:var(--pri-xl);border-radius:var(--r-md);border:1px solid var(--pri-l);position:relative;z-index:2}
+.fd-node.platform{background:linear-gradient(135deg,#2B5FE0,#1E48B8);color:#fff;border:none}
+.fd-node.platform .fd-n-t{color:#fff}
+.fd-node.platform .fd-n-v{color:#fff}
+.fd-node.merchant{background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;border:none}
+.fd-node.merchant .fd-n-t{color:#fff}
+.fd-node.merchant .fd-n-v{color:#fff}
+.fd-node-t{font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.06em;text-transform:uppercase}
+.fd-n-t{font-size:13px;font-weight:800;margin-top:5px}
+.fd-n-v{font-size:10px;font-weight:700;color:var(--tx2);margin-top:3px}
+.fd-arrow{position:absolute;top:50%;width:calc(100% - 260px);left:130px;height:2px;background:var(--line);z-index:1}
+.fd-arrow::before{content:'';position:absolute;left:0;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--pri)}
+.fd-arrow::after{content:'';position:absolute;right:0;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--warn)}
+.fd-label{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:800;color:var(--pri-d);white-space:nowrap}
+.fd-pct{position:absolute;top:28px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:800;color:var(--pri-d)}
+
+/* 分账规则 */
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px}
+.rule-card{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden}
+.rule-h{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.rule-t{font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px}
+.rule-t .mi{font-size:17px;color:var(--pri)}
+.rule-b{padding:16px 18px}
+.rule-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line2);font-size:12px}
+.rule-row:last-child{border-bottom:none}
+.rule-l{font-weight:700;color:var(--tx2)}
+.rule-v{font-weight:800;color:var(--tx);display:flex;align-items:center;gap:6px}
+.rule-v .mi{font-size:15px;color:var(--pri);cursor:pointer}
+.rule-edit{padding:5px 11px;background:var(--pri-l);color:var(--pri-d);border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;border:none}
+.rule-edit:hover{background:var(--pri);color:#fff}
+.rule-desc{font-size:10px;color:var(--tx3);margin-top:4px;font-weight:600;line-height:1.6}
+.rule-warn{padding:11px 13px;background:var(--warn-l);border-left:3px solid var(--warn);border-radius:0 var(--r-sm) var(--r-sm) 0;font-size:11px;color:#92400E;line-height:1.7;font-weight:600;margin-top:12px}
+.rule-warn b{color:var(--warn)}
+
+/* 佣金配置 */
+.commission{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);padding:20px;margin-bottom:22px}
+.comm-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.comm-t{font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px}
+.comm-t .mi{font-size:18px;color:var(--pri)}
+.comm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.comm-card{padding:16px;background:var(--pri-xl);border-radius:var(--r-md);text-align:center;border:2px solid transparent;cursor:pointer;transition:.2s}
+.comm-card.on{border-color:var(--pri);background:#fff;box-shadow:var(--sh-m)}
+.comm-card:hover{transform:translateY(-2px)}
+.comm-v{font-size:28px;font-weight:800;color:var(--pri-d);letter-spacing:-.03em}
+.comm-v small{font-size:12px;font-weight:700;color:var(--tx3)}
+.comm-l{font-size:11px;font-weight:700;color:var(--tx2);margin-top:6px}
+.comm-d{font-size:9.5px;color:var(--tx3);margin-top:4px;font-weight:600;line-height:1.55}
+
+/* 商家名单 */
+.merchant-list{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden}
+.ml-h{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.ml-t{font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px}
+.ml-t .mi{font-size:17px;color:var(--pri)}
+.ml-search{display:flex;align-items:center;gap:6px;padding:6px 11px;background:var(--line2);border-radius:6px;font-size:12px}
+.ml-search .mi{font-size:15px;color:var(--tx3)}
+.ml-search input{background:transparent;border:none;outline:none;font-size:12px;font-family:var(--sans);color:var(--tx);width:140px}
+.ml-body{max-height:380px;overflow-y:auto}
+.ml-body::-webkit-scrollbar{width:5px}
+.ml-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.ml-row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line2);cursor:pointer;transition:.15s}
+.ml-row:hover{background:var(--pri-xl)}
+.ml-row:last-child{border-bottom:none}
+.ml-av{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;font-weight:800;color:#fff}
+.ml-b{flex:1;min-width:0}
+.ml-n{font-size:12.5px;font-weight:800;display:flex;align-items:center;gap:6px}
+.ml-tag{padding:2px 7px;border-radius:5px;font-size:9px;font-weight:800}
+.ml-tag.ok{background:var(--ok-l);color:var(--ok)}
+.ml-tag.warn{background:var(--warn-l);color:var(--warn)}
+.ml-tag.err{background:var(--err-l);color:var(--err)}
+.ml-m{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.ml-r{display:flex;gap:8px;flex-shrink:0}
+.ml-btn{padding:5px 11px;border-radius:6px;background:var(--line2);color:var(--tx2);font-size:10.5px;font-weight:800;cursor:pointer;border:none;transition:.15s}
+.ml-btn:hover{background:var(--pri);color:#fff}
+.ml-btn.danger{background:var(--err-l);color:var(--err)}
+.ml-btn.danger:hover{background:var(--err);color:#fff}
+
+/* 角色权限矩阵 */
+.perm{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden}
+.perm-h{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.perm-t{font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px}
+.perm-t .mi{font-size:17px;color:var(--pri)}
+.perm-table{width:100%;border-collapse:collapse}
+.perm-table th{padding:11px 14px;background:var(--line2);font-size:10.5px;font-weight:800;color:var(--tx3);text-align:left;border-bottom:1px solid var(--line)}
+.perm-table td{padding:12px 14px;font-size:12px;border-bottom:1px solid var(--line2)}
+.perm-table tr:last-child td{border-bottom:none}
+.perm-table tr:hover{background:var(--pri-xl)}
+.perm-ic{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px}
+.perm-ic.yes{background:var(--ok-l);color:var(--ok)}
+.perm-ic.no{background:var(--line2);color:var(--tx3)}
+.perm-ic .mi{font-size:15px}
+.perm-role{display:flex;align-items:center;gap:7px}
+.perm-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
+
+/* 操作日志 */
+.log{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden}
+.log-h{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.log-t{font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px}
+.log-t .mi{font-size:17px;color:var(--pri)}
+.log-list{padding:8px 18px 18px;max-height:320px;overflow-y:auto}
+.log-list::-webkit-scrollbar{width:5px}
+.log-list::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.log-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line2);font-size:11.5px}
+.log-item:last-child{border-bottom:none}
+.log-time{flex-shrink:0;width:90px;font-weight:700;color:var(--tx3)}
+.log-ic{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.log-ic .mi{font-size:14px;color:#fff}
+.log-b{flex:1;min-width:0}
+.log-t2{font-weight:700;color:var(--tx)}
+.log-d{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600;line-height:1.6}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(26,33,56,.92);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;max-width:320px}
+.toast.show{opacity:1}
+
+/* decision v3 - confirmed rules strip */
+.dstrip{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;margin-bottom:14px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;font-size:10.5px;color:#14532D;font-weight:700;line-height:1.85}
+.dstrip>.mi{font-size:18px;flex-shrink:0;color:#15803D}
+.dstrip b{color:#166534}
+.dstrip .dstrip-t{font-size:11px;font-weight:800;letter-spacing:.02em}
+.dstrip .dstrip-x{color:#166534;font-weight:600}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="mi">terrain</span>云栖度假<small>ADMIN</small></div>
+    <div class="nav">概览</div>
+    <div class="sit"><span class="mi">dashboard</span>数据看板</div>
+    <div class="sit"><span class="mi">inventory_2</span>套餐组货工具</div>
+    <div class="nav">资源与商家</div>
+    <div class="sit"><span class="mi">storefront</span>商家与资质审核<b>3</b></div>
+    <div class="sit"><span class="mi">category</span>资源项库</div>
+    <div class="sit"><span class="mi">local_shipping</span>资源项审核</div>
+    <div class="nav">订单与售后</div>
+    <div class="sit"><span class="mi">receipt_long</span>订单中心</div>
+    <div class="sit"><span class="mi">gavel</span>退款仲裁<b>1</b></div>
+    <div class="nav">内容与营销</div>
+    <div class="sit"><span class="mi">auto_stories</span>内容与首页 CMS</div>
+    <div class="sit"><span class="mi">campaign</span>营销中心</div>
+    <div class="sit"><span class="mi">palette</span>主题库<b>6</b></div>
+    <div class="nav">系统</div>
+    <div class="sit on"><span class="mi">payments</span>分账权限配置</div>
+    <div class="sit"><span class="mi">admin_panel_settings</span>角色与权限</div>
+    <div class="sit"><span class="mi">history</span>操作日志</div>
+    <div class="sit"><span class="mi">settings</span>系统设置</div>
+    <div class="sfoot"><div class="sfoot-av">YK</div>运营 · 尹凯</div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="bread"><span class="mi">home</span> 平台后台 <span class="mi">chevron_right</span> <b>分账权限配置</b></div>
+      <div class="top-r">
+        <div class="top-ic" onclick="showToast('待办事项')"><span class="mi">notifications_none</span><b>9</b></div>
+        <div class="top-ic" onclick="showToast('导出配置')"><span class="mi">download</span></div>
+        <div class="top-ic" onclick="showToast('帮助文档')"><span class="mi">help_outline</span></div>
+      </div>
+    </div>
+
+    <div class="page">
+      <!-- DECISION_V3_APPLIED -->
+<div class="dstrip"><span class="mi">gavel</span><div><div class="dstrip-t">决策 2 / 3 / 5 已拍板 · 分账公式入参</div><div class="dstrip-x"><b>下单锁价</b>：供货价、券面额、<code>coupon_scope + cost_bearer</code> 全部取下单时 PriceSnapshot，禁止回读当前供货价。<b>券按 scope 分摊</b>；<b>退款单列冲减、GMV 不回冲、环比用净 GMV</b>，已履约佣金不冲回。</div></div></div>
+
+      <div class="ph">
+        <div>
+          <div class="pt">分账权限配置</div>
+          <div class="ps">资金流规则 · 平台佣金 · 商家结算周期 · 角色权限矩阵 · 操作审计</div>
+        </div>
+        <div class="ph-r">
+          <div class="btn btn-sec" onclick="showToast('导出配置快照')"><span class="mi">file_download</span>导出</div>
+          <div class="btn btn-pri" onclick="showToast('保存全部配置')"><span class="mi">save</span>保存</div>
+        </div>
+      </div>
+
+      <!-- Tab -->
+      <div class="tabs">
+        <div class="tab on">资金流规则</div>
+        <div class="tab">平台佣金</div>
+        <div class="tab">商家名单 <b>48</b></div>
+        <div class="tab">角色权限</div>
+        <div class="tab">操作日志</div>
+      </div>
+
+      <!-- 资金流图 -->
+      <div class="flow-diagram">
+        <div class="fd-title"><span class="mi">account_tree</span>资金流向图 · T+7 自动结算</div>
+        <div class="fd-canvas">
+          <div class="fd-arrow"><div class="fd-label">用户支付 ¥1,680</div><div class="fd-pct">100%</div></div>
+          <div class="fd-node">
+            <div class="fd-node-t">用户</div>
+            <div class="fd-n-t">微信支付</div>
+            <div class="fd-n-v">¥1,680</div>
+          </div>
+          <div class="fd-node platform">
+            <div class="fd-node-t">平台</div>
+            <div class="fd-n-t">云栖度假</div>
+            <div class="fd-n-v">佣金 ¥210 (快照 12.5%)</div>
+          </div>
+          <div class="fd-node merchant">
+            <div class="fd-node-t">商家</div>
+            <div class="fd-n-t">竹里馆 · 山野厨房</div>
+            <div class="fd-n-v">快照供货价 ¥920</div>
+          </div>
+          <div class="fd-node">
+            <div class="fd-node-t">其他商家</div>
+            <div class="fd-n-t">4 家联合</div>
+            <div class="fd-n-v">快照供货价 ¥550</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分账规则 -->
+      <div class="rules">
+        <div class="rule-card">
+          <div class="rule-h">
+            <div class="rule-t"><span class="mi">rule</span>分账模式</div>
+            <button class="rule-edit" onclick="showToast('编辑分账模式')"><span class="mi">edit</span>编辑</button>
+          </div>
+          <div class="rule-b">
+            <div class="rule-row">
+              <div>
+                <div class="rule-l">当前模式</div>
+                <div class="rule-v"><span class="mi">check_circle</span>按资源项结算价归集</div>
+              </div>
+            </div>
+            <div class="rule-row">
+              <div>
+                <div class="rule-l">结算周期</div>
+                <div class="rule-v"><span class="mi">schedule</span>T+7 自动到账</div>
+              </div>
+            </div>
+            <div class="rule-row">
+              <div>
+                <div class="rule-l">结算方式</div>
+                <div class="rule-v"><span class="mi">account_balance</span>银行卡自动转账</div>
+              </div>
+            </div>
+            <div class="rule-row">
+              <div>
+                <div class="rule-l">最低结算金额</div>
+                <div class="rule-v">¥100</div>
+              </div>
+            </div>
+            <div class="rule-row">
+              <div>
+                <div class="rule-l">结算日</div>
+                <div class="rule-v">每周一 09:00</div>
+              </div>
+            </div>
+            <div class="rule-warn">
+              <b>⚠️ 重要提示：</b>分账规则变更仅影响此后新订单；已下单订单按下单时的 PriceSnapshot 固化，不受本次修改影响。建议在非高峰时段修改，并提前通知商家。
+            </div>
+          </div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-h">
+            <div class="rule-t"><span class="mi">tune</span>分账计算公式</div>
+            <button class="rule-edit" onclick="showToast('编辑公式')"><span class="mi">edit</span>编辑</button>
+          </div>
+          <div class="rule-b">
+            <div class="rule-row">
+              <div style="width:100%">
+                <div class="rule-l">商家应结金额 <span style="color:var(--ok);font-size:10px">· 快照驱动</span></div>
+                <div class="rule-v" style="font-family:'SF Mono',Menlo,monospace;font-size:11px;background:var(--line2);padding:8px 11px;border-radius:6px;margin-top:6px">Σ(PriceSnapshot.supply_price × 核销数量) − 商家承担券成本</div>
+                <div class="rule-desc">供货价只取下单时快照，禁止回读 ResourceItem.supply_price</div>
+              </div>
+            </div>
+            <div class="rule-row">
+              <div style="width:100%">
+                <div class="rule-l">平台佣金 <span style="color:var(--ok);font-size:10px">· 快照驱动</span></div>
+                <div class="rule-v" style="font-family:'SF Mono',Menlo,monospace;font-size:11px;background:var(--line2);padding:8px 11px;border-radius:6px;margin-top:6px">PriceSnapshot.sell_price − Σ(快照供货价) − 平台承担券成本</div>
+                <div class="rule-desc">佣金率按支付时快照固化（标准 12.5%）；后续改配置不影响历史订单</div>
+              </div>
+            </div>
+            <div class="rule-row">
+              <div style="width:100%">
+                <div class="rule-l">券成本承担 <span style="color:var(--pri);font-size:10px">· 新增行</span></div>
+                <div class="rule-v" style="font-family:'SF Mono',Menlo,monospace;font-size:11px;background:var(--line2);padding:8px 11px;border-radius:6px;margin-top:6px">按 Coupon.cost_bearer 快照拆到订单内各资源项</div>
+                <div class="rule-desc">PLATFORM 从佣金扣 / MERCHANT 从发券商家供货价扣 / PROPORTIONAL 按快照供货价占比拆；退款按同一承担方反向冲回</div>
+              </div>
+            </div>
+            <div class="rule-row">
+              <div style="width:100%">
+                <div class="rule-l">退款扣除 <span style="color:var(--ok);font-size:10px">· 口径已定</span></div>
+                <div class="rule-v" style="font-family:'SF Mono',Menlo,monospace;font-size:11px;background:var(--line2);padding:8px 11px;border-radius:6px;margin-top:6px">Σ(已核销项快照供货价 × 1.2)；平台佣金不退还</div>
+                <div class="rule-desc">示例：¥1,940 − ¥740 × 1.2 = ¥1,052；<b>已履约部分佣金 ¥148 不冲回</b>，未履约部分对应佣金同步冲回；退款单列「退款冲减」，GMV 不回冲，环比用净 GMV。券成本按 <code>coupon_scope</code> 分支：PACKAGE 按供货价占比摊整个套餐 / ITEM 全额算该项目。</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;padding:9px 12px;background:var(--ok-l);border:1px solid #BBF7D0;border-radius:7px;font-size:11px;color:#166534;font-weight:700;line-height:1.7"><span class="mi" style="font-size:14px;vertical-align:-3px">verified</span> 统一入参：PriceSnapshot（供货价 / 售价 / 佣金率 / coupon_bearer 四项）+ CostBearer 快照。任何结算、仲裁、分账查询不得回读资源项或券配置的当前值。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 佣金配置 -->
+      <div class="commission">
+        <div class="comm-h">
+          <div class="comm-t"><span class="mi">percent</span>平台佣金率配置</div>
+          <button class="rule-edit" onclick="showToast('编辑佣金规则')"><span class="mi">edit</span>编辑</button>
+        </div>
+        <div class="comm-grid">
+          <div class="comm-card on">
+            <div class="comm-v">12.5<small>%</small></div>
+            <div class="comm-l">标准佣金率</div>
+            <div class="comm-d">适用于所有固定套餐 · 平台统一收款后按快照供货价结算给商家 · 佣金率随支付快照固化，后续改配置不回溯历史订单</div>
+          </div>
+          <div class="comm-card">
+            <div class="comm-v">10<small>%</small></div>
+            <div class="comm-l">优质商家折扣</div>
+            <div class="comm-d">评分 ≥ 4.8 且月销 ≥ 100 单 · 次月自动生效</div>
+          </div>
+          <div class="comm-card">
+            <div class="comm-v">15<small>%</small></div>
+            <div class="comm-l">新商家首月</div>
+            <div class="comm-d">入驻首月平台提供更多流量扶持 · 佣金略高</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 商家名单 -->
+      <div class="merchant-list">
+        <div class="ml-h">
+          <div class="ml-t"><span class="mi">storefront</span>商家结算名单</div>
+          <div class="ml-search"><span class="mi">search</span><input placeholder="搜索商家名称或编号"></div>
+        </div>
+        <div class="ml-body">
+          <div class="ml-row">
+            <div class="ml-av" style="background:linear-gradient(135deg,#12897C,#0C6B61)">竹</div>
+            <div class="ml-b">
+              <div class="ml-n">竹里馆 · 山野厨房 <span class="ml-tag ok">正常结算</span></div>
+              <div class="ml-m">B-0032 · 莫干山 · 评分 4.9 · 本月应结 ¥38,640</div>
+            </div>
+            <div class="ml-r">
+              <button class="ml-btn" onclick="showToast('查看结算明细')">明细</button>
+              <button class="ml-btn danger" onclick="showToast('冻结结算')">冻结</button>
+            </div>
+          </div>
+          <div class="ml-row">
+            <div class="ml-av" style="background:linear-gradient(135deg,#0E86C4,#0A6291)">海</div>
+            <div class="ml-b">
+              <div class="ml-n">海隅·石屋民宿 <span class="ml-tag ok">正常结算</span></div>
+              <div class="ml-m">B-0031 · 东极岛 · 评分 4.9 · 本月应结 ¥42,180</div>
+            </div>
+            <div class="ml-r">
+              <button class="ml-btn" onclick="showToast('查看结算明细')">明细</button>
+              <button class="ml-btn danger" onclick="showToast('冻结结算')">冻结</button>
+            </div>
+          </div>
+          <div class="ml-row">
+            <div class="ml-av" style="background:linear-gradient(135deg,#8A5A3B,#6B4229)">承</div>
+            <div class="ml-b">
+              <div class="ml-n">承志堂·古宅民宿 <span class="ml-tag warn">资质待更新</span></div>
+              <div class="ml-m">B-0087 · 宏村 · 评分 4.8 · 本月应结 ¥18,420</div>
+            </div>
+            <div class="ml-r">
+              <button class="ml-btn" onclick="showToast('查看结算明细')">明细</button>
+              <button class="ml-btn" onclick="showToast('提醒更新资质')">提醒</button>
+            </div>
+          </div>
+          <div class="ml-row">
+            <div class="ml-av" style="background:linear-gradient(135deg,#6FA22E,#547C20)">星</div>
+            <div class="ml-b">
+              <div class="ml-n">星空营地 <span class="ml-tag ok">正常结算</span></div>
+              <div class="ml-m">B-0112 · 呼伦贝尔 · 评分 4.9 · 本月应结 ¥24,680</div>
+            </div>
+            <div class="ml-r">
+              <button class="ml-btn" onclick="showToast('查看结算明细')">明细</button>
+              <button class="ml-btn danger" onclick="showToast('冻结结算')">冻结</button>
+            </div>
+          </div>
+          <div class="ml-row">
+            <div class="ml-av" style="background:linear-gradient(135deg,#4C7FA8,#35607F)">雪</div>
+            <div class="ml-b">
+              <div class="ml-n">雪场酒店 <span class="ml-tag err">结算冻结</span></div>
+              <div class="ml-m">B-0204 · 长白山 · 评分 4.2 · 本月应结 ¥0（已冻结）</div>
+            </div>
+            <div class="ml-r">
+              <button class="ml-btn" onclick="showToast('查看冻结原因')">原因</button>
+              <button class="ml-btn" onclick="showToast('解除冻结')">解冻</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 角色权限矩阵 -->
+      <div class="perm" style="margin-top:22px">
+        <div class="perm-h">
+          <div class="perm-t"><span class="mi">admin_panel_settings</span>角色权限矩阵</div>
+          <button class="rule-edit" onclick="showToast('编辑角色权限')"><span class="mi">edit</span>编辑</button>
+        </div>
+        <table class="perm-table">
+          <thead>
+            <tr>
+              <th>角色</th>
+              <th>查看分账规则</th>
+              <th>修改分账规则</th>
+              <th>冻结商家结算</th>
+              <th>查看操作日志</th>
+              <th>导出配置</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="perm-role">
+                  <div class="perm-av" style="background:linear-gradient(135deg,#4E7FEF,#2B5FE0)">管</div>
+                  <div><div style="font-weight:800">平台管理员</div><div style="font-size:9.5px;color:var(--tx3);margin-top:2px">超级管理员</div></div>
+                </div>
+              </td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="perm-role">
+                  <div class="perm-av" style="background:linear-gradient(135deg,#F59E0B,#D97706)">运</div>
+                  <div><div style="font-weight:800">平台运营</div><div style="font-size:9.5px;color:var(--tx3);margin-top:2px">尹凯等 3 人</div></div>
+                </div>
+              </td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+              <td><div class="perm-ic no"><span class="mi">close</span></div></td>
+              <td><div class="perm-ic no"><span class="mi">close</span></div></td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="perm-role">
+                  <div class="perm-av" style="background:linear-gradient(135deg,#16A34A,#15803D)">财</div>
+                  <div><div style="font-weight:800">平台财务</div><div style="font-size:9.5px;color:var(--tx3);margin-top:2px">李会计等 2 人</div></div>
+                </div>
+              </td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="perm-role">
+                  <div class="perm-av" style="background:linear-gradient(135deg,#EC4899,#BE185D)">客</div>
+                  <div><div style="font-weight:800">平台客服</div><div style="font-size:9.5px;color:var(--tx3);margin-top:2px">小王等 5 人</div></div>
+                </div>
+              </td>
+              <td><div class="perm-ic yes"><span class="mi">check</span></div></td>
+              <td><div class="perm-ic no"><span class="mi">close</span></div></td>
+              <td><div class="perm-ic no"><span class="mi">close</span></div></td>
+              <td><div class="perm-ic no"><span class="mi">close</span></div></td>
+              <td><div class="perm-ic no"><span class="mi">close</span></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 操作日志 -->
+      <div class="log" style="margin-top:22px">
+        <div class="log-h">
+          <div class="log-t"><span class="mi">history</span>操作审计日志</div>
+          <button class="rule-edit" onclick="showToast('导出日志')"><span class="mi">file_download</span>导出</button>
+        </div>
+        <div class="log-list">
+          <div class="log-item">
+            <div class="log-time">今天 14:22</div>
+            <div class="log-ic" style="background:var(--warn-l)"><span class="mi" style="color:var(--warn)">warning</span></div>
+            <div class="log-b">
+              <div class="log-t2">修改分账规则 · 结算周期 T+3 → T+7</div>
+              <div class="log-d">操作人：尹凯（平台运营）· IP: 10.0.1.42 · 影响：所有未结算订单</div>
+            </div>
+          </div>
+          <div class="log-item">
+            <div class="log-time">今天 09:15</div>
+            <div class="log-ic" style="background:var(--err-l)"><span class="mi" style="color:var(--err)">block</span></div>
+            <div class="log-b">
+              <div class="log-t2">冻结商家结算 · 雪场酒店 B-0204</div>
+              <div class="log-d">操作人：李会计（平台财务）· 原因：用户投诉未处理 · 冻结金额 ¥12,480</div>
+            </div>
+          </div>
+          <div class="log-item">
+            <div class="log-time">昨天 16:48</div>
+            <div class="log-ic" style="background:var(--ok-l)"><span class="mi" style="color:var(--ok)">check_circle</span></div>
+            <div class="log-b">
+              <div class="log-t2">自动结算 · 48 家商家 · 总金额 ¥284,600</div>
+              <div class="log-d">系统自动执行 · 结算周期 10-04 至 10-10 · 全部成功</div>
+            </div>
+          </div>
+          <div class="log-item">
+            <div class="log-time">昨天 11:32</div>
+            <div class="log-ic" style="background:var(--pri-l)"><span class="mi" style="color:var(--pri)">edit</span></div>
+            <div class="log-b">
+              <div class="log-t2">修改佣金率 · 优质商家折扣 12% → 10%</div>
+              <div class="log-d">操作人：尹凯（平台运营）· 生效时间：次月 1 日 · 影响商家：12 家</div>
+            </div>
+          </div>
+          <div class="log-item">
+            <div class="log-time">10-15 14:08</div>
+            <div class="log-ic" style="background:var(--ok-l)"><span class="mi" style="color:var(--ok)">person_add</span></div>
+            <div class="log-b">
+              <div class="log-t2">新增角色 · 平台客服（只读权限）</div>
+              <div class="log-d">操作人：尹凯（平台运营）· 分配给 5 人 · 权限：查看分账规则</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+function showToast(x){
+  const el=document.getElementById('toast');
+  el.textContent=x;
+  el.className='toast show';
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>el.className='toast',2200);
+}
+</script>
+</body>
+</html>

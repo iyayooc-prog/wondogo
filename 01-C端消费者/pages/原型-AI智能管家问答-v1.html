@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · AI 智能管家问答</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+/* —— 六套主题 + 中性骨架（与C端一致）—— */
+:root{--card:#FFFFFF;--tx:#1B2E2C;--tx2:#5E7370;--tx3:#9BAEAB;--line:#E8EFEE;--line2:#F2F6F5;--r-sm:10px;--r-md:16px;--r-lg:22px;--r-full:999px;--sh-s:0 2px 10px rgba(27,46,44,.05);--sh-m:0 6px 22px rgba(27,46,44,.08);--sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',Roboto,sans-serif}
+[data-theme="neutral"]{--pri:#4A5D59;--pri-d:#33423F;--pri-l:#EDF1F0;--pri-xl:#F6F8F7;--acc:#FF6B4A;--acc-l:#FFEFEB;--acc2:#F2A93B;--bg:#F4F6F5;--sh-l:0 10px 28px rgba(27,46,44,.12);--g1a:#E2E7E5;--g1b:#B9C4C1;--g1c:#8D9C99;--g2a:#EDE7DE;--g2b:#CFC3B2;--g2c:#A3937F;--g3a:#E0E6E4;--g3b:#B4C1BD;--g3c:#889994;--g4a:#E6E9EC;--g4b:#BCC5CD;--g4c:#909BA5}
+[data-theme="ocean"]{--pri:#0E86C4;--pri-d:#0A6291;--pri-l:#E3F1FA;--pri-xl:#F2F9FD;--acc:#FF7A59;--acc-l:#FFF0EB;--acc2:#FFB648;--g1a:#8FE0F0;--g1b:#2E9BD4;--g1c:#14689E;--g2a:#FFE2B0;--g2b:#FFA96B;--g2c:#F0805A;--g3a:#A8E8DC;--g3b:#4FBFAE;--g3c:#2A8A80;--g4a:#BFD9F2;--g4b:#6E9FD0;--g4c:#3F6E9E}
+[data-theme="forest"]{--pri:#12897C;--pri-d:#0C6B61;--pri-l:#E4F2F0;--pri-xl:#F1F8F7;--acc:#FF7A59;--acc-l:#FFF0EB;--acc2:#FFB648;--g1a:#C6E8B0;--g1b:#6FBF7F;--g1c:#2E8B57;--g2a:#A8E0C8;--g2b:#4FB894;--g2c:#1E8367;--g3a:#FFE0B2;--g3b:#FFAE6B;--g3c:#E08A4A;--g4a:#D8E8C0;--g4b:#93C07A;--g4c:#5A8C46}
+[data-theme="heritage"]{--pri:#8A5A3B;--pri-d:#6B4229;--pri-l:#F4EAE2;--pri-xl:#FBF6F1;--acc:#C0453A;--acc-l:#FCEDEB;--acc2:#D8A24A;--g1a:#E8DCCB;--g1b:#BFA78A;--g1c:#8A6F52;--g2a:#D9CBB8;--g2b:#A98F6E;--g2c:#6E5842;--g3a:#E5C9A8;--g3b:#C9976A;--g3c:#9A6742;--g4a:#DCD6CC;--g4b:#9E968A;--g4c:#6B6459}
+[data-theme="grassland"]{--pri:#6FA22E;--pri-d:#547C20;--pri-l:#EDF5E1;--pri-xl:#F6FAF0;--acc:#D9701F;--acc-d:#C2410C;--acc-l:#FFF2E6;--acc2:#E8C33C;--g1a:#DCF0A8;--g1b:#93C85A;--g1c:#5A9430;--g2a:#BFE8F5;--g2b:#79C0DC;--g2c:#3F8FB0;--g3a:#FFE9A8;--g3b:#FFC65C;--g3c:#E09A2E;--g4a:#E8F2C0;--g4b:#B5D483;--g4c:#7CA84E}
+[data-theme="snow"]{--pri:#4C7FA8;--pri-d:#35607F;--pri-l:#E8F1F8;--pri-xl:#F4F9FC;--acc:#E8734A;--acc-l:#FCEEE8;--acc2:#7FC4D8;--g1a:#F0F7FC;--g1b:#BDD8EA;--g1c:#7FA8C8;--g2a:#E4EEF6;--g2b:#A9C6DC;--g2c:#6E92B0;--g3a:#FFE0D0;--g3b:#F5A882;--g3c:#D4764E;--g4a:#EDF4FA;--g4b:#C2D8E8;--g4c:#8AAAC4}
+[data-theme="city"]{--pri:#5A5BD0;--pri-d:#413FA8;--pri-l:#ECECFB;--pri-xl:#F6F6FD;--acc:#FF5C8A;--acc-l:#FFEDF3;--acc2:#FFB648;--g1a:#CFCFFF;--g1b:#8A8AF0;--g1c:#5A5BD0;--g2a:#FFD3E2;--g2b:#FF92B4;--g2c:#E05A82;--g3a:#FFE3B8;--g3b:#FFBE6B;--g3c:#E0913A;--g4a:#C9D8F5;--g4b:#8AA6E0;--g4c:#5A78C0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#dfe3e2;color:var(--tx);line-height:1.55;-webkit-font-smoothing:antialiased}
+.mi{font-family:'Material Icons'}
+.g1{background:linear-gradient(160deg,var(--g1a),var(--g1b) 52%,var(--g1c))}
+.g2{background:linear-gradient(160deg,var(--g2a),var(--g2b) 50%,var(--g2c))}
+.g3{background:linear-gradient(160deg,var(--g3a),var(--g3b) 50%,var(--g3c))}
+.g4{background:linear-gradient(160deg,var(--g4a),var(--g4b) 52%,var(--g4c))}
+
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;box-shadow:0 0 40px rgba(0,0,0,.12)}
+
+/* ===== 顶部栏 ===== */
+.topbar{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#fff}
+.back{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.back .mi{font-size:20px;color:var(--tx)}
+.top-t{font-size:17px;font-weight:800;flex:1}
+
+/* ===== 背景模拟页面（非聊天态） ===== */
+.bg-page{min-height:100vh;background:var(--bg);padding-bottom:120px}
+.bg-demo{padding:20px 16px}
+.bg-demo-h{font-size:18px;font-weight:800;margin-bottom:6px}
+.bg-demo-d{font-size:12px;color:var(--tx3);font-weight:600}
+.bg-card{margin-top:14px;background:#fff;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-m)}
+.bg-card-img{height:120px;position:relative;display:flex;align-items:center;justify-content:center}
+.bg-card-img .mi{font-size:40px;color:rgba(255,255,255,.4);position:relative;z-index:2}
+.bg-card-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.35))}
+.bg-card-body{padding:14px 16px}
+.bg-card-t{font-size:15px;font-weight:800}
+.bg-card-p{font-size:13px;font-weight:800;color:var(--acc);margin-top:8px}
+
+/* ===== AI 悬浮球 ===== */
+.fab{position:fixed;bottom:85px;right:16px;width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 28px rgba(255,107,74,.45);border:3px solid rgba(255,255,255,.6);z-index:80;transition:.3s;animation:fabPulse 2.5s infinite}
+.fab .mi{font-size:30px;color:#fff}
+.fab::before{content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--acc);opacity:.4;animation:fabRing 2.5s infinite}
+@keyframes fabPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes fabRing{0%{transform:scale(1);opacity:.3}100%{transform:scale(1.4);opacity:0}}
+.fab.hide{transform:scale(0);opacity:0}
+
+/* ===== 聊天界面 ===== */
+.chat-panel{position:fixed;inset:0;z-index:90;display:none;flex-direction:column;max-width:375px;margin:0 auto;background:var(--bg)}
+.chat-panel.show{display:flex}
+.chat-top{display:flex;align-items:center;gap:11px;padding:14px 16px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.chat-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#12897C,#0C6B61);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.chat-av .mi{font-size:20px;color:#fff}
+.chat-av .ai-badge{position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;border-radius:50%;background:var(--acc);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:800;color:#fff}
+.chat-b{flex:1;min-width:0}
+.chat-n{font-size:15px;font-weight:800;display:flex;align-items:center;gap:6px}
+.chat-ai-tag{padding:1px 7px;border-radius:4px;font-size:8.5px;font-weight:800;background:var(--acc-l);color:var(--acc)}
+.chat-s{font-size:10.5px;color:var(--ok);margin-top:3px;font-weight:600;display:flex;align-items:center;gap:4px}
+.chat-s .mi{font-size:12px}
+.chat-close{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--line2);flex-shrink:0}
+.chat-close .mi{font-size:18px;color:var(--tx2)}
+
+/* 聊天区 */
+.chat-body{flex:1;overflow-y:auto;padding:16px 16px 16px;display:flex;flex-direction:column;gap:14px}
+.sys-msg{text-align:center}
+.sys-msg span{font-size:10px;color:var(--tx3);font-weight:600;padding:4px 12px;background:var(--line2);border-radius:var(--r-full)}
+
+.bubble{max-width:80%;padding:11px 15px;border-radius:var(--r-md);font-size:13px;font-weight:600;line-height:1.7;word-break:break-word}
+.bubble-r{align-self:flex-end;background:var(--pri);color:#fff;border-bottom-right-radius:4px}
+.bubble-l{align-self:flex-start;background:#fff;color:var(--tx);border-bottom-left-radius:4px;box-shadow:var(--sh-s)}
+.bubble-time{font-size:9px;color:var(--tx3);font-weight:600;margin-top:5px;opacity:.7;padding:0 4px}
+.bubble-l .bubble-time{color:var(--tx3)}
+.bubble-r .bubble-time{color:rgba(255,255,255,.7)}
+
+/* AI 思考动画 */
+.ai-thinking{align-self:flex-start;padding:12px 16px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);border-bottom-left-radius:4px}
+.ai-think-h{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ai-think-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#12897C,#0C6B61);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-think-av .mi{font-size:14px;color:#fff}
+.ai-think-n{font-size:12px;font-weight:800}
+.ai-think-dots{display:flex;gap:4px;align-items:center}
+.ai-think-dots i{width:6px;height:6px;border-radius:50%;background:var(--pri);opacity:.3;animation:thinkBounce 1.2s infinite}
+.ai-think-dots i:nth-child(2){animation-delay:.2s}
+.ai-think-dots i:nth-child(3){animation-delay:.4s}
+@keyframes thinkBounce{0%,60%,100%{transform:translateY(0);opacity:.3}30%{transform:translateY(-6px);opacity:1}}
+
+/* AI 回复中的打字动画 */
+.ai-typing{display:inline-flex;gap:3px;align-items:center;margin-top:6px}
+.ai-typing i{width:5px;height:5px;border-radius:50%;background:var(--pri);opacity:.4;animation:typingBounce 1s infinite}
+.ai-typing i:nth-child(2){animation-delay:.15s}
+.ai-typing i:nth-child(3){animation-delay:.3s}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+
+/* 结构化 AI 回复 */
+.ai-structured{align-self:flex-start;max-width:85%;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);overflow:hidden;border-bottom-left-radius:4px}
+.as-h{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.as-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#12897C,#0C6B61);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.as-av .mi{font-size:16px;color:#fff}
+.as-n{font-size:12px;font-weight:800}
+.as-ai{padding:2px 7px;border-radius:4px;font-size:8px;font-weight:800;background:var(--acc-l);color:var(--acc);margin-left:6px}
+.as-body{padding:13px 14px}
+.as-text{font-size:12.5px;font-weight:600;line-height:1.75;color:var(--tx2)}
+.as-text b{color:var(--tx);font-weight:800}
+.as-row{display:flex;align-items:flex-start;gap:8px;margin-top:9px}
+.as-row-ic{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--pri-l)}
+.as-row-ic .mi{font-size:13px;color:var(--pri-d)}
+.as-row-b{flex:1;font-size:11.5px;font-weight:600;color:var(--tx2);line-height:1.6}
+.as-row-b b{color:var(--tx);font-weight:800}
+.as-action{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line);display:flex;gap:8px;flex-wrap:wrap}
+.as-btn{padding:7px 13px;border-radius:var(--r-full);font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px}
+.as-btn .mi{font-size:14px}
+.as-btn-pri{background:var(--pri);color:#fff}
+.as-btn-sec{background:var(--line2);color:var(--tx2)}
+
+/* 套餐卡片消息 */
+.pkg-card{max-width:82%;border-radius:var(--r-md);overflow:hidden;box-shadow:var(--sh-m);cursor:pointer;margin-top:10px}
+.pkg-img{height:110px;position:relative;display:flex;align-items:center;justify-content:center}
+.pkg-img .mi{font-size:34px;color:rgba(255,255,255,.5);position:relative;z-index:2}
+.pkg-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.35))}
+.pkg-badge{position:absolute;top:10px;left:12px;z-index:3;padding:3px 9px;background:rgba(255,255,255,.92);border-radius:var(--r-full);font-size:9px;font-weight:800;color:var(--pri-d)}
+.pkg-badge i{width:8px;height:8px;border-radius:50%;display:block;margin-right:4px}
+.pkg-body{padding:12px 14px;background:#fff}
+.pkg-n{font-size:13px;font-weight:800}
+.pkg-inc{font-size:10px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.5}
+.pkg-row{display:flex;align-items:center;justify-content:space-between;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line)}
+.pkg-p{font-size:15px;font-weight:800;color:var(--acc)}
+.pkg-p small{font-size:9px;color:var(--tx3);font-weight:600}
+.pkg-go{font-size:10px;font-weight:800;color:var(--pri-d);padding:5px 11px;background:var(--pri-l);border-radius:var(--r-full)}
+
+/* 规则卡片 */
+.rule-card{max-width:82%;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);padding:13px 14px;margin-top:10px;border-left:3px solid var(--pri)}
+.rc-t{font-size:12px;font-weight:800;display:flex;align-items:center;gap:5px;margin-bottom:8px}
+.rc-t .mi{font-size:14px;color:var(--pri)}
+.rc-row{display:flex;justify-content:space-between;font-size:11px;font-weight:600;padding:5px 0;color:var(--tx2)}
+.rc-row b{color:var(--tx)}
+.rc-row.ok b{color:var(--ok)}
+.rc-row.warn b{color:var(--warn)}
+
+/* 快捷问题 */
+.quick-q{display:flex;gap:7px;padding:10px 16px;background:#fff;border-top:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.quick-q::-webkit-scrollbar{display:none}
+.qq{flex-shrink:0;padding:8px 13px;border-radius:var(--r-full);background:var(--line2);font-size:11px;font-weight:700;color:var(--tx2);cursor:pointer;transition:.15s;display:flex;align-items:center;gap:4px}
+.qq:hover{background:var(--pri-l);color:var(--pri-d)}
+.qq .mi{font-size:13px}
+
+/* 输入区 */
+.input-area{display:flex;align-items:flex-end;gap:8px;padding:10px 16px 14px;background:#fff;border-top:1px solid var(--line)}
+.input-area input{flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:var(--r-md);font-size:13px;font-family:var(--sans);color:var(--tx);outline:none;background:var(--line2);transition:.15s}
+.input-area input:focus{border-color:var(--pri);background:#fff;box-shadow:0 0 0 3px var(--pri-l)}
+.send-btn{width:40px;height:40px;border-radius:50%;background:var(--pri);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:.15s}
+.send-btn .mi{font-size:20px;color:#fff}
+.send-btn:hover{background:var(--pri-d)}
+
+/* 场景切换标签 */
+.scene-tabs{display:flex;gap:6px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.scene-tabs::-webkit-scrollbar{display:none}
+.scene-tab{flex-shrink:0;padding:7px 13px;border-radius:var(--r-full);background:var(--line2);font-size:11px;font-weight:700;color:var(--tx2);cursor:pointer;transition:.15s;white-space:nowrap}
+.scene-tab.on{background:var(--pri);color:#fff}
+
+/* 提示文字 */
+.tip{padding:16px;text-align:center;font-size:11px;color:var(--tx3);font-weight:600;line-height:1.7}
+.tip b{color:var(--pri-d);font-weight:700}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(27,46,44,.92);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;max-width:320px}
+.toast.show{opacity:1}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+
+/* yx-deep-AI */
+.yx-ai-hint{margin:0 0 10px;padding:9px 12px;background:#F8FAFC;border:1px solid #E5E7EB;border-radius:8px;font-size:10.5px;color:#475569;font-weight:700;line-height:1.8}
+</style>
+</head>
+<body>
+<!-- yx-deep-AI -->
+<div class="yx-ai-hint" id="yxAiHint"><b>AI 回答可追溯：</b>每条建议标注依据（订单 / 套餐 / 库存快照）；涉及金额、库存、退款的答案附「查看依据」与「转人工管家」，不把生成内容当最终裁定。</div>
+
+<div class="app" data-theme="neutral">
+
+<!-- ===== 背景模拟页面（非聊天态） ===== -->
+<div class="bg-page" id="bgPage">
+  <div class="topbar">
+    <div class="back" onclick="showToast('返回')"><span class="mi">arrow_back</span></div>
+    <div class="top-t">莫干山云端两日</div>
+    <div style="width:34px"></div>
+  </div>
+  <div class="bg-demo">
+    <div class="bg-demo-h">产品详情</div>
+    <div class="bg-demo-d">点击右下角 AI 悬浮球开始对话</div>
+  </div>
+  <div class="bg-card" data-theme="forest">
+    <div class="bg-card-img g2"><span class="mi">filter_hdr</span></div>
+    <div class="bg-card-body">
+      <div class="bg-card-t">莫干山云端两日</div>
+      <div class="bg-card-p">¥1,680 起 / 2人</div>
+    </div>
+  </div>
+  <div style="padding:16px;text-align:center;font-size:11px;color:var(--tx3);font-weight:600">向下滚动查看更多内容...</div>
+  <div style="padding:0 16px 100px">
+    <div style="background:#fff;border-radius:var(--r-md);padding:14px;box-shadow:var(--sh-s);margin-bottom:10px">
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px"><span class="mi" style="font-size:16px;color:var(--pri)">format_list_bulleted</span>包含服务</div>
+      <div style="font-size:11px;color:var(--tx2);line-height:1.8;font-weight:600">🛏 云海民宿 1 晚 · 🍽 山野餐 4 次 · 🎡 溪谷徒步 · 🚐 专车接送 · 🌙 星空围炉晚宴</div>
+    </div>
+    <div style="background:#fff;border-radius:var(--r-md);padding:14px;box-shadow:var(--sh-s)">
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px"><span class="mi" style="font-size:16px;color:var(--pri)">info</span>预订须知</div>
+      <div style="font-size:11px;color:var(--tx2);line-height:1.8;font-weight:600">溪谷徒步适合 5 岁以上 · 星空晚宴需提前 4 小时预约 · 已核销项按供货价×1.2 扣除退改</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== AI 悬浮球 ===== -->
+<div class="fab" id="fab" onclick="openChat()"><span class="mi">auto_awesome</span></div>
+
+<!-- ===== 聊天界面 ===== -->
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-top">
+    <div class="chat-av"><span class="mi">auto_awesome</span><div class="ai-badge">AI</div></div>
+    <div class="chat-b">
+      <div class="chat-n">AI 智能管家<span class="chat-ai-tag">AI</span></div>
+      <div class="chat-s"><span class="mi">circle</span>在线 · 秒回 · 懂你的度假顾问</div>
+    </div>
+    <div class="chat-close" onclick="closeChat()"><span class="mi">close</span></div>
+  </div>
+
+  <!-- 场景切换 -->
+  <div class="scene-tabs" id="sceneTabs">
+    <div class="scene-tab on" onclick="loadScene('pkg')">套餐咨询</div>
+    <div class="scene-tab" onclick="loadScene('refund')">退改规则</div>
+    <div class="scene-tab" onclick="loadScene('booking')">预约问题</div>
+    <div class="scene-tab" onclick="loadScene('compare')">对比推荐</div>
+    <div class="scene-tab" onclick="loadScene('weather')">行程建议</div>
+  </div>
+
+  <!-- 聊天区 -->
+  <div class="chat-body" id="chatBody">
+    <!-- 场景1：套餐咨询 -->
+    <div id="scene-pkg">
+      <div class="sys-msg"><span>2026-11-07 14:30</span></div>
+      <div class="bubble bubble-l">你好，我是 AI 智能管家，你的度假顾问<br>有什么可以帮你的吗？<div class="bubble-time">14:30</div></div>
+      <div class="bubble bubble-r">带3岁孩子去莫干山，哪个套餐合适？<div class="bubble-time">14:31</div></div>
+      <div class="ai-thinking" id="thinking1">
+        <div class="ai-think-h"><div class="ai-think-av"><span class="mi">auto_awesome</span></div><div class="ai-think-n">AI 正在分析...</div></div>
+        <div class="ai-think-dots"><i></i><i></i><i></i></div>
+        <div class="ai-typing"><i></i><i></i><i></i></div>
+      </div>
+      <div class="ai-structured">
+        <div class="as-h"><div class="as-av"><span class="mi">auto_awesome</span></div><div class="as-n">AI 智能管家<span class="as-ai">AI</span></div></div>
+        <div class="as-body">
+          <div class="as-text">根据你的需求，莫干山有 <b>3 个亲子套餐</b>，最推荐的是：</div>
+          <div class="as-row"><div class="as-row-ic"><span class="mi">star</span></div><div class="as-row-b"><b>莫干山云海亲子两日</b> · ¥1,680/2大1小<br>最适合 3 岁孩子：溪谷徒步有专人带、儿童安全措施到位、午餐有儿童餐</div></div>
+          <div class="pkg-card" data-theme="forest" onclick="showToast('进入莫干山云海亲子两日')">
+            <div class="pkg-img g2"><span class="mi">child_care</span><div class="pkg-badge"><i style="background:#12897C"></i>山林</div></div>
+            <div class="pkg-body">
+              <div class="pkg-n">莫干山云海亲子两日</div>
+              <div class="pkg-inc">住宿1晚 · 3正餐 · 溪谷徒步 · 专车接送</div>
+              <div class="pkg-row"><div class="pkg-p">¥1,680<small>/2大1小</small></div><div class="pkg-go">去看看</div></div>
+            </div>
+          </div>
+          <div class="as-action"><div class="as-btn as-btn-pri" onclick="showToast('进入套餐详情')"><span class="mi">inventory_2</span>查看详情</div><div class="as-btn as-btn-sec" onclick="showToast('对比其他套餐')"><span class="mi">compare_arrow</span>对比其他</div></div>
+        </div>
+      </div>
+      <div class="bubble bubble-r">那儿童票怎么算？<div class="bubble-time">14:32</div></div>
+      <div class="ai-structured">
+        <div class="as-h"><div class="as-av"><span class="mi">auto_awesome</span></div><div class="as-n">AI 智能管家<span class="as-ai">AI</span></div></div>
+        <div class="as-body">
+          <div class="as-text">3 岁孩子 <b>免费</b>，套餐价格已包含 2 大 1 小。如果额外加床，民宿加收 <b>¥80/晚</b>。餐标方面，儿童餐单独制作，不含海鲜。</div>
+          <div class="as-row"><div class="as-row-ic"><span class="mi">verified_user</span></div><div class="as-row-b"><b>套餐价格</b>：¥1,680/2大1小（3岁儿童免费）</div></div>
+          <div class="as-row"><div class="as-row-ic"><span class="mi">hotel</span></div><div class="as-row-b"><b>加床</b>：¥80/晚（民宿现场收取）</div></div>
+          <div class="as-row"><div class="as-row-ic"><span class="mi">restaurant</span></div><div class="as-row-b"><b>儿童餐</b>：单独制作，不含海鲜</div></div>
+          <div class="as-action"><div class="as-btn as-btn-pri" onclick="showToast('进入下单页')"><span class="mi">shopping_cart</span>立即预订</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 场景2：退改规则 -->
+    <div id="scene-refund" style="display:none">
+      <div class="sys-msg"><span>2026-11-07 14:35</span></div>
+      <div class="bubble bubble-l">你好，关于退改规则，我可以帮你解答<br>请告诉我你的订单或套餐信息<div class="bubble-time">14:35</div></div>
+      <div class="bubble bubble-r">已核销2项的套餐想取消，能退多少？<div class="bubble-time">14:36</div></div>
+      <div class="ai-thinking">
+        <div class="ai-think-h"><div class="ai-think-av"><span class="mi">auto_awesome</span></div><div class="ai-think-n">AI 正在计算退款金额...</div></div>
+        <div class="ai-think-dots"><i></i><i></i><i></i></div>
+        <div class="ai-typing"><i></i><i></i><i></i></div>
+      </div>
+      <div class="ai-structured">
+        <div class="as-h"><div class="as-av"><span class="mi">auto_awesome</span></div><div class="as-n">AI 智能管家<span class="as-ai">AI</span></div></div>
+        <div class="as-body">
+          <div class="as-text">根据 <b>部分核销退款规则</b>，已核销项按供货价 ×1.2 扣除。以莫干山云端两日（实付 ¥1,680）为例：</div>
+          <div class="rule-card">
+            <div class="rc-t"><span class="mi">account_balance</span>退款计算</div>
+            <div class="rc-row"><span>订单实付</span><b>¥1,680</b></div>
+            <div class="rc-row warn"><span>已核销：山野午餐 ¥280×1.2</span><b>- ¥336</b></div>
+            <div class="rc-row warn"><span>已核销：专车接站 ¥180×1.2</span><b>- ¥216</b></div>
+            <div class="rc-row"><span>退款手续费</span><b>- ¥0（首退免手续费）</b></div>
+            <div class="rc-row" style="border-top:1px solid var(--line);margin-top:6px;padding-top:8px"><span>预计退款</span><b style="font-size:16px;color:var(--acc)">¥1,128</b></div>
+          </div>
+          <div class="as-text" style="margin-top:10px">退款将在 <b>3 个工作日</b>内原路退回。如对计算有异议，可申请平台仲裁。</div>
+          <div class="as-action"><div class="as-btn as-btn-pri" onclick="showToast('进入取消退款页')"><span class="mi">block</span>申请取消</div><div class="as-btn as-btn-sec" onclick="showToast('进入仲裁页')"><span class="mi">gavel</span>申请仲裁</div></div>
+        </div>
+      </div>
+      <div class="bubble bubble-r">如果是因为天气原因取消呢？<div class="bubble-time">14:37</div></div>
+      <div class="ai-structured">
+        <div class="as-h"><div class="as-av"><span class="mi">auto_awesome</span></div><div class="as-n">AI 智能管家<span class="as-ai">AI</span></div></div>
+        <div class="as-body">
+          <div class="as-text">因 <b>恶劣天气</b>（台风、暴雨、暴雪等）导致的取消：</div>
+          <div class="as-row"><div class="as-row-ic"><span class="mi">check_circle</span></div><div class="as-row-b"><b style="color:var(--ok)">已核销项</b>：按供货价原值扣除（不乘1.2）</div></div>
+          <div class="as-row"><div class="as-row-ic"><span class="mi">check_circle</span></div><div class="as-row-b"><b style="color:var(--ok)">退款手续费</b>：<b>全免</b></div></div>
+          <div class="as-row"><div class="as-row-ic"><span class="mi">event_available</span></div><div class="as-row-b"><b>改期</b>：免费改期一次，不限日期</div></div>
+          <div class="as-text" style="margin-top:8px">天气原因取消需提供 <b>气象部门预警截图</b> 或 <b>航班取消通知</b>。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 场景3：预约问题 -->
+    <div id="scene-booking" style="display:none">
+      <div class="sys-msg"><span>2026-11-07 14:40</span></div>
+      <div class="bubble bubble-l">关于预约，我可以帮你确认时段、代约、或解答规则<div class="bubble-time">14:40</div></div>
+      <div class="bubble bubble-r">星空围炉晚宴需要提前多久预约？<div class="bubble-time">14:41</div></div>
+      <div class="ai-structured">
+        <div class="as-h"><div class="as-av"><span class="mi">auto_awesome</span></div><div class="as-n">AI 智能管家<span class="as-ai">AI</span></div></div>
+        <div class="as-body">
+          <div class="as-text"><b>星空围炉晚宴</b>（竹里馆·山野食堂）需要提前 <b>4 小时</b>预约，原因：</div>
+          <div class="as-row"><div class="as-row-ic"><span class="mi">event_busy</span></div><div class="as-row-b"><b>备料要求</b>：围炉烤全羊需提前备料，4 小时是最低准备时间</div></div>
+          <div class="as-row"><div class="as-row-ic"><span class="mi">group</span></div><div class="as-row-b"><b>容量限制</b>：每场限 4 组（16人），先约先得</div></div>
+          <div class="as-row"><div class="as-row-ic"><span class="mi">schedule</span></div><div class="as-row-b"><b>时段</b>：19:00-21:00（星空场）/ 21:00-23:00（深夜场）</div></div>
+          <div class="as-action"><div class="as-btn as-btn-pri" onclick="showToast('打开预约发起页')"><span class="mi">event_available</span>立即预约</div><div class="as-btn as-btn-sec" onclick="showToast('管家代约')"><span class="mi">support_agent</span>管家代约</div></div>
+        </div>
+      </div>
+      <div class="bubble bubble-r">我现在还没到，可以先预约吗？<div class="bubble-time">14:42</div></div>
+      <div class="ai-structured">
+        <div class="as-h"><div class="as-av"><span class="mi">auto_awesome</span></div><div class="as-n">AI 智能管家<span class="as-ai">AI</span></div></div>
+        <div class="as-body">
+          <div class="as-text">可以的。预约 <b>不要求已到店</b>，只要在出行日期前完成预约即可。</div>
+          <div class="as-row"><div class="as-row-ic"><span class="mi">check_circle</span></div><div class="as-row-b"><b style="color:var(--ok)">提前预约</b>：出行前 7 天内预约，时段选择更充裕</div></div>
+          <div class="as-row"><div class="as-row-ic"><span class="mi">alarm</span></div><div class="as-row-b"><b>提醒</b>：预约成功后，服务前 2 小时会推送提醒</div></div>
+          <div class="as-row"><div class="as-row-ic"><span class="mi">edit</span></div><div class="as-row-b"><b>改期</b>：商家确认前可随时改期，确认后需商家同意</div></div>
+          <div class="as-action"><div class="as-btn as-btn-pri" onclick="showToast('打开预约发起页')"><span class="mi">event_available</span>现在预约</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 场景4：对比推荐 -->
+    <div id="scene-compare" style="display:none">
+      <div class="sys-msg"><span>2026-11-07 14:45</span></div>
+      <div class="bubble bubble-l">我可以帮你对比套餐，从价格、内容、适合人群等维度分析<div class="bubble-time">14:45</div></div>
+      <div class="bubble bubble-r">莫干山和东极岛哪个更适合带小孩？<div class="bubble-time">14:46</div></div>
+      <div class="ai-thinking">
+        <div class="ai-think-h"><div class="ai-think-av"><span class="mi">auto_awesome</span></div><div class="ai-think-n">AI 正在对比两个套餐...</div></div>
+        <div class="ai-think-dots"><i></i><i></i><i></i></div>
+        <div class="ai-typing"><i></i><i></i><i></i></div>
+      </div>
+      <div class="ai-structured">
+        <div class="as-h"><div class="as-av"><span class="mi">auto_awesome</span></div><div class="as-n">AI 智能管家<span class="as-ai">AI</span></div></div>
+        <div class="as-body">
+          <div class="as-text">针对 <b>带小孩</b> 的需求，我对比了两个套餐：</div>
+          <div style="margin-top:12px">
+            <div class="as-row" style="margin-bottom:8px"><div class="as-row-ic" style="background:#E4F2F0"><span class="mi" style="color:#0C6B61;font-size:13px">forest</span></div><div class="as-row-b"><b>莫干山云海亲子两日</b> · ¥1,680<br>✅ 溪谷徒步有专人带，2岁以上可参与<br>✅ 午餐有儿童餐，可备注过敏<br>✅ 民宿可加儿童床<br>⚠️ 山区气温变化大，需带外套</div></div>
+            <div class="as-row"><div class="as-row-ic" style="background:#E3F1FA"><span class="mi" style="color:#0A6291;font-size:13px">ocean</span></div><div class="as-row-b"><b>东极岛听海两日</b> · ¥1,580<br>✅ 含船票，行程轻松<br>✅ 海鲜新鲜，适合大人<br>⚠️ 赶海活动不适合3岁以下<br>⚠️ 需坐船2小时，儿童可能不适</div></div>
+          </div>
+          <div class="as-text" style="margin-top:10px;padding:10px;background:var(--pri-l);border-radius:var(--r-sm);border-left:3px solid var(--pri)">
+            <b>AI 建议</b>：3 岁孩子首选 <b>莫干山</b>。徒步有专人带、儿童设施完善、行程节奏可控。东极岛适合 5 岁以上、喜欢海洋探险的孩子。
+          </div>
+          <div class="as-action"><div class="as-btn as-btn-pri" onclick="showToast('进入莫干山套餐')"><span class="mi">forest</span>莫干山</div><div class="as-btn as-btn-sec" onclick="showToast('进入东极岛套餐')"><span class="mi">waves</span>东极岛</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 场景5：行程建议 -->
+    <div id="scene-weather" style="display:none">
+      <div class="sys-msg"><span>2026-11-07 14:50</span></div>
+      <div class="bubble bubble-l">根据你的偏好和天气，我可以推荐今天适合的活动<div class="bubble-time">14:50</div></div>
+      <div class="bubble bubble-r">明天在莫干山，天气怎么样？有什么推荐？<div class="bubble-time">14:51</div></div>
+      <div class="ai-thinking">
+        <div class="ai-think-h"><div class="ai-think-av"><span class="mi">auto_awesome</span></div><div class="ai-think-n">AI 正在查询天气并推荐行程...</div></div>
+        <div class="ai-think-dots"><i></i><i></i><i></i></div>
+        <div class="ai-typing"><i></i><i></i><i></i></div>
+      </div>
+      <div class="ai-structured">
+        <div class="as-h"><div class="as-av"><span class="mi">auto_awesome</span></div><div class="as-n">AI 智能管家<span class="as-ai">AI</span></div></div>
+        <div class="as-body">
+          <div class="as-text"><b>明天（11/8）莫干山天气</b>：晴，8-16℃，风力 3 级</div>
+          <div class="rule-card" style="border-left-color:var(--acc)">
+            <div class="rc-t"><span class="mi">wb_sunny</span>明日行程建议</div>
+            <div class="rc-row"><span>09:00</span><b>专车接站 · 适合</b></div>
+            <div class="rc-row"><span>12:00</span><b>山野午餐 · 适合</b></div>
+            <div class="rc-row"><span>15:00</span><b style="color:var(--ok)">溪谷徒步 · 非常适合</b><br><small style="font-weight:600;color:var(--tx3)">晴好天气，山谷光影最美</small></div>
+            <div class="rc-row"><span>19:00</span><b style="color:var(--acc)">星空围炉晚宴 · 需预约</b></div>
+          </div>
+          <div class="as-text" style="margin-top:10px">📋 <b>注意事项</b>：早晚温差 8℃，建议带一件薄外套。溪谷徒步强度低，3 岁孩子可以自己走。</div>
+          <div class="as-action"><div class="as-btn as-btn-pri" onclick="showToast('预约星空晚宴')"><span class="mi">event_available</span>预约晚宴</div><div class="as-btn as-btn-sec" onclick="showToast('查看行程助手')"><span class="mi">timeline</span>查看行程</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 快捷问题 -->
+  <div class="quick-q">
+    <div class="qq" onclick="quickAsk('哪个套餐适合亲子？')"><span class="mi">child_care</span>亲子推荐</div>
+    <div class="qq" onclick="quickAsk('退改规则是什么？')"><span class="mi">undo</span>退改规则</div>
+    <div class="qq" onclick="quickAsk('怎么预约服务？')"><span class="mi">event_available</span>预约服务</div>
+    <div class="qq" onclick="quickAsk('帮我推荐一个套餐')"><span class="mi">autorenew</span>推荐套餐</div>
+    <div class="qq" onclick="quickAsk('天气不好怎么办？')"><span class="mi">wb_cloudy</span>天气应对</div>
+  </div>
+
+  <!-- 输入区 -->
+  <div class="input-area">
+    <input id="msgInput" placeholder="问 AI 任何关于度假的问题..." onkeydown="if(event.key==='Enter')sendMsg()">
+    <div class="send-btn" onclick="sendMsg()"><span class="mi">send</span></div>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+<script>
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2400)}
+function openChat(){document.getElementById('chatPanel').classList.add('show');document.getElementById('fab').classList.add('hide');document.getElementById('bgPage').style.opacity='.3';}
+function closeChat(){document.getElementById('chatPanel').classList.remove('show');document.getElementById('fab').classList.remove('hide');document.getElementById('bgPage').style.opacity='1';}
+function loadScene(scene){
+  document.querySelectorAll('.scene-tab').forEach(function(t){t.classList.remove('on')});
+  event.currentTarget.classList.add('on');
+  document.querySelectorAll('#chatBody > div[id^="scene-"]').forEach(function(d){d.style.display='none'});
+  document.getElementById('scene-'+scene).style.display='block';
+}
+function quickAsk(msg){document.getElementById('msgInput').value=msg;sendMsg();}
+function sendMsg(){
+  var input=document.getElementById('msgInput');
+  var v=input.value.trim();
+  if(!v)return;
+  var body=document.getElementById('chatBody');
+  var div=document.createElement('div');
+  div.className='bubble bubble-r';
+  div.innerHTML=v+'<div class="bubble-time">刚刚</div>';
+  // 插入到当前可见场景的最后
+  var visibleScene=document.querySelector('#chatBody > div[id^="scene-"]:not([style*="none"])');
+  if(visibleScene){visibleScene.appendChild(div);}else{body.appendChild(div);}
+  input.value='';
+  body.scrollTop=body.scrollHeight;
+  setTimeout(function(){
+    var thinking=document.createElement('div');
+    thinking.className='ai-thinking';
+    thinking.innerHTML='<div class="ai-think-h"><div class="ai-think-av"><span class="mi">auto_awesome</span></div><div class="ai-think-n">AI 正在思考...</div></div><div class="ai-think-dots"><i></i><i></i><i></i></div><div class="ai-typing"><i></i><i></i><i></i></div>';
+    if(visibleScene){visibleScene.appendChild(thinking);}else{body.appendChild(thinking);}
+    body.scrollTop=body.scrollHeight;
+    setTimeout(function(){
+      thinking.remove();
+      var reply=document.createElement('div');
+      reply.className='ai-structured';
+      reply.innerHTML='<div class="as-h"><div class="as-av"><span class="mi">auto_awesome</span></div><div class="as-n">AI 智能管家<span class="as-ai">AI</span></div></div><div class="as-body"><div class="as-text">收到你的问题，我在查询相关信息。稍后为你提供详细解答～</div><div class="as-action"><div class="as-btn as-btn-sec" onclick="showToast(\'联系人工管家\')"><span class="mi">support_agent</span>转人工管家</div></div></div>';
+      if(visibleScene){visibleScene.appendChild(reply);}else{body.appendChild(reply);}
+      body.scrollTop=body.scrollHeight;
+    },2000);
+  },500);
+}
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+
+<script>
+
+(function(){
+  YX.next('AI 结果处置',[
+    {label:'查看回答依据',fn:function(){YX.toast('依据：订单快照 + 共享池余量 + 主题库 v3');}},
+    {label:'转人工管家',fn:function(){YX.toast('已转人工 · 携带本轮对话与订单上下文','ok');}},
+    {label:'标记回答不准',fn:function(){YX.toast('已记录反馈 · 进入 AI 评测队列');}}
+  ],'#yxAiHint');
+})();
+
+</script>
+</body>
+</html>

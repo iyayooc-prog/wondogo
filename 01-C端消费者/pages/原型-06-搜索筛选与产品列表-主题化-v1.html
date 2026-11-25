@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · 搜索筛选与产品列表（P2 / P3 主题化 v1）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+/* ============================================================
+   P2 搜索与筛选 + P3 产品列表 · 主题化 v1
+   骨架中性（导航/背景/排序栏/筛选面板/按钮）
+   产品卡内部 = 该产品的主题色（列表是多主题混排的主战场）
+   ============================================================ */
+:root{
+  --bg:#F4F6F5; --card:#fff; --tx:#1B2E2C; --tx2:#5E7370; --tx3:#9BAEAB;
+  --line:#E8EFEE; --line2:#F2F6F5;
+  --pri:#4A5D59; --pri-d:#33423F; --pri-l:#EDF1F0; --pri-xl:#F6F8F7;
+  --acc:#FF6B4A; --acc-l:#FFEFEB; --gold:#C9952B;
+  --r-sm:10px; --r-md:16px; --r-lg:22px; --r-full:999px;
+  --sh-s:0 2px 10px rgba(27,46,44,.05); --sh-m:0 6px 22px rgba(27,46,44,.08);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',Roboto,sans-serif;
+  --ease:cubic-bezier(.22,.75,.28,1);
+}
+[data-theme="ocean"]{--vt:#0E86C4;--vt-d:#0A6291;--vt-l:#E3F1FA;--vt-xl:#F2F9FD;--va:#FF7A59;--va-l:#FFF0EB;--g1a:#8FE0F0;--g1b:#2E9BD4;--g1c:#14689E;--g2a:#BFD9F2;--g2b:#6E9FD0;--g2c:#3F6E9E;--g3a:#A8E8DC;--g3b:#4FBFAE;--g3c:#2A8A80;--g4a:#FFE2B0;--g4b:#FFA96B;--g4c:#F0805A}
+[data-theme="forest"]{--vt:#12897C;--vt-d:#0C6B61;--vt-l:#E4F2F0;--vt-xl:#F1F8F7;--va:#FF7A59;--va-l:#FFF0EB;--g1a:#C6E8B0;--g1b:#6FBF7F;--g1c:#2E8B57;--g2a:#A8E0C8;--g2b:#4FB894;--g2c:#1E8367;--g3a:#D8E8C0;--g3b:#93C07A;--g3c:#5A8C46;--g4a:#FFE0B2;--g4b:#FFAE6B;--g4c:#E08A4A}
+[data-theme="heritage"]{--vt:#8A5A3B;--vt-d:#6B4229;--vt-l:#F4EAE2;--vt-xl:#FBF6F1;--va:#C0453A;--va-l:#FCEDEB;--g1a:#E8DCCB;--g1b:#BFA78A;--g1c:#8A6F52;--g2a:#D9CBB8;--g2b:#A98F6E;--g2c:#6E5842;--g3a:#E5C9A8;--g3b:#C9976A;--g3c:#9A6742;--g4a:#DCD6CC;--g4b:#9E968A;--g4c:#6B6459}
+[data-theme="grassland"]{--vt:#6FA22E;--vt-d:#547C20;--vt-l:#EDF5E1;--vt-xl:#F6FAF0;--va:#D9701F;--va-d:#C2410C;--va-l:#FFF2E6;--g1a:#DCF0A8;--g1b:#93C85A;--g1c:#5A9430;--g2a:#BFE8F5;--g2b:#79C0DC;--g2c:#3F8FB0;--g3a:#E8F2C0;--g3b:#B5D483;--g3c:#7CA84E;--g4a:#FFE9A8;--g4b:#FFC65C;--g4c:#E09A2E}
+[data-theme="snow"]{--vt:#4C7FA8;--vt-d:#35607F;--vt-l:#E8F1F8;--vt-xl:#F4F9FC;--va:#E8734A;--va-l:#FCEEE8;--g1a:#F0F7FC;--g1b:#BDD8EA;--g1c:#7FA8C8;--g2a:#E4EEF6;--g2b:#A9C6DC;--g2c:#6E92B0;--g3a:#EDF4FA;--g3b:#C2D8E8;--g3c:#8AAAC4;--g4a:#FFE0D0;--g4b:#F5A882;--g4c:#D4764E}
+[data-theme="city"]{--vt:#5A5BD0;--vt-d:#413FA8;--vt-l:#ECECFB;--vt-xl:#F6F6FD;--va:#FF5C8A;--va-l:#FFEDF3;--g1a:#CFCFFF;--g1b:#8A8AF0;--g1c:#5A5BD0;--g2a:#C9D8F5;--g2b:#8AA6E0;--g2c:#5A78C0;--g3a:#FFD3E2;--g3b:#FF92B4;--g3c:#E05A82;--g4a:#FFE3B8;--g4b:#FFBE6B;--g4c:#E0913A}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#dfe3e2;color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;padding-bottom:24px;box-shadow:0 0 40px rgba(0,0,0,.12)}
+.mi{font-family:'Material Icons'}
+.g1{background:linear-gradient(160deg,var(--g1a),var(--g1b) 52%,var(--g1c))}
+.g2{background:linear-gradient(160deg,var(--g2a),var(--g2b) 50%,var(--g2c))}
+.g3{background:linear-gradient(160deg,var(--g3a),var(--g3b) 52%,var(--g3c))}
+.g4{background:linear-gradient(160deg,var(--g4a),var(--g4b) 50%,var(--g4c))}
+.page{display:none}.page.on{display:block}
+
+/* ===== P2 搜索页 ===== */
+.sh{padding:12px 16px 8px;display:flex;align-items:center;gap:10px}
+.sh-back{cursor:pointer}.sh-back .mi{font-size:21px;color:var(--tx)}
+.sbox{flex:1;display:flex;align-items:center;gap:9px;background:#fff;border-radius:var(--r-full);padding:10px 15px;box-shadow:var(--sh-s)}
+.sbox .mi{font-size:17px;color:var(--pri)}
+.sbox input{flex:1;background:transparent;border:none;outline:none;font-size:13px;font-family:var(--sans);color:var(--tx);font-weight:600}
+.sbox input::placeholder{color:var(--tx3);font-weight:500}
+.sbox .clr{cursor:pointer;opacity:.5}.sbox .clr .mi{font-size:16px}
+.sh-go{font-size:13px;font-weight:800;color:var(--pri-d);cursor:pointer;padding:6px 4px}
+
+.sh-sec{padding:18px 16px 0}
+.sh-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sh-t{font-size:12.5px;font-weight:800;color:var(--tx)}
+.sh-a{font-size:11px;color:var(--tx3);cursor:pointer;display:flex;align-items:center;gap:3px;font-weight:700}
+.sh-a .mi{font-size:14px}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{padding:7px 13px;background:#fff;border-radius:var(--r-full);font-size:11.5px;color:var(--tx2);cursor:pointer;font-weight:600;box-shadow:var(--sh-s);transition:.18s;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag:hover{color:var(--pri-d);box-shadow:var(--sh-m)}
+.tag.hot::after{content:'热';font-size:8px;color:var(--acc);margin-left:4px;font-weight:800}
+.hist{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border-radius:var(--r-sm);margin-bottom:7px;cursor:pointer;box-shadow:var(--sh-s)}
+.hist .mi{font-size:15px;color:var(--tx3)}
+.hist-t{flex:1;font-size:12px;color:var(--tx);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist .del{cursor:pointer}.hist .del .mi{font-size:15px;color:var(--tx3)}
+
+/* 发现主题 */
+.themes-disc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.td{border-radius:var(--r-md);overflow:hidden;position:relative;height:86px;padding:12px;display:flex;flex-direction:column;justify-content:flex-end;cursor:pointer;transition:.2s}
+.td:hover{transform:translateY(-2px);box-shadow:var(--sh-m)}
+.td .mi.bg{position:absolute;top:-6px;right:-4px;font-size:56px;color:rgba(255,255,255,.35)}
+.td-n{position:relative;font-size:14px;font-weight:800;color:#fff;letter-spacing:.02em}
+.td-c{position:relative;font-size:9.5px;color:rgba(255,255,255,.85);margin-top:3px;font-weight:600}
+
+/* 联想 */
+.sug{background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);overflow:hidden;margin-top:10px;display:none}
+.sug.on{display:block}
+.sug-i{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line2);cursor:pointer}
+.sug-i:last-child{border-bottom:none}
+.sug-i .mi{font-size:15px;color:var(--tx3)}
+.sug-t{flex:1;font-size:12px;font-weight:600}
+.sug-t em{font-style:normal;color:var(--pri-d);font-weight:800}
+.sug-m{font-size:9.5px;color:var(--tx3);font-weight:600}
+
+/* ===== P3 列表页 ===== */
+.lh{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.lh-top{display:flex;align-items:center;gap:9px;padding:10px 14px}
+.lh-top .mi{font-size:19px;cursor:pointer;color:var(--tx)}
+.lh-sbox{flex:1;display:flex;align-items:center;gap:7px;background:var(--bg);border-radius:var(--r-full);padding:8px 13px;font-size:12px;font-weight:600}
+.lh-sbox .mi{font-size:15px;color:var(--pri)}
+.lh-sbox b{color:var(--pri-d);font-weight:800}
+.lh-sbox .mi.ic{margin-left:auto}
+
+/* 排序 tab */
+.sorts{display:flex;padding:0 8px;overflow-x:auto;scrollbar-width:none}
+.sorts::-webkit-scrollbar{display:none}
+.sort{flex-shrink:0;padding:11px 13px;font-size:12px;font-weight:700;color:var(--tx3);cursor:pointer;position:relative;display:flex;align-items:center;gap:2px}
+.sort.on{color:var(--pri-d);font-weight:800}
+.sort.on::after{content:'';position:absolute;left:13px;right:13px;bottom:4px;height:2.5px;background:var(--pri-d);border-radius:2px}
+.sort .mi{font-size:14px}
+
+/* 筛选条 */
+.fbar{display:flex;align-items:center;gap:6px;padding:9px 14px;border-top:1px solid var(--line2);overflow-x:auto;scrollbar-width:none}
+.fbar::-webkit-scrollbar{display:none}
+.fbtn{flex-shrink:0;padding:6px 12px;background:var(--bg);border-radius:var(--r-full);font-size:11px;font-weight:700;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:3px;border:1.5px solid transparent}
+.fbtn.on{background:var(--pri-l);color:var(--pri-d);border-color:var(--pri)}
+.fbtn .mi{font-size:13px}
+.fbtn.more{margin-left:auto;background:var(--pri-d);color:#fff;padding:6px 14px}
+.fcnt{display:inline-block;padding:0 5px;background:var(--acc);color:#fff;font-size:9px;border-radius:8px;font-weight:800}
+
+/* 结果统计 */
+.res-bar{padding:12px 14px 4px;display:flex;align-items:baseline;gap:7px}
+.res-bar b{font-size:17px;font-weight:800;color:var(--pri-d);letter-spacing:-.02em}
+.res-bar span{font-size:11px;color:var(--tx3);font-weight:600}
+.res-bar em{margin-left:auto;font-style:normal;font-size:10.5px;color:var(--pri-d);cursor:pointer;font-weight:700;text-decoration:underline}
+
+/* 产品卡（列表形态 · 主题作用域在卡内） */
+.plist{padding:10px 14px}
+.pcard{background:#fff;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-s);margin-bottom:12px;cursor:pointer;transition:.24s var(--ease)}
+.pcard:hover{box-shadow:var(--sh-m);transform:translateY(-2px)}
+.pcard:active{transform:scale(.99)}
+.pc-img{height:150px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.pc-img .mi{font-size:44px;color:rgba(255,255,255,.5);position:relative;z-index:2}
+.pc-scene{position:absolute;top:11px;left:11px;z-index:3;padding:4px 10px;background:rgba(255,255,255,.93);border-radius:var(--r-full);font-size:9.5px;font-weight:800;color:var(--vt-d);display:flex;align-items:center;gap:4px}
+.pc-scene i{width:7px;height:7px;border-radius:50%;background:var(--vt);display:block}
+.pc-fav{position:absolute;top:10px;right:10px;z-index:3;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pc-fav .mi{font-size:16px;color:var(--tx3)}
+.pc-fav.on .mi{color:var(--acc)}
+.pc-tk{position:absolute;bottom:0;left:0;right:0;z-index:3;padding:4px 11px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.42));display:flex;align-items:center;gap:5px;font-size:8.5px;font-weight:800;color:#fff;letter-spacing:.06em}
+.pc-tk i{width:8px;height:8px;border-radius:50%;background:var(--vt);border:1px solid rgba(255,255,255,.7);display:block}
+.pc-b{padding:14px 15px 15px}
+.pc-n{font-size:15px;font-weight:800;line-height:1.45;letter-spacing:-.01em}
+.pc-claim{font-size:11px;color:var(--tx2);margin-top:7px;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* 包含图标条 —— 列表页最关键的差异点 */
+.pc-inc{display:flex;align-items:center;gap:5px;margin-top:12px;padding:9px 10px;background:var(--vt-xl);border-radius:var(--r-sm);flex-wrap:wrap}
+.pc-inc i{display:inline-flex;align-items:center;gap:3px;font-size:9.5px;color:var(--vt-d);font-style:normal;font-weight:700}
+.pc-inc i .mi{font-size:13px;color:var(--vt)}
+.pc-inc s{margin-left:auto;font-size:9px;color:var(--tx3);text-decoration:none;font-weight:700}
+.pc-f{display:flex;align-items:flex-end;justify-content:space-between;margin-top:13px;padding-top:12px;border-top:1px dashed var(--line)}
+.pc-p{display:flex;align-items:baseline;gap:5px}
+.pc-p b{font-size:22px;font-weight:800;color:var(--va);letter-spacing:-.02em;line-height:1}
+.pc-p b small{font-size:11px;font-weight:700}
+.pc-p span{font-size:9.5px;color:var(--tx3);font-weight:600}
+.pc-p em{font-size:9.5px;color:var(--tx3);text-decoration:line-through;font-style:normal;font-weight:600}
+.pc-meta{text-align:right}
+.pc-rate{display:flex;align-items:center;gap:3px;font-size:11px;font-weight:800;color:var(--tx);justify-content:flex-end}
+.pc-rate .mi{font-size:13px;color:#FFB648}
+.pc-sold{font-size:9.5px;color:var(--tx3);margin-top:4px;font-weight:600}
+.pc-btn{margin-top:7px;padding:5px 13px;background:var(--va);color:#fff;border-radius:var(--r-full);font-size:10.5px;font-weight:800;display:inline-block}
+
+/* 骨架屏 */
+.skel{padding:10px 14px;display:none}
+.skel.on{display:block}
+.sk{background:linear-gradient(90deg,var(--line2) 25%,var(--line) 50%,var(--line2) 75%);background-size:200% 100%;animation:sh 1.4s infinite;border-radius:var(--r-sm)}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.sk-card{background:#fff;border-radius:var(--r-lg);overflow:hidden;margin-bottom:12px;box-shadow:var(--sh-s)}
+.sk-img{height:150px;border-radius:0}
+.sk-b{padding:14px 15px}
+.sk-l1{height:15px;width:70%;margin-bottom:11px}
+.sk-l2{height:11px;width:92%;margin-bottom:7px}
+.sk-l3{height:11px;width:60%;margin-bottom:15px}
+.sk-l4{height:32px;width:100%}
+
+/* 空状态 */
+.empty{display:none;padding:56px 24px;text-align:center}
+.empty.on{display:block}
+.empty-ic{width:82px;height:82px;margin:0 auto;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-s)}
+.empty-ic .mi{font-size:40px;color:var(--line)}
+.empty-t{font-size:15px;font-weight:800;margin-top:18px}
+.empty-d{font-size:11.5px;color:var(--tx3);margin-top:8px;line-height:1.8}
+.empty-btn{margin-top:18px;display:inline-block;padding:9px 20px;background:var(--pri-d);color:#fff;border-radius:var(--r-full);font-size:12px;font-weight:800;cursor:pointer}
+
+/* ===== 筛选抽屉 ===== */
+.mask{position:fixed;inset:0;background:rgba(27,46,44,.44);backdrop-filter:blur(2px);z-index:150;opacity:0;pointer-events:none;transition:.3s}
+.mask.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;bottom:0;left:50%;transform:translate(-50%,100%);width:100%;max-width:375px;background:#fff;border-radius:22px 22px 0 0;z-index:160;transition:.4s var(--ease);max-height:86vh;display:flex;flex-direction:column}
+.drawer.on{transform:translate(-50%,0)}
+.dw-h{padding:14px 18px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.dw-t{font-size:15px;font-weight:800}
+.dw-r{font-size:11.5px;color:var(--pri-d);cursor:pointer;font-weight:700}
+.dw-b{padding:16px 18px;overflow-y:auto;flex:1}
+.fg{margin-bottom:20px}
+.fg-t{font-size:12px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.fg-t small{font-size:10px;color:var(--tx3);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 14px;background:var(--bg);border-radius:var(--r-sm);font-size:11.5px;font-weight:700;color:var(--tx2);cursor:pointer;border:1.5px solid transparent;transition:.18s;display:flex;align-items:center;gap:5px}
+.chip:hover{background:var(--pri-l)}
+.chip.on{background:var(--pri-l);border-color:var(--pri);color:var(--pri-d)}
+.chip i{width:9px;height:9px;border-radius:50%;display:block}
+.chip .mi{font-size:13px}
+/* 价格滑杆 */
+.range-wrap{padding:0 4px}
+.range-val{display:flex;justify-content:space-between;font-size:11.5px;font-weight:800;color:var(--pri-d);margin-bottom:10px}
+.range-line{height:4px;background:var(--line);border-radius:2px;position:relative;margin:14px 0}
+.range-fill{position:absolute;height:100%;background:var(--pri);border-radius:2px;left:8%;right:20%}
+.range-hd{position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--pri);cursor:grab;box-shadow:var(--sh-s)}
+.range-tips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.range-tips span{padding:5px 11px;background:var(--bg);border-radius:var(--r-full);font-size:10.5px;font-weight:700;color:var(--tx2);cursor:pointer}
+.range-tips span.on{background:var(--pri-l);color:var(--pri-d)}
+/* 开关行 */
+.sw-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line2);font-size:12px;font-weight:700}
+.sw-row:last-child{border-bottom:none}
+.sw-row span{color:var(--tx2)}
+.sw-row small{display:block;color:var(--tx3);font-size:9.5px;margin-top:3px;font-weight:600}
+.sw{width:40px;height:22px;border-radius:var(--r-full);background:var(--line);position:relative;cursor:pointer;transition:.22s;flex-shrink:0}
+.sw.on{background:var(--pri)}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.22s;box-shadow:var(--sh-s)}
+.sw.on::after{left:20px}
+.dw-f{padding:13px 18px;border-top:1px solid var(--line);display:flex;gap:11px;align-items:center;background:#fff}
+.dw-f .sum{flex:1;font-size:11px;color:var(--tx3);font-weight:600}
+.dw-f .sum b{color:var(--pri-d);font-size:14px;font-weight:800}
+.btn-ghost{padding:12px 22px;background:var(--bg);color:var(--tx2);border-radius:var(--r-full);font-size:13px;font-weight:800;cursor:pointer}
+.btn-pri{padding:12px 26px;background:var(--pri-d);color:#fff;border-radius:var(--r-full);font-size:13px;font-weight:800;cursor:pointer;box-shadow:var(--sh-m)}
+
+/* 回到顶部 */
+.top-btn{position:fixed;bottom:24px;right:16px;width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:var(--sh-m);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:30;opacity:0;transition:.3s}
+.top-btn.on{opacity:1}
+.top-btn .mi{font-size:20px;color:var(--pri-d)}
+
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);padding:13px 22px;background:rgba(27,46,44,.92);color:#fff;border-radius:14px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;max-width:290px;font-weight:600;line-height:1.7}
+.toast.show{opacity:1}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+</style>
+</head>
+<body>
+<div class="app" data-theme="neutral">
+
+  <!-- ========== P2 搜索页 ========== -->
+  <div class="page on" id="pgSearch">
+    <div class="sh">
+      <span class="mi sh-back" onclick="showToast('返回首页')">arrow_back</span>
+      <div class="sbox">
+        <span class="mi">search</span>
+        <input id="q" placeholder="搜目的地、主题、商家或套餐名" oninput="onType(this.value)">
+        <span class="mi clr" onclick="clearQ()">cancel</span>
+      </div>
+      <div class="sh-go" onclick="doSearch()">搜索</div>
+    </div>
+
+    <!-- 联想 -->
+    <div class="sug" id="sug" style="margin:0 16px"></div>
+
+    <!-- 历史 -->
+    <div class="sh-sec" id="secHist">
+      <div class="sh-h">
+        <div class="sh-t">最近搜索</div>
+        <div class="sh-a" onclick="showToast('已清空搜索历史','warn')"><span class="mi">delete_sweep</span>清空</div>
+      </div>
+      <div class="hist" onclick="setQ('莫干山 亲子')"><span class="mi">history</span><div class="hist-t">莫干山 亲子</div><span class="mi del" onclick="event.stopPropagation();showToast('已删除')">close</span></div>
+      <div class="hist" onclick="setQ('东极岛 海钓')"><span class="mi">history</span><div class="hist-t">东极岛 海钓</div><span class="mi del" onclick="event.stopPropagation();showToast('已删除')">close</span></div>
+      <div class="hist" onclick="setQ('团建 20 人以上')"><span class="mi">history</span><div class="hist-t">团建 20 人以上</div><span class="mi del" onclick="event.stopPropagation();showToast('已删除')">close</span></div>
+    </div>
+
+    <!-- 热门搜索 -->
+    <div class="sh-sec">
+      <div class="sh-h"><div class="sh-t">热门搜索</div></div>
+      <div class="tags">
+        <span class="tag hot" onclick="setQ('莫干山')">莫干山</span>
+        <span class="tag hot" onclick="setQ('东极岛')">东极岛</span>
+        <span class="tag" onclick="setQ('亲子 带娃不累')">亲子 带娃不累</span>
+        <span class="tag hot" onclick="setQ('团建 包场')">团建 包场</span>
+        <span class="tag" onclick="setQ('周末 两天一夜')">周末 两天一夜</span>
+        <span class="tag" onclick="setQ('滑雪')">滑雪</span>
+        <span class="tag" onclick="setQ('求婚 民宿')">求婚 民宿</span>
+        <span class="tag" onclick="setQ('宏村 写生')">宏村 写生</span>
+      </div>
+    </div>
+
+    <!-- 按主题发现 -->
+    <div class="sh-sec">
+      <div class="sh-h">
+        <div class="sh-t">按主题发现</div>
+        <div class="sh-a" onclick="showToast('查看主题库')">主题库 <span class="mi">chevron_right</span></div>
+      </div>
+      <div class="themes-disc">
+        <div class="td g1" data-theme="ocean" onclick="byTheme('ocean')"><span class="mi bg">sailing</span><div class="td-n">海洋</div><div class="td-c">42 个打包产品</div></div>
+        <div class="td g1" data-theme="forest" onclick="byTheme('forest')"><span class="mi bg">filter_hdr</span><div class="td-n">山林</div><div class="td-c">38 个打包产品</div></div>
+        <div class="td g1" data-theme="heritage" onclick="byTheme('heritage')"><span class="mi bg">temple_buddhist</span><div class="td-n">古镇</div><div class="td-c">21 个打包产品</div></div>
+        <div class="td g1" data-theme="grassland" onclick="byTheme('grassland')"><span class="mi bg">park</span><div class="td-n">草原</div><div class="td-c">16 个打包产品</div></div>
+        <div class="td g1" data-theme="snow" onclick="byTheme('snow')"><span class="mi bg">ac_unit</span><div class="td-n">雪域温泉</div><div class="td-c">14 个打包产品</div></div>
+        <div class="td g1" data-theme="city" onclick="byTheme('city')"><span class="mi bg">location_city</span><div class="td-n">城市</div><div class="td-c">29 个打包产品</div></div>
+      </div>
+    </div>
+    <div style="height:26px"></div>
+  </div>
+
+  <!-- ========== P3 产品列表页 ========== -->
+  <div class="page" id="pgList">
+    <div class="lh">
+      <div class="lh-top">
+        <span class="mi" onclick="backSearch()">arrow_back</span>
+        <div class="lh-sbox" onclick="backSearch()">
+          <span class="mi">search</span>
+          <b id="lhQ">莫干山</b>
+          <span class="mi ic">tune</span>
+        </div>
+      </div>
+      <div class="sorts">
+        <div class="sort on" onclick="pickSort(this,'reco')">综合推荐</div>
+        <div class="sort" onclick="pickSort(this,'sold')">销量</div>
+        <div class="sort" onclick="pickSort(this,'rate')">好评</div>
+        <div class="sort" onclick="pickSort(this,'plow')">价格<span class="mi">arrow_downward</span></div>
+        <div class="sort" onclick="pickSort(this,'new')">新品</div>
+      </div>
+      <div class="fbar" id="fbar"></div>
+    </div>
+
+    <div class="res-bar">
+      <b id="resCnt">0</b><span>个打包产品</span>
+      <span id="resNote">· 按主题混排，每个产品的主题色跟随自身</span>
+      <em onclick="clearF()">清空筛选</em>
+    </div>
+
+    <!-- 骨架屏 -->
+    <div class="skel on" id="skel">
+      <div class="sk-card"><div class="sk sk-img"></div><div class="sk-b"><div class="sk sk-l1"></div><div class="sk sk-l2"></div><div class="sk sk-l3"></div><div class="sk sk-l4"></div></div></div>
+      <div class="sk-card"><div class="sk sk-img"></div><div class="sk-b"><div class="sk sk-l1"></div><div class="sk sk-l2"></div><div class="sk sk-l3"></div><div class="sk sk-l4"></div></div></div>
+    </div>
+
+    <div class="plist" id="plist"></div>
+
+    <div class="empty" id="empty">
+      <div class="empty-ic"><span class="mi">search_off</span></div>
+      <div class="empty-t">没有找到符合的产品</div>
+      <div class="empty-d">试试放宽条件：换目的地、扩大价格区间，<br>或者去掉「需预约」筛选项</div>
+      <div class="empty-btn" onclick="clearF()">清空筛选条件</div>
+    </div>
+
+    <div style="text-align:center;font-size:10.5px;color:var(--tx3);padding:16px 0;font-weight:700">— 已加载全部结果 —</div>
+  </div>
+</div>
+
+<div class="top-btn" id="topBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="mi">keyboard_arrow_up</span></div>
+
+<!-- 筛选抽屉 -->
+<div class="mask" id="mask" onclick="closeDw()"></div>
+<div class="drawer" id="drawer">
+  <div class="dw-h">
+    <div class="dw-t">筛选条件</div>
+    <div class="dw-r" onclick="clearF()">重置全部</div>
+  </div>
+  <div class="dw-b">
+    <div class="fg">
+      <div class="fg-t">目的地<span>可多选</span></div>
+      <div class="chips" data-k="dest">
+        <span class="chip on" data-v="莫干山">莫干山</span><span class="chip" data-v="东极岛">东极岛</span>
+        <span class="chip" data-v="安吉">安吉</span><span class="chip" data-v="宏村">宏村</span>
+        <span class="chip" data-v="千岛湖">千岛湖</span><span class="chip" data-v="呼伦贝尔">呼伦贝尔</span>
+        <span class="chip" data-v="长白山">长白山</span><span class="chip" data-v="上海">上海</span>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="fg-t">主题<span>产品级 theme_key</span></div>
+      <div class="chips" data-k="theme">
+        <span class="chip" data-v="ocean"><i style="background:#0E86C4"></i>海洋</span>
+        <span class="chip" data-v="forest"><i style="background:#12897C"></i>山林</span>
+        <span class="chip" data-v="heritage"><i style="background:#8A5A3B"></i>古镇</span>
+        <span class="chip" data-v="grassland"><i style="background:#6FA22E"></i>草原</span>
+        <span class="chip" data-v="snow"><i style="background:#4C7FA8"></i>雪域温泉</span>
+        <span class="chip" data-v="city"><i style="background:#5A5BD0"></i>城市</span>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="fg-t">行程天数</div>
+      <div class="chips" data-k="days">
+        <span class="chip" data-v="1">一日往返</span><span class="chip on" data-v="2">两天一夜</span>
+        <span class="chip" data-v="3">三天两夜</span><span class="chip" data-v="4">四日以上</span>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="fg-t">适用人群<span>影响儿童床型与餐标</span></div>
+      <div class="chips" data-k="scene">
+        <span class="chip" data-v="亲子"><span class="mi">family_restroom</span>家庭亲子</span>
+        <span class="chip" data-v="团建"><span class="mi">apartment</span>公司团建</span>
+        <span class="chip" data-v="情侣"><span class="mi">favorite</span>情侣闺蜜</span>
+        <span class="chip" data-v="定制"><span class="mi">diamond</span>定制小团</span>
+        <span class="chip" data-v="福利"><span class="mi">redeem</span>企业福利</span>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="fg-t">价格区间<span>每人</span></div>
+      <div class="range-wrap">
+        <div class="range-val"><span>¥500</span><span>¥3,000</span></div>
+        <div class="range-line">
+          <div class="range-fill"></div>
+          <div class="range-hd" style="left:8%"></div>
+          <div class="range-hd" style="left:80%"></div>
+        </div>
+        <div class="range-tips">
+          <span onclick="rtip(this)">¥1,000 以内</span>
+          <span class="on" onclick="rtip(this)">¥1,000-2,000</span>
+          <span onclick="rtip(this)">¥2,000-3,000</span>
+          <span onclick="rtip(this)">¥3,000 以上</span>
+        </div>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="fg-t">服务与保障</div>
+      <div class="sw-row"><span>含专车接送<small>高铁站/机场直达</small></span><div class="sw on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="sw-row"><span>含管家服务<small>1 对 1 全程跟进</small></span><div class="sw on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="sw-row"><span>支持企业对公与专票<small>团建订单必填</small></span><div class="sw" onclick="this.classList.toggle('on')"></div></div>
+      <div class="sw-row"><span>礼品卡额度可用<small>企业福利兑换</small></span><div class="sw" onclick="this.classList.toggle('on')"></div></div>
+      <div class="sw-row"><span>隐藏需预约产品<small>怕麻烦可不选</small></span><div class="sw" onclick="this.classList.toggle('on')"></div></div>
+    </div>
+    <div class="fg">
+      <div class="fg-t">出发日期</div>
+      <div class="chips" data-k="date">
+        <span class="chip" data-v="weekend"><span class="mi">event</span>本周末</span>
+        <span class="chip" data-v="next"><span class="mi">event</span>下周</span>
+        <span class="chip" data-v="double11"><span class="mi">local_offer</span>双 11 期间</span>
+        <span class="chip" data-v="any"><span class="mi">date_range</span>不限</span>
+      </div>
+    </div>
+  </div>
+  <div class="dw-f">
+    <div class="sum">符合条件 <b id="dwCnt">0</b> 个产品</div>
+    <div class="btn-ghost" onclick="closeDw()">取消</div>
+    <div class="btn-pri" onclick="applyF()">确定</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+/* ===== 产品库：每个产品自带 theme_key ===== */
+const LIB={ocean:{n:'海洋',sw:'#0E86C4'},forest:{n:'山林',sw:'#12897C'},heritage:{n:'古镇',sw:'#8A5A3B'},
+ grassland:{n:'草原',sw:'#6FA22E'},snow:{n:'雪域温泉',sw:'#4C7FA8'},city:{n:'城市',sw:'#5A5BD0'}};
+const ICN={住:'hotel',餐:'restaurant',玩:'hiking',行:'local_taxi',服:'support_agent'};
+
+const DATA=[
+ {t:'莫干山云端两日',th:'forest',dest:'莫干山',d:2,scene:['亲子','情侣'],p:1680,old:3280,sold:326,rate:'4.9',ic:'filter_hdr',inc:[['住','云海大床房1晚'],['餐','3顿正餐'],['玩','溪谷徒步'],['行','专车接送']],claim:'住进海拔700米的云海民宿，清晨被鸟叫醒，白天走溪谷、夜里围炉',fav:false,rsv:3,pick:1},
+ {t:'东极岛听海两日',th:'ocean',dest:'东极岛',d:2,scene:['亲子','情侣'],p:1580,old:2960,sold:218,rate:'4.9',ic:'sailing',inc:[['住','海景石屋1晚'],['餐','3顿海鲜'],['玩','出海海钓'],['行','船票+接送']],claim:'推开窗海就在脚下，钓上来的鱼晚上就是你桌上那道菜',fav:true,rsv:4,pick:2},
+ {t:'上海屋顶周末两日',th:'city',dest:'上海',d:2,scene:['情侣','闺蜜'],p:1980,old:3540,sold:287,rate:'4.8',ic:'location_city',inc:[['住','江景套房1晚'],['餐','餐酒晚宴'],['玩','City Walk'],['行','专车接送']],claim:'傍晚在27层屋顶看夕阳掉进黄浦江，第二天走一条游客不会去的马路',fav:false,rsv:4,pick:3},
+ {t:'徽州古村慢活三日',th:'heritage',dest:'宏村',d:3,scene:['亲子','定制'],p:2280,old:3860,sold:164,rate:'4.8',ic:'temple_buddhist',inc:[['住','古宅木楼2晚'],['餐','家宴4次'],['玩','徽墨手作'],['行','专车接送']],claim:'白墙黛瓦之间把日子过慢一点，跟非遗师傅描一帖徽墨',fav:false,rsv:5,pick:5},
+ {t:'呼伦贝尔草原四日',th:'grassland',dest:'呼伦贝尔',d:4,scene:['亲子','团建'],p:3280,old:5480,sold:142,rate:'4.9',ic:'park',inc:[['住','蒙古包2晚'],['餐','草原餐6次'],['玩','骑马穿越'],['行','越野车4天']],claim:'把车停下，让草原接管视线，夜里躺在蒙古包外数银河',fav:false,rsv:4,pick:6},
+ {t:'长白山雪季三日',th:'snow',dest:'长白山',d:3,scene:['亲子','情侣'],p:2880,old:4680,sold:96,rate:'4.9',ic:'ac_unit',inc:[['住','雪场酒店2晚'],['餐','餐食4次'],['玩','滑雪教学'],['行','机场接送']],claim:'零下二十度泡进四十度温泉，头发结冰身体是热的',fav:false,rsv:5,pick:9},
+ {t:'安吉竹海亲子三日',th:'forest',dest:'安吉',d:3,scene:['亲子'],p:2280,old:3980,sold:178,rate:'4.8',ic:'park',inc:[['住','竹林民宿2晚'],['餐','5次正餐'],['玩','采茶制茶'],['行','专车接送']],claim:'孩子在竹林里疯跑三天，大人终于能坐下来喝完茶',fav:false,rsv:3,pick:4},
+ {t:'嵊泗列岛亲子赶海三日',th:'ocean',dest:'嵊泗',d:3,scene:['亲子'],p:2080,old:3560,sold:132,rate:'4.8',ic:'beach_access',inc:[['住','海景房2晚'],['餐','5次海鲜'],['玩','赶海挖蛤'],['行','船票+接送']],claim:'低潮时整片滩涂都是孩子的，挖半桶蛤蜊能开心一路',fav:false,rsv:4,pick:11},
+ {t:'安吉营地包场团建',th:'forest',dest:'安吉',d:2,scene:['团建'],p:680,old:1280,sold:46,rate:'4.9',ic:'camping',inc:[['住','营地2晚'],['餐','团队晚宴'],['玩','户外拓展'],['行','大巴包车']],claim:'30人整片营地包场，HR不用现场点名对账',fav:false,rsv:5,pick:20},
+ {t:'乌镇夜游水乡两日',th:'heritage',dest:'乌镇',d:2,scene:['情侣','闺蜜'],p:1580,old:2760,sold:118,rate:'4.7',ic:'night_shelter',inc:[['住','临水客栈1晚'],['餐','家宴3次'],['玩','夜游水巷'],['行','专车接送']],claim:'入夜之后灯笼把水巷点亮，这才是古镇的正确打开方式',fav:false,rsv:3,pick:15},
+ {t:'千岛湖游艇日落两日',th:'ocean',dest:'千岛湖',d:2,scene:['情侣','定制'],p:2380,old:4180,sold:88,rate:'4.9',ic:'sailing',inc:[['住','湖景房1晚'],['餐','游艇晚宴'],['玩','双人SPA'],['行','专车接送']],claim:'日落之后整片湖面属于你们两个',fav:true,rsv:3,pick:8},
+ {t:'乌兰布统摄影三日',th:'grassland',dest:'乌兰布统',d:3,scene:['定制','闺蜜'],p:2680,old:4580,sold:64,rate:'4.9',ic:'photo_camera',inc:[['住','草原民宿2晚'],['餐','5次正餐'],['玩','摄影向导'],['行','越野车']],claim:'日落把整片草原染成琥珀色，向导知道每个坡顶的机位',fav:false,rsv:4,pick:13},
+ {t:'上海城市定向赛团建一日',th:'city',dest:'上海',d:1,scene:['团建'],p:780,old:1380,sold:32,rate:'4.8',ic:'map',inc:[['玩','定向赛'],['餐','餐酒晚宴'],['服','活动执行'],['行','集合接送']],claim:'不开会，去城里走一条从没走过的路',fav:false,rsv:2,pick:30},
+ {t:'雾凇岛摄影两日',th:'snow',dest:'雾凇岛',d:2,scene:['定制','闺蜜'],p:1280,old:2260,sold:52,rate:'4.8',ic:'landscape',inc:[['住','农家火炕1晚'],['餐','4次正餐'],['玩','雾凇晨拍'],['行','专车接送']],claim:'雾凇要等，凌晨五点起来才看得到，向导来敲门',fav:false,rsv:3,pick:18},
+ {t:'莫干山围炉晚宴单项',th:'forest',dest:'莫干山',d:1,scene:['情侣','亲子'],p:460,old:780,sold:326,rate:'4.9',ic:'local_fire_department',inc:[['餐','8道菜'],['服','含桂花酒'],['玩','户外围炉']],claim:'柴火陶锅本地笋干，八道菜一季一换',fav:false,rsv:1,pick:99},
+ {t:'桐庐江畔自选两日',th:'forest',dest:'桐庐',d:2,scene:['情侣','亲子'],p:1080,old:1980,sold:96,rate:'4.7',ic:'water',inc:[['住','江景房1晚'],['餐','自选2次'],['玩','自选3项'],['行','专车接送']],claim:'基础包加自己挑餐和玩，行程由你说了算',fav:false,rsv:3,pick:12},
+ {t:'西递写生三日营',th:'heritage',dest:'西递',d:3,scene:['定制','亲子'],p:2580,old:4280,sold:38,rate:'4.9',ic:'palette',inc:[['住','古宅2晚'],['餐','家宴6次'],['玩','画师带队'],['行','专车接送']],claim:'本地画师带你画月沼，画具和装裱都在包里',fav:false,rsv:5,pick:17},
+ {t:'亚布力滑雪三日',th:'snow',dest:'亚布力',d:3,scene:['团建','定制'],p:2380,old:3980,sold:42,rate:'4.7',ic:'downhill_skiing',inc:[['住','雪场酒店2晚'],['餐','4次正餐'],['玩','全天雪票'],['行','机场接送']],claim:'把年会开到雪道上，出勤率100%',fav:false,rsv:4,pick:22}
+];
+
+let state={q:'莫干山',theme:[],dest:['莫干山'],days:['2'],scene:[],sort:'reco',hideRsv:false,接送:true,管家:true};
+let drawerSnapshot=null;
+
+function money(n){return n.toLocaleString()}
+function renderFbar(){
+  const chips=[
+    {k:'theme',t:'主题',v:state.theme.length?state.theme.map(x=>LIB[x].n).join('/'):'',cnt:state.theme.length},
+    {k:'dest',t:'目的地',v:state.dest.join(','),cnt:state.dest.length},
+    {k:'days',t:'天数',v:state.days.map(d=>d=='1'?'一日':d+'天'+(d=='1'?'':'')+'夜').join('/'),cnt:state.days.length},
+    {k:'scene',t:'人群',v:state.scene.join('/'),cnt:state.scene.length}
+  ];
+  document.getElementById('fbar').innerHTML=chips.map(c=>
+    `<span class="fbtn${c.cnt?' on':''}" onclick="openDw()">${c.t}${c.v?'：'+c.v:''}${c.cnt>1?`<span class="fcnt">${c.cnt}</span>`:''}<span class="mi">arrow_drop_down</span></span>`).join('')
+   +`<span class="fbtn${state.hideRsv?' on':''}" onclick="toggleQuick('hideRsv')">隐藏需预约</span>`
+   +`<span class="fbtn more" onclick="openDw()"><span class="mi">tune</span>筛选</span>`;
+}
+function filt(){
+  let list=DATA.filter(p=>{
+    if(state.theme.length&&!state.theme.includes(p.th))return false;
+    if(state.dest.length&&!state.dest.includes(p.dest))return false;
+    if(state.days.length&&!state.days.includes(String(p.d)))return false;
+    if(state.scene.length&&!state.scene.some(s=>p.scene.includes(s)||p.scene.includes('闺蜜'&&s=='情侣')))return false;
+    if(state.hideRsv&&p.rsv>0)return false;
+    const q=state.q.trim();
+    if(q&&q!=='莫干山'){ if(!(p.t.includes(q)||p.dest.includes(q)||p.claim.includes(q)||LIB[p.th].n.includes(q)))return false; }
+    return true;
+  });
+  const S=state.sort;
+  if(S=='sold')list.sort((a,b)=>b.sold-a.sold);
+  else if(S=='rate')list.sort((a,b)=>b.rate-a.rate);
+  else if(S=='plow')list.sort((a,b)=>a.p-b.p);
+  else if(S=='new')list.sort((a,b)=>a.pick-b.pick);
+  else list.sort((a,b)=>(b.sold*b.rate)-(a.sold*a.rate));
+  return list;
+}
+function renderList(){
+  const list=filt();
+  document.getElementById('resCnt').textContent=list.length;
+  document.getElementById('dwCnt').textContent=list.length;
+  document.getElementById('empty').classList.toggle('on',list.length===0);
+  document.getElementById('plist').innerHTML=list.map((p,i)=>{
+    const g=['g1','g2','g3','g4'][i%4];
+    return `<div class="pcard" data-theme="${p.th}" onclick="showToast('进入产品详情 · ${LIB[p.th].n}主题')">
+      <div class="pc-img ${g}">
+        <span class="mi">${p.ic}</span>
+        <div class="pc-scene"><i></i>${p.scene[0]}友好</div>
+        <div class="pc-fav" onclick="event.stopPropagation();fav(this)"><span class="mi">${p.fav?'favorite':'favorite_border'}</span></div>
+        <div class="pc-tk"><i></i>${LIB[p.th].n}主题 · theme_key=${p.th}</div>
+      </div>
+      <div class="pc-b">
+        <div class="pc-n">${p.t}</div>
+        <div class="pc-claim">${p.claim}</div>
+        <div class="pc-inc">${p.inc.map(x=>`<i><span class="mi">${ICN[x[0]]}</span>${x[1]}</i>`).join('')}<s>${p.d==1?'一日往返':p.d+'天'+(p.d-1)+'夜'}</s></div>
+        <div class="pc-f">
+          <div class="pc-p">
+            <b><small>¥</small>${money(p.p)}</b>
+            <span>${p.p<700?'/人':'起/2人'}</span>
+            <em>¥${money(p.old)}</em>
+          </div>
+          <div class="pc-meta">
+            <div class="pc-rate"><span class="mi">star</span>${p.rate} · ${p.sold} 单</div>
+            ${p.rsv>0?`<div class="pc-sold" style="color:var(--va)">${p.rsv} 项需预约</div>`:'<div class="pc-sold">无需预约</div>'}
+            <div class="pc-btn">立即预订</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function fav(el){el.classList.toggle('on');el.querySelector('.mi').textContent=el.classList.contains('on')?'favorite':'favorite_border';}
+/* 搜索页 */
+function onType(v){
+  state.q=v;
+  const box=document.getElementById('sug');
+  document.getElementById('secHist').style.display=v?'none':'block';
+  if(!v){box.classList.remove('on');return;}
+  const hit=DATA.filter(p=>p.t.includes(v)||p.dest.includes(v)||LIB[p.th].n.includes(v)).slice(0,4);
+  const extra=[{t:'莫干山 亲子',m:'目的地 + 人群'},{t:'团建 包场',m:'场景搜索'},{t:'海 岛',m:'模糊匹配'}].filter(x=>x.t.includes(v));
+  const all=hit.map(p=>({t:p.t,m:p.dest+' · '+LIB[p.th].n,m2:money(p.p)+' 起'})).concat(extra);
+  if(!all.length){box.classList.remove('on');return;}
+  box.innerHTML=all.map(x=>`<div class="sug-i" onclick="setQ('${x.t}')"><span class="mi">search</span><div class="sug-t">${x.t.replace(v,`<em>${v}</em>`)}</div><div class="sug-m">${x.m}</div></div>`).join('');
+  box.classList.add('on');
+}
+function setQ(v){document.getElementById('q').value=v;state.q=v;onType(v);}
+function clearQ(){document.getElementById('q').value='';state.q='';onType('');}
+function byTheme(k){state.theme=[k];goList();showToast('已按「'+LIB[k].n+'」主题筛选');}
+function doSearch(){if(!state.q.trim()){showToast('请输入搜索关键词','warn');return;}goList();}
+function goList(){
+  document.getElementById('pgSearch').classList.remove('on');
+  document.getElementById('pgList').classList.add('on');
+  document.getElementById('lhQ').textContent=state.q||'全部产品';
+  document.getElementById('mask').classList.remove('on');document.getElementById('drawer').classList.remove('on');
+  document.getElementById('skel').classList.add('on');
+  document.getElementById('plist').innerHTML='';document.getElementById('empty').classList.remove('on');
+  window.scrollTo(0,0);
+  setTimeout(()=>{document.getElementById('skel').classList.remove('on');renderFbar();renderList();syncChips();},700);
+}
+function backSearch(){
+  document.getElementById('pgList').classList.remove('on');
+  document.getElementById('pgSearch').classList.add('on');
+  document.getElementById('q').value=state.q;onType(state.q);
+  window.scrollTo(0,0);
+}
+function pickSort(el,k){document.querySelectorAll('.sort').forEach(s=>s.classList.remove('on'));el.classList.add('on');state.sort=k;renderList();showToast('已按「'+el.textContent.trim()+'」排序');}
+function toggleQuick(k){state[k]=!state[k];renderFbar();renderList();}
+function clearF(){
+  state.theme=[];state.dest=[];state.days=[];state.scene=[];state.hideRsv=false;
+  document.querySelectorAll('.chip.on').forEach(c=>c.classList.remove('on'));
+  renderFbar();renderList();showToast('已清空全部筛选条件');
+}
+/* 抽屉 */
+function openDw(){drawerSnapshot=JSON.parse(JSON.stringify({theme:state.theme,dest:state.dest,days:state.days,scene:state.scene}));syncChips();document.getElementById('mask').classList.add('on');document.getElementById('drawer').classList.add('on');}
+function closeDw(){
+  if(drawerSnapshot){state=Object.assign(state,drawerSnapshot);}
+  document.getElementById('mask').classList.remove('on');document.getElementById('drawer').classList.remove('on');
+  renderFbar();renderList();
+}
+function applyF(){drawerSnapshot=null;document.getElementById('mask').classList.remove('on');document.getElementById('drawer').classList.remove('on');renderFbar();renderList();showToast('已应用筛选 · '+filt().length+' 个结果');}
+function syncChips(){
+  document.querySelectorAll('.chips').forEach(box=>{
+    const k=box.dataset.k;if(!state[k])return;
+    box.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',state[k].includes(c.dataset.v)));
+  });
+  document.getElementById('dwCnt').textContent=filt().length;
+}
+document.querySelectorAll('.chips').forEach(box=>{
+  box.addEventListener('click',e=>{
+    const chip=e.target.closest('.chip');if(!chip)return;
+    const k=box.dataset.k,v=chip.dataset.v;
+    if(v=='any'){state[k]=[];}
+    else{
+      const i=state[k].indexOf(v);
+      if(i>=0)state[k].splice(i,1);else state[k].push(v);
+    }
+    chip.classList.toggle('on');
+    document.getElementById('dwCnt').textContent=previewCount();
+  });
+});
+function previewCount(){
+  const bak=JSON.parse(JSON.stringify({theme:state.theme,dest:state.dest,days:state.days,scene:state.scene}));
+  const n=filt().length;return n;
+}
+function rtip(el){el.parentNode.querySelectorAll('span').forEach(s=>s.classList.remove('on'));el.classList.add('on');}
+function showToast(x,t){const el=document.getElementById('toast');el.textContent=x;el.className='toast show'+(t?' '+t:'');clearTimeout(window._tt);window._tt=setTimeout(()=>el.className='toast',1900);}
+window.addEventListener('scroll',()=>{document.getElementById('topBtn').classList.toggle('on',window.scrollY>400);});
+renderFbar();renderList();
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+</body>
+</html>

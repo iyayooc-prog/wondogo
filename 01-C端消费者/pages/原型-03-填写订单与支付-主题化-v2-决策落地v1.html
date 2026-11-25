@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · 填写订单与支付（主题化 v2）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+/* ============================================================
+   填写订单 P5 + 支付结果 P6 · 主题化 v2
+   规则：骨架中性（表单/卡片外框/按钮文字）+ 产品主题作用域
+   订单摘要卡 = 产品主题；支付成功页 = 产品主题；
+   礼品卡/企业额度 = 固定语义金（属企业场景层，不属目的地主题）
+   ============================================================ */
+:root{
+  --card:#FFFFFF; --tx:#1B2E2C; --tx2:#5E7370; --tx3:#9BAEAB;
+  --line:#E8EFEE; --line2:#F2F6F5;
+  --gold:#C9952B; --gold-l:#FBF3E2;
+  --r-sm:10px; --r-md:16px; --r-lg:22px; --r-full:999px;
+  --sh-s:0 2px 10px rgba(27,46,44,.05); --sh-m:0 6px 22px rgba(27,46,44,.08);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',Roboto,sans-serif;
+  --ease:cubic-bezier(.22,.75,.28,1);
+}
+[data-theme="neutral"]{--pri:#4A5D59;--pri-d:#33423F;--pri-l:#EDF1F0;--pri-xl:#F6F8F7;--acc:#FF6B4A;--acc-l:#FFEFEB;--bg:#F4F6F5;--sh-l:0 10px 28px rgba(27,46,44,.12);
+  --g1a:#E2E7E5;--g1b:#B9C4C1;--g1c:#8D9C99;--g2a:#EDE7DE;--g2b:#CFC3B2;--g2c:#A3937F;--g3a:#E0E6E4;--g3b:#B4C1BD;--g3c:#889994;--g4a:#E6E9EC;--g4b:#BCC5CD;--g4c:#909BA5}
+[data-theme="ocean"]{--pri:#0E86C4;--pri-d:#0A6291;--pri-l:#E3F1FA;--pri-xl:#F2F9FD;--acc:#FF7A59;--acc-l:#FFF0EB;--bg:#F2F8FB;--sh-l:0 10px 28px rgba(14,134,196,.20);
+  --g1a:#8FE0F0;--g1b:#2E9BD4;--g1c:#14689E;--g2a:#FFE2B0;--g2b:#FFA96B;--g2c:#F0805A;--g3a:#A8E8DC;--g3b:#4FBFAE;--g3c:#2A8A80;--g4a:#BFD9F2;--g4b:#6E9FD0;--g4c:#3F6E9E}
+[data-theme="forest"]{--pri:#12897C;--pri-d:#0C6B61;--pri-l:#E4F2F0;--pri-xl:#F1F8F7;--acc:#FF7A59;--acc-l:#FFF0EB;--bg:#F4F8F7;--sh-l:0 10px 28px rgba(18,137,124,.18);
+  --g1a:#C6E8B0;--g1b:#6FBF7F;--g1c:#2E8B57;--g2a:#A8E0C8;--g2b:#4FB894;--g2c:#1E8367;--g3a:#FFE0B2;--g3b:#FFAE6B;--g3c:#E08A4A;--g4a:#D8E8C0;--g4b:#93C07A;--g4c:#5A8C46}
+[data-theme="heritage"]{--pri:#8A5A3B;--pri-d:#6B4229;--pri-l:#F4EAE2;--pri-xl:#FBF6F1;--acc:#C0453A;--acc-l:#FCEDEB;--bg:#F8F5F1;--sh-l:0 10px 28px rgba(138,90,59,.18);
+  --g1a:#E8DCCB;--g1b:#BFA78A;--g1c:#8A6F52;--g2a:#D9CBB8;--g2b:#A98F6E;--g2c:#6E5842;--g3a:#E5C9A8;--g3b:#C9976A;--g3c:#9A6742;--g4a:#DCD6CC;--g4b:#9E968A;--g4c:#6B6459}
+[data-theme="grassland"]{--pri:#6FA22E;--pri-d:#547C20;--pri-l:#EDF5E1;--pri-xl:#F6FAF0;--acc:#F2873D;--acc-l:#FFF2E6;--bg:#F6FAF1;--sh-l:0 10px 28px rgba(111,162,46,.20);
+  --g1a:#DCF0A8;--g1b:#93C85A;--g1c:#5A9430;--g2a:#BFE8F5;--g2b:#79C0DC;--g2c:#3F8FB0;--g3a:#FFE9A8;--g3b:#FFC65C;--g3c:#E09A2E;--g4a:#E8F2C0;--g4b:#B5D483;--g4c:#7CA84E}
+[data-theme="snow"]{--pri:#4C7FA8;--pri-d:#35607F;--pri-l:#E8F1F8;--pri-xl:#F4F9FC;--acc:#E8734A;--acc-l:#FCEEE8;--bg:#F5F9FC;--sh-l:0 10px 28px rgba(76,127,168,.20);
+  --g1a:#F0F7FC;--g1b:#BDD8EA;--g1c:#7FA8C8;--g2a:#E4EEF6;--g2b:#A9C6DC;--g2c:#6E92B0;--g3a:#FFE0D0;--g3b:#F5A882;--g3c:#D4764E;--g4a:#EDF4FA;--g4b:#C2D8E8;--g4c:#8AAAC4}
+[data-theme="city"]{--pri:#5A5BD0;--pri-d:#413FA8;--pri-l:#ECECFB;--pri-xl:#F6F6FD;--acc:#FF5C8A;--acc-l:#FFEDF3;--bg:#F6F6FB;--sh-l:0 10px 28px rgba(90,91,208,.20);
+  --g1a:#CFCFFF;--g1b:#8A8AF0;--g1c:#5A5BD0;--g2a:#FFD3E2;--g2b:#FF92B4;--g2c:#E05A82;--g3a:#FFE3B8;--g3b:#FFBE6B;--g3c:#E0913A;--g4a:#C9D8F5;--g4b:#8AA6E0;--g4c:#5A78C0}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#dfe3e2;color:var(--tx);line-height:1.55;-webkit-font-smoothing:antialiased}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;box-shadow:0 0 40px rgba(0,0,0,.12);transition:background-color .5s var(--ease)}
+.mi{font-family:'Material Icons'}
+.g1{background:linear-gradient(160deg,var(--g1a),var(--g1b) 52%,var(--g1c))}
+.g2{background:linear-gradient(160deg,var(--g2a),var(--g2b) 50%,var(--g2c))}
+.g3{background:linear-gradient(160deg,var(--g3a),var(--g3b) 50%,var(--g3c))}
+.g4{background:linear-gradient(160deg,var(--g4a),var(--g4b) 52%,var(--g4c))}
+.page{display:none}.page.on{display:block}
+
+/* 演示：产品主题切换 */
+.demo{position:sticky;top:0;z-index:70;background:#fff;border-bottom:1px solid var(--line);padding:9px 12px}
+.demo-t{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:800;color:var(--tx3);letter-spacing:.06em;margin-bottom:7px}
+.demo-t .mi{font-size:12px;color:#4A5D59}
+.themes{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.themes::-webkit-scrollbar{display:none}
+.th{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:var(--r-full);background:#F4F6F5;font-size:10px;font-weight:800;color:var(--tx2);cursor:pointer;border:1.5px solid transparent;transition:.2s}
+.th .sw{width:10px;height:10px;border-radius:50%}
+.th.on{background:#fff;border-color:currentColor;box-shadow:var(--sh-s)}
+.veil{position:fixed;inset:0;z-index:130;background:#fff;opacity:0;pointer-events:none;transition:.3s}
+.veil.on{opacity:.7}
+
+/* 骨架导航 */
+.nav{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:12px;padding:13px 16px;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav .mi{font-size:20px;cursor:pointer;color:var(--tx)}
+.nav-t{flex:1;font-size:16px;font-weight:800;letter-spacing:-.01em}
+.steps{display:flex;align-items:center;gap:5px;font-size:9.5px;color:var(--tx3);font-weight:700}
+.steps b{width:16px;height:16px;border-radius:50%;background:#4A5D59;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:9px}
+.steps i{width:16px;height:16px;border-radius:50%;border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-style:normal}
+.steps .on{color:#33423F}
+
+/* 主题化：订单摘要卡 */
+.summary{margin:14px 16px 0;background:#fff;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-m)}
+.sum-img{height:120px;position:relative;display:flex;align-items:center;justify-content:center}
+.sum-img .mi{font-size:42px;color:rgba(255,255,255,.6);position:relative;z-index:2}
+.sum-tkey{position:absolute;top:11px;left:12px;z-index:3;display:flex;align-items:center;gap:5px;padding:4px 9px;background:rgba(255,255,255,.92);border-radius:var(--r-full);font-size:8.5px;font-weight:800;color:var(--pri-d);letter-spacing:.06em}
+.sum-tkey i{width:8px;height:8px;border-radius:50%;display:block}
+.sum-edit{position:absolute;top:10px;right:11px;z-index:3;padding:5px 11px;background:rgba(255,255,255,.92);border-radius:var(--r-full);font-size:10px;font-weight:800;color:var(--pri-d);cursor:pointer;display:flex;align-items:center;gap:3px}
+.sum-edit .mi{font-size:13px}
+.sum-b{padding:15px 16px 16px}
+.sum-t{font-size:16.5px;font-weight:800;letter-spacing:-.01em;line-height:1.45}
+.sum-m{font-size:11px;color:var(--tx2);margin-top:8px;line-height:1.8}
+.sum-incs{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.sum-incs i{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;background:var(--pri-xl);border-radius:var(--r-sm);font-size:9.5px;color:var(--pri-d);font-style:normal;font-weight:700}
+.sum-incs .mi{font-size:12px}
+.sum-foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:13px;border-top:1px dashed var(--line);font-size:10.5px;color:var(--tx3);font-weight:700}
+.sum-foot b{font-size:17px;font-weight:800;color:var(--acc)}
+
+/* 骨架表单卡 */
+.card{margin:12px 16px 0;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);overflow:hidden}
+.card-h{display:flex;align-items:center;justify-content:space-between;padding:15px 15px 0}
+.card-t{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:7px}
+.card-t .mi{font-size:17px;color:var(--pri)}
+.card-act{font-size:11px;color:var(--pri);font-weight:800;cursor:pointer;display:flex;align-items:center;gap:3px}
+.card-act .mi{font-size:14px}
+.row{display:flex;align-items:center;gap:12px;padding:13px 15px;border-bottom:1px solid var(--line2);cursor:pointer}
+.row:last-child{border-bottom:none}
+.row-l{font-size:12px;color:var(--tx2);width:74px;flex-shrink:0;font-weight:700}
+.row-v{flex:1;font-size:12.5px;font-weight:600;min-width:0}
+.row-v input,.row-v select{width:100%;background:transparent;border:none;outline:none;color:var(--tx);font-size:12.5px;font-family:var(--sans);font-weight:600}
+.row-v input::placeholder{color:var(--tx3);font-weight:500}
+.row .ar{font-size:17px;color:var(--tx3);flex-shrink:0}
+.row-v.muted{color:var(--tx3);font-weight:600}
+.row-v.coupon{color:#0C8F5E;font-weight:800}
+
+/* 出行人（主题化徽标） */
+.pax{padding:14px 15px;border-bottom:1px solid var(--line2)}
+.pax:last-of-type{border-bottom:none}
+.pax-h{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.pax-badge{padding:3px 9px;border-radius:var(--r-full);font-size:9.5px;font-weight:800;letter-spacing:.04em}
+.pax-badge.a{background:var(--pri-l);color:var(--pri-d)}
+.pax-badge.c{background:var(--acc-l);color:var(--acc)}
+.pax-n{font-size:12.5px;font-weight:800}
+.pax-del{margin-left:auto;cursor:pointer}.pax-del .mi{font-size:16px;color:var(--tx3)}
+.pax-f{display:flex;gap:9px}
+.field{flex:1;margin-bottom:9px}
+.field label{display:block;font-size:9px;color:var(--tx3);margin-bottom:5px;letter-spacing:.06em;font-weight:800}
+.field input,.field select{width:100%;padding:10px;background:var(--pri-xl);border:1.5px solid transparent;border-radius:var(--r-sm);color:var(--tx);font-size:12px;outline:none;font-family:var(--sans);font-weight:600;appearance:none}
+.field input:focus,.field select:focus{border-color:var(--pri);background:#fff}
+.field input::placeholder{color:var(--tx3);font-weight:500}
+.hint{display:flex;gap:7px;padding:11px 15px;background:var(--pri-xl);font-size:10px;color:var(--tx2);line-height:1.75;font-weight:600}
+.hint .mi{font-size:13px;color:var(--pri);flex-shrink:0;margin-top:1px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;padding:13px 15px}
+.chip{padding:6px 12px;border:1px dashed var(--line);border-radius:var(--r-full);font-size:10.5px;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:700}
+.chip .mi{font-size:13px;color:var(--pri)}
+.chip:hover{border-color:var(--pri);border-style:solid}
+textarea{width:100%;background:var(--pri-xl);border:1.5px solid transparent;border-radius:var(--r-sm);color:var(--tx);font-size:12px;padding:11px;outline:none;resize:none;font-family:var(--sans);line-height:1.75;font-weight:600}
+textarea:focus{border-color:var(--pri);background:#fff}
+textarea::placeholder{color:var(--tx3);font-weight:500}
+.pad{padding:14px 15px}
+.agree{display:flex;gap:9px;align-items:flex-start;padding:16px;margin:12px 16px 0;font-size:10.5px;color:var(--tx3);line-height:1.8;cursor:pointer;font-weight:600}
+.agree .cbox{width:15px;height:15px;border-radius:4px;background:#4A5D59;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.agree .cbox .mi{font-size:11px;color:#fff}
+.agree b{color:#33423F;font-weight:800;text-decoration:underline}
+
+/* 骨架：企业额度（固定语义金） */
+.gift .row-v{color:#B98520;font-weight:800}
+
+/* 底栏 */
+.bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:375px;background:rgba(255,255,255,.97);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:11px 14px;display:flex;align-items:center;gap:12px;z-index:60}
+.bar-p{flex:1;min-width:0}
+.bar-old{font-size:9.5px;color:var(--tx3);text-decoration:line-through;font-weight:600}
+.bar-now{font-size:24px;font-weight:800;color:#FF6B4A;line-height:1.15;letter-spacing:-.02em}
+.bar-now small{font-size:11px;font-weight:700}
+.bar-now em{font-size:9px;color:var(--tx3);font-style:normal;font-weight:700;margin-left:3px}
+.btn{padding:14px 26px;background:#FF6B4A;color:#fff;font-size:14px;font-weight:800;border-radius:var(--r-full);cursor:pointer;white-space:nowrap;box-shadow:0 6px 18px rgba(255,107,74,.28);transition:.2s}
+.btn:active{transform:scale(.96)}
+.btn.ghost{background:#fff;border:1.5px solid var(--line);color:var(--tx2);box-shadow:none}
+
+/* 支付成功 P6 */
+.ok-hero{position:relative;height:250px;display:flex;align-items:center;justify-content:center}
+.ok-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.1),transparent 40%,rgba(244,246,245,.4) 85%,var(--bg))}
+.ok-body{position:relative;z-index:2;text-align:center;padding-top:26px}
+.ok-ring{width:78px;height:78px;border-radius:50%;background:rgba(255,255,255,.94);display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 8px 28px rgba(0,0,0,.18);animation:pop .6s var(--ease)}
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.ok-ring .mi{font-size:40px;color:var(--pri-d)}
+.ok-t{font-size:25px;font-weight:800;color:#fff;margin-top:16px;letter-spacing:-.01em;text-shadow:0 2px 14px rgba(0,0,0,.3)}
+.ok-s{font-size:11.5px;color:rgba(255,255,255,.92);margin-top:9px;line-height:1.85;font-weight:600;text-shadow:0 1px 8px rgba(0,0,0,.3)}
+.ok-count{margin:14px 16px 0;padding:15px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);display:flex;align-items:center;gap:14px}
+.ok-ring2{position:relative;width:52px;height:52px;flex-shrink:0}
+.ok-ring2 svg{transform:rotate(-90deg)}
+.ok-ring2 b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--pri-d)}
+.ok-count-b{flex:1}
+.ok-count-t{font-size:13px;font-weight:800}
+.ok-count-d{font-size:10.5px;color:var(--tx3);margin-top:5px;line-height:1.7;font-weight:600}
+.todo{margin:12px 16px 0;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);overflow:hidden}
+.todo-h{padding:15px 15px 12px;border-bottom:1px solid var(--line2)}
+.todo-t{font-size:14px;font-weight:800}
+.todo-s{font-size:10.5px;color:var(--tx3);margin-top:5px;font-weight:600}
+.todo-i{display:flex;align-items:center;gap:12px;padding:14px 15px;border-bottom:1px solid var(--line2);cursor:pointer;transition:.2s}
+.todo-i:last-child{border-bottom:none}
+.todo-i:active{background:var(--pri-xl)}
+.todo-ic{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;overflow:hidden}
+.todo-ic .mi{font-size:18px;color:#fff;position:relative;z-index:2}
+.todo-st{position:absolute;top:-1px;right:-1px;z-index:3;padding:1px 5px;background:var(--acc);color:#fff;font-size:8px;font-weight:800;border-radius:0 10px 0 8px}
+.todo-b{flex:1;min-width:0}
+.todo-n{font-size:12.5px;font-weight:800}
+.todo-d{font-size:10.5px;color:var(--tx3);margin-top:4px;line-height:1.65;font-weight:600}
+.todo-go{font-size:10.5px;color:var(--pri);font-weight:800;display:flex;align-items:center;gap:2px;white-space:nowrap}
+.todo-go .mi{font-size:15px}
+.warn{margin:12px 16px 0;padding:13px 14px;background:#FFF8F0;border:1px solid #FFE7CE;border-radius:var(--r-md);font-size:10.5px;color:#8A7350;line-height:1.85;font-weight:600}
+.warn b{color:#C97E10}
+.sec-head{padding:26px 16px 13px}
+.sec-t{font-size:17px;font-weight:800;letter-spacing:-.01em}
+.sec-en{font-size:9px;letter-spacing:.22em;color:var(--tx3);margin-top:5px;font-weight:800;text-transform:uppercase}
+.rec{display:flex;gap:10px;overflow-x:auto;padding:0 16px 8px;scrollbar-width:none}
+.rec::-webkit-scrollbar{display:none}
+.rec-c{flex:0 0 136px;cursor:pointer}
+.rec-img{height:100px;border-radius:var(--r-sm);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.rec-img .mi{font-size:26px;color:rgba(255,255,255,.7);position:relative;z-index:2}
+.rec-t{font-size:11.5px;font-weight:700;margin-top:8px;line-height:1.45}
+.rec-p{font-size:13.5px;font-weight:800;color:#FF6B4A;margin-top:5px}
+.rec-p small{font-size:9px;color:var(--tx3);font-weight:600}
+.row-btn{display:flex;gap:9px;margin:14px 16px 0}
+.row-btn .btn{flex:1;text-align:center}
+
+/* 弹层 */
+.mask{position:fixed;inset:0;background:rgba(27,46,44,.44);backdrop-filter:blur(2px);z-index:150;opacity:0;pointer-events:none;transition:.3s}
+.mask.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;bottom:0;left:50%;transform:translate(-50%,100%);width:100%;max-width:375px;background:var(--bg);border-radius:24px 24px 0 0;z-index:160;transition:.4s var(--ease);max-height:86vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,.18)}
+.sheet.on{transform:translate(-50%,0)}
+.grip{width:38px;height:4px;background:var(--line);border-radius:2px;margin:11px auto 0}
+.sheet-h{padding:12px 18px 14px;display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg);z-index:2;border-bottom:1px solid var(--line)}
+.sheet-t{font-size:16px;font-weight:800}
+.sheet-s{font-size:10.5px;color:var(--tx3);margin-top:5px;font-weight:700}
+.sheet-x{cursor:pointer;background:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-s)}
+.sheet-x .mi{font-size:17px;color:var(--tx3)}
+.pay{display:flex;align-items:center;gap:12px;padding:15px 16px;border-bottom:1px solid var(--line2);cursor:pointer;background:#fff;transition:.2s}
+.pay:first-of-type{border-radius:var(--r-sm) var(--r-sm) 0 0}
+.pay.on{background:var(--pri-xl);box-shadow:inset 0 0 0 1.5px var(--pri)}
+.pay-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pay-ic .mi{font-size:19px;color:#fff}
+.pay-b{flex:1}.pay-n{font-size:12.5px;font-weight:800}.pay-d{font-size:10px;color:var(--tx3);margin-top:4px;font-weight:600;line-height:1.6}
+.radio{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff}
+.pay.on .radio{border-color:var(--pri);background:var(--pri)}
+.pay.on .radio::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff}
+.countdown{font-weight:800;color:#FF6B4A;font-size:13px}
+.sheet-pad{padding:16px}
+.fee{padding:15px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-s);margin-bottom:12px}
+.fee-t{font-size:10px;color:var(--tx3);font-weight:800;letter-spacing:.12em;margin-bottom:10px}
+.fee-r{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;color:var(--tx2);font-weight:700}
+.fee-r.g{color:#0C8F5E}
+.fee-tot{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px dashed var(--line);margin-top:10px;padding-top:12px}
+.fee-tot span{font-size:10px;color:var(--tx3);line-height:1.7;font-weight:700}
+.fee-tot b{font-size:26px;font-weight:800;color:#FF6B4A;letter-spacing:-.02em}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);padding:13px 22px;background:rgba(27,46,44,.92);color:#fff;border-radius:14px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;max-width:290px;font-weight:600;line-height:1.7}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app" data-theme="neutral" id="app">
+  <div class="demo">
+    <div class="demo-t"><span class="mi">rule</span>产品主题作用域 · 表单骨架永远中性 · 切换看订单摘要与成功页配色</div>
+    <div class="themes" id="themes"></div>
+  </div>
+
+  <!-- ========== P5 填写订单 ========== -->
+  <div class="page on" id="pgBook">
+    <div class="nav">
+      <span class="mi" onclick="showToast('返回产品详情')">arrow_back</span>
+      <div class="nav-t">填写订单</div>
+      <div class="steps"><b>1</b><span class="on">填写</span><i>2</i><span>支付</span><i>3</i><span>使用</span></div>
+    </div>
+
+    <!-- 主题化：订单摘要 -->
+    <div class="summary" id="summary" data-theme="ocean"></div>
+
+    <!-- 骨架：出行人 -->
+    <div class="card" id="paxCard">
+      <div class="card-h">
+        <div class="card-t"><span class="mi">groups</span>出行人信息</div>
+        <div class="card-act" onclick="openSheet('Bulk')"><span class="mi">upload_file</span>批量导入</div>
+      </div>
+      <div class="pax">
+        <div class="pax-h"><span class="pax-badge a">成人 1</span><span class="pax-n">主要出行人</span><span class="pax-del" onclick="showToast('已移除')"><span class="mi">close</span></span></div>
+        <div class="pax-f">
+          <div class="field"><label>姓名（与证件一致）</label><input value="张明远"></div>
+          <div class="field"><label>手机号</label><input value="138****6721"></div>
+        </div>
+        <div class="pax-f">
+          <div class="field" style="margin:0"><label>证件类型</label><select><option>身份证</option><option>护照</option><option>港澳台通行证</option></select></div>
+          <div class="field" style="margin:0"><label>证件号（部分商家需要）</label><input placeholder="选填"></div>
+        </div>
+      </div>
+      <div class="pax">
+        <div class="pax-h"><span class="pax-badge a">成人 2</span><span class="pax-n">同行成人</span><span class="pax-del" onclick="showToast('已移除')"><span class="mi">close</span></span></div>
+        <div class="pax-f">
+          <div class="field" style="margin:0"><label>姓名</label><input value="李思"></div>
+          <div class="field" style="margin:0"><label>手机号</label><input placeholder="选填"></div>
+        </div>
+      </div>
+      <div class="pax" id="kidBlock">
+        <div class="pax-h"><span class="pax-badge c">儿童 1</span><span class="pax-n">随行儿童</span><span class="pax-del" onclick="delKid()"><span class="mi">close</span></span></div>
+        <div class="pax-f">
+          <div class="field" style="margin:0"><label>姓名</label><input value="张小满"></div>
+          <div class="field" style="margin:0"><label>出生年月（影响床型与餐标）</label><input type="month" value="2020-06"></div>
+        </div>
+        <div class="pax-f">
+          <div class="field" style="margin:0"><label>儿童加床</label><select><option>需要（+¥120/晚）</option><option>不需要，与父母同床</option></select></div>
+          <div class="field" style="margin:0"><label>儿童餐标</label><select><option>标准儿童餐</option><option>素食</option><option>自行安排</option></select></div>
+        </div>
+      </div>
+      <div class="hint"><span class="mi">info</span><span>儿童年龄直接影响床型、餐标与门票，请务必如实填写。2 岁以下婴儿免费但不含床位与餐食。</span></div>
+      <div class="chips">
+        <span class="chip" onclick="showToast('已从常用出行人添加')"><span class="mi">person_add_alt</span>张明远</span>
+        <span class="chip" onclick="showToast('已从常用出行人添加')"><span class="mi">person_add_alt</span>李思</span>
+        <span class="chip" onclick="addKid()"><span class="mi">child_care</span>张小满（6 岁）</span>
+      </div>
+    </div>
+
+    <!-- 骨架：联系人 -->
+    <div class="card">
+      <div class="card-h"><div class="card-t"><span class="mi">contact_phone</span>联系人</div></div>
+      <div class="row"><div class="row-l">姓名</div><div class="row-v"><input value="张明远"></div></div>
+      <div class="row"><div class="row-l">手机号</div><div class="row-v"><input value="138 0000 6721"></div><span class="mi ar">chevron_right</span></div>
+      <div class="hint"><span class="mi">notifications_active</span><span>行程提醒、预约确认与核销通知都会发到这个手机号。</span></div>
+    </div>
+
+          <div style="margin:10px 12px;padding:10px 12px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;font-size:10px;color:#14532D;font-weight:700;line-height:1.8">
+        <b>✅ 下单锁价（决策 2）</b>：提交订单瞬间锁定价格与券，商家后续改价<b>不影响本单</b>，包括未支付订单；超时 15 分钟取消后重新下单按新价。已下单未支付 / 已支付未核销 / 仲裁中订单全部读同一份 PriceSnapshot。
+      </div>
+<!-- 骨架：优惠与抵扣（礼品卡 = 固定语义金） -->
+    <div class="card">
+      <div class="card-h"><div class="card-t"><span class="mi">local_offer</span>优惠与抵扣</div></div>
+      <div class="row" onclick="openSheet('Coupon')"><div class="row-l">优惠券</div><div class="row-v coupon">新人立减 ¥100（已选最优）</div><span class="mi ar">chevron_right</span></div>
+      <div class="row gift" onclick="openSheet('Gift')"><div class="row-l">礼品卡额度</div><div class="row-v">企业福利 · 可用 ¥800（未使用）</div><span class="mi ar">chevron_right</span></div>
+      <div class="row" onclick="showToast('积分暂不可用于本产品')"><div class="row-l">积分抵扣</div><div class="row-v muted">2,280 分 · 本单不可用</div><span class="mi ar">chevron_right</span></div>
+    </div>
+
+    <!-- 骨架：发票 -->
+    <div class="card">
+      <div class="card-h"><div class="card-t"><span class="mi">receipt_long</span>发票信息</div></div>
+      <div class="row" onclick="openSheet('Invoice')"><div class="row-l">发票类型</div><div class="row-v">企业增值税电子普通发票</div><span class="mi ar">chevron_right</span></div>
+      <div class="row"><div class="row-l">企业名称</div><div class="row-v"><input value="杭州云栖网络科技有限公司"></div></div>
+      <div class="row"><div class="row-l">识别号</div><div class="row-v"><input value="91330100MA2****XX"></div></div>
+      <div class="hint"><span class="mi">business</span><span>团建与企业福利订单需填写企业抬头，发票在服务完成后 5 个工作日内开具。</span></div>
+    </div>
+
+    <!-- 骨架：备注 -->
+    <div class="card">
+      <div class="card-h"><div class="card-t"><span class="mi">edit_note</span>给商家和管家的话</div></div>
+      <div class="pad"><textarea rows="3" id="remark">孩子对虾过敏，接站需要儿童安全座椅。抵达车次 G7531，10:12 到德清站。</textarea></div>
+    </div>
+
+    <!-- 骨架：费用明细 -->
+    <div class="card">
+      <div class="card-h"><div class="card-t"><span class="mi">payments</span>费用明细</div><div class="card-act" onclick="openSheet('Fee')">展开 <span class="mi">expand_more</span></div></div>
+      <div class="row"><div class="row-l">套餐基础价</div><div class="row-v" id="feeBase">¥1,680 × 1 组（2 人）</div></div>
+      <div class="row"><div class="row-l">加购项</div><div class="row-v" id="feeAdd">+¥360</div></div>
+      <div class="row"><div class="row-l">优惠券</div><div class="row-v coupon">-¥100</div></div>
+      <div class="row"><div class="row-l">礼品卡额度</div><div class="row-v muted">未使用</div></div>
+    </div>
+
+    <div class="agree" onclick="showToast('协议勾选状态已切换')">
+      <div class="cbox"><span class="mi">check</span></div>
+      <div>我已阅读并同意 <b>《云栖度假用户服务协议》</b>、<b>《产品预订须知与退改规则》</b>，并确认出行人信息真实有效。本产品由多家商家联合提供服务，平台统一收款并负责售后。</div>
+    </div>
+    <div style="height:86px"></div>
+
+    <div class="bar">
+      <div class="bar-p"><div class="bar-old" id="barOld">单买总价 ¥3,640</div><div class="bar-now"><small>¥</small><span id="barNow">1,940</span><em id="barU">已含 9 项服务</em></div></div>
+      <div class="btn" onclick="openSheet('Pay')">提交订单</div>
+    </div>
+  </div>
+
+  <!-- ========== P6 支付结果 ========== -->
+  <div class="page" id="pgDone">
+    <div class="ok-hero g1" id="okHero" data-theme="ocean">
+      <div class="ok-body">
+        <div class="ok-ring"><span class="mi">check</span></div>
+        <div class="ok-t">预订成功</div>
+        <div class="ok-s" id="okSub">订单号 YQ2026092800328 · 已支付 ¥1,940<br>9 张核销凭证已生成</div>
+      </div>
+    </div>
+
+    <div class="ok-count" id="okCount">
+      <div class="ok-ring2">
+        <svg width="52" height="52"><circle cx="26" cy="26" r="22" fill="none" stroke="#EDF1F0" stroke-width="5"/><circle id="ringPath" cx="26" cy="26" r="22" fill="none" stroke="#0E86C4" stroke-width="5" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="138.2"/></svg>
+        <b id="ringTxt">0/9</b>
+      </div>
+      <div class="ok-count-b"><div class="ok-count-t" id="okCountT">凭证已全部发放</div><div class="ok-count-d" id="okCountD">有效期 90 天内 · 未核销可随时全额退</div></div>
+      <span class="mi" style="color:var(--tx3);font-size:19px;cursor:pointer" onclick="showToast('进入核销凭证')">chevron_right</span>
+    </div>
+
+    <div class="todo" id="todo"></div>
+
+    <div class="warn" id="warn"></div>
+
+    <div class="row-btn">
+      <div class="btn" onclick="showToast('管家小林将代为预约')">让管家代预约</div>
+      <div class="btn ghost" onclick="showToast('返回产品详情')">再逛逛</div>
+    </div>
+
+    <div class="sec-head"><div class="sec-t">同目的地的其他选择</div><div class="sec-en">YOU MAY ALSO LIKE</div></div>
+    <div class="rec" id="rec"></div>
+    <div style="height:24px"></div>
+  </div>
+</div>
+
+<div class="veil" id="veil"></div>
+<div class="mask" id="mask" onclick="closeSheet()"></div>
+
+<!-- 支付方式 -->
+<div class="sheet" id="shPay">
+  <div class="grip"></div>
+  <div class="sheet-h"><div><div class="sheet-t">选择支付方式</div><div class="sheet-s">应付 <span style="color:#FF6B4A;font-weight:800;font-size:14px" id="payDue">¥1,940</span> · 剩余 <span class="countdown">14:32</span></div></div><div class="sheet-x" onclick="closeSheet()"><span class="mi">close</span></div></div>
+  <div id="payList" style="padding:0 0 6px"></div>
+  <div class="sheet-pad"><div class="btn" style="width:100%" onclick="doPay()">确认支付 <span id="payBtnAmt">¥1,940</span></div></div>
+  <div style="padding:0 16px 20px;font-size:10px;color:var(--tx3);line-height:1.8;font-weight:600">支付成功后系统立即发放核销凭证，未核销部分可随时全额退款，过期自动退。</div>
+</div>
+
+<!-- 优惠券 -->
+<div class="sheet" id="shCoupon">
+  <div class="grip"></div>
+  <div class="sheet-h"><div><div class="sheet-t">优惠券</div><div class="sheet-s">已为你自动选择最优惠方案</div></div><div class="sheet-x" onclick="closeSheet()"><span class="mi">close</span></div></div>
+  <div style="padding:14px 16px">
+    <div class="pay on" style="padding:15px;border-radius:var(--r-sm);border:1.5px solid var(--pri);margin-bottom:10px" onclick="payPick(this)"><div class="pay-b"><div class="pay-n" style="font-size:18px;color:var(--pri)">¥100 新人立减</div><div class="pay-d">满 ¥1,000 可用 · 有效期至 2026-12-31</div></div><div class="radio"></div></div>
+    <div class="pay" style="padding:15px;border-radius:var(--r-sm);border-bottom:none;opacity:.5" onclick="showToast('本单不满足使用条件')"><div class="pay-b"><div class="pay-n">9 折团建专享券</div><div class="pay-d">仅限 10 人以上团建订单 · 本单不适用</div></div><div class="radio"></div></div>
+  </div>
+</div>
+
+<!-- 礼品卡 -->
+<div class="sheet" id="shGift">
+  <div class="grip"></div>
+  <div class="sheet-h"><div><div class="sheet-t">企业福利 / 礼品卡额度</div><div class="sheet-s">兑换码由所在企业发放 · 固定语义金，不随产品主题变化</div></div><div class="sheet-x" onclick="closeSheet()"><span class="mi">close</span></div></div>
+  <div class="sheet-pad">
+    <div class="field"><label>输入兑换码</label><input placeholder="如 YQ-GIFT-2026-8842"></div>
+    <div style="padding:15px;background:#fff;border:1px solid #F0E2C4;border-radius:var(--r-md);box-shadow:var(--sh-s)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:12.5px;font-weight:800">杭州云栖网络 · 2026 年度员工福利</div><div style="font-size:10px;color:var(--tx3);margin-top:5px;font-weight:600">有效期至 2026-12-31 · 可用于全部度假套餐 · 不可提现</div></div>
+        <div style="font-size:22px;font-weight:800;color:#B98520">¥800</div>
+      </div>
+    </div>
+    <div class="hint" style="margin-top:12px;padding:12px;border-radius:var(--r-sm)"><span class="mi">info</span><span>额度可分次使用，剩余部分留到下次；不足部分可用微信支付补齐。</span></div>
+  </div>
+</div>
+
+<!-- 发票 -->
+<div class="sheet" id="shInvoice">
+  <div class="grip"></div>
+  <div class="sheet-h"><div><div class="sheet-t">发票类型</div><div class="sheet-s">服务完成后 5 个工作日内开具</div></div><div class="sheet-x" onclick="closeSheet()"><span class="mi">close</span></div></div>
+  <div style="padding:6px 0 10px">
+    <div class="pay" onclick="payPick(this)"><div class="pay-b"><div class="pay-n">不需要发票</div></div><div class="radio"></div></div>
+    <div class="pay" onclick="payPick(this)"><div class="pay-b"><div class="pay-n">个人电子发票</div><div class="pay-d">增值税普通发票</div></div><div class="radio"></div></div>
+    <div class="pay on" onclick="payPick(this)"><div class="pay-b"><div class="pay-n">企业电子发票</div><div class="pay-d">需企业名称与税号 · 团建订单必填</div></div><div class="radio"></div></div>
+    <div class="pay" onclick="payPick(this)"><div class="pay-b"><div class="pay-n">企业专用发票</div><div class="pay-d">需提供开票资料与对公账户信息</div></div><div class="radio"></div></div>
+  </div>
+</div>
+
+<!-- 批量导入 -->
+<div class="sheet" id="shBulk">
+  <div class="grip"></div>
+  <div class="sheet-h"><div><div class="sheet-t">批量导入出行人</div><div class="sheet-s">适用于团建与企业福利订单</div></div><div class="sheet-x" onclick="closeSheet()"><span class="mi">close</span></div></div>
+  <div class="sheet-pad">
+    <div class="pay" style="border:1px solid var(--line);border-radius:var(--r-sm);margin-bottom:9px;padding:14px" onclick="showToast('请上传 Excel 名单')"><div class="pay-ic g4"><span class="mi">description</span></div><div class="pay-b"><div class="pay-n">上传 Excel 名单</div><div class="pay-d">下载模板，填写姓名 / 手机号 / 证件类型与号码</div></div><span class="mi" style="color:var(--tx3)">chevron_right</span></div>
+    <div class="pay" style="border:1px solid var(--line);border-radius:var(--r-sm);margin-bottom:9px;padding:14px" onclick="showToast('从通讯录选择')"><div class="pay-ic g3"><span class="mi">contacts</span></div><div class="pay-b"><div class="pay-n">粘贴手机号列表</div><div class="pay-d">系统给每人发送填写链接，各自补全信息</div></div><span class="mi" style="color:var(--tx3)">chevron_right</span></div>
+    <div class="pay" style="border:1px solid var(--line);border-radius:var(--r-sm);padding:14px" onclick="showToast('生成企业专属下单链接')"><div class="pay-ic g2"><span class="mi">link</span></div><div class="pay-b"><div class="pay-n">生成企业专属链接</div><div class="pay-d">员工自行下单，费用由企业额度统一支付</div></div><span class="mi" style="color:var(--tx3)">chevron_right</span></div>
+    <div class="hint" style="margin-top:12px;padding:12px;border-radius:var(--r-sm)"><span class="mi">lock</span><span>出行人证件信息仅用于商家接待与保险登记，加密存储，不对外展示。</span></div>
+  </div>
+</div>
+
+<!-- 费用明细展开 -->
+<div class="sheet" id="shFee">
+  <div class="grip"></div>
+  <div class="sheet-h"><div><div class="sheet-t">费用明细</div><div class="sheet-s">平台统一收款 · 服务完成后与商家结算</div></div><div class="sheet-x" onclick="closeSheet()"><span class="mi">close</span></div></div>
+  <div class="sheet-pad">
+    <div class="fee" id="feeBox"></div>
+    <div class="hint" style="padding:12px;border-radius:var(--r-sm)"><span class="mi">workspace_premium</span><span>一价全包：套餐内所有服务共用一个订单与一组凭证，商家之间的分账由平台处理，你不需要单独付钱给任何一家。</span></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+/* ===== 产品数据（theme_key 由平台运营指定）===== */
+const LIB={ocean:{n:'海洋',sw:'#0E86C4'},forest:{n:'山林',sw:'#12897C'},heritage:{n:'古镇',sw:'#8A5A3B'},
+ grassland:{n:'草原',sw:'#6FA22E'},snow:{n:'雪域温泉',sw:'#4C7FA8'},city:{n:'城市',sw:'#5A5BD0'}};
+
+const ORD={
+ocean:{th:'ocean',ic:'sailing',name:'东极岛听海两日',dest:'舟山 · 东极岛',date:'2026-10-18（周六）出发',spec:'固定套餐 · 海景石屋大床房 · 2 成人 1 儿童',
+ incs:[['hotel','海景石屋 1 晚'],['directions_boat','出海海钓'],['local_fire_department','沙滩晚宴'],['local_taxi','船票+接送'],['support_agent','专属管家']],
+ old:'¥2,960',base:1580,add:320,addTxt:'潜水体验 +¥320',coupon:100,paid:1800,vouchers:11,rsv:4,
+ rsvTxt:['出海海钓','沙滩长桌晚宴','码头专车接站','送站专车'],
+ remark:'孩子对虾过敏，船上需要儿童救生衣。抵达车次 G7531。',
+ todo:[['event_busy','预约 4 项需预约的服务','出海海钓 · 沙滩晚宴 · 往返专车','去预约','g3'],['qr_code_2','查看 9 张核销凭证','1 张总凭证 + 9 张分项子券','查看','g1'],['timeline','加入行程助手','按天提醒该去哪、找谁、什么时候出发','打开','g4']],
+ rec:[['东极岛礁石露营两日','g2','wb_twilight','¥1,280','/2人'],['嵊泗列岛亲子赶海三日','g3','child_care','¥2,080','/2大1小'],['普陀山素斋静修两日','g4','temple_buddhist','¥1,480','/2人']]},
+forest:{th:'forest',ic:'filter_hdr',name:'莫干山云端两日',dest:'湖州 · 莫干山',date:'2026-10-01（周四）出发',spec:'固定套餐 · 云海大床房 · 2 成人 1 儿童',
+ incs:[['hotel','云海大床房 1 晚'],['restaurant','3 顿正餐'],['hiking','溪谷徒步'],['local_taxi','专车接送'],['support_agent','专属管家']],
+ old:'¥3,280',base:1680,add:360,addTxt:'星空摄影跟拍 +¥360',coupon:100,paid:1940,vouchers:10,rsv:3,
+ rsvTxt:['山野午餐','星空围炉晚宴','送返高铁站'],
+ remark:'孩子对虾过敏，接站需要儿童安全座椅。抵达车次 G7531，10:12 到德清站。',
+ todo:[['event_busy','预约 3 项需预约的服务','山野午餐 · 星空晚宴 · 往返专车','去预约','g3'],['qr_code_2','查看 10 张核销凭证','1 张总凭证 + 10 张分项子券','查看','g1'],['timeline','加入行程助手','按天提醒该去哪、找谁、什么时候出发','打开','g4']],
+ rec:[['安吉竹海亲子三日','g4','park','¥2,280','/2大1小'],['莫干山围炉晚宴单项','g2','local_fire_department','¥460','/2人'],['双人山谷 SPA 90 分钟','g3','spa','¥680','/2人']]},
+heritage:{th:'heritage',ic:'temple_buddhist',name:'徽州古村慢活三日',dest:'黄山 · 宏村',date:'2026-11-06（周五）出发',spec:'固定套餐 · 天井大床房 · 2 成人 1 儿童',
+ incs:[['night_shelter','古宅木楼 2 晚'],['restaurant','家宴 4 次'],['brush','徽墨手作'],['photo_camera','写生导览'],['local_taxi','专车接送']],
+ old:'¥3,860',base:2280,add:460,addTxt:'汉服妆造与跟拍 +¥460',coupon:100,paid:2640,vouchers:11,rsv:5,
+ rsvTxt:['徽州家宴','天井晚宴','徽墨手作','自由晚餐券','送站专车'],
+ remark:'希望安排一层带院子的房间，老人膝盖不便。',
+ todo:[['event_busy','预约 5 项需预约的服务','家宴 · 手作 · 自由餐券 · 接送','去预约','g3'],['qr_code_2','查看 11 张核销凭证','1 张总凭证 + 11 张分项子券','查看','g1'],['timeline','加入行程助手','3 天行程含 2 个清晨拍摄场','打开','g4']],
+ rec:[['乌镇夜游水乡两日','g2','night_shelter','¥1,580','/2人'],['西递写生三日营','g4','palette','¥2,880','/人'],['南浔家宴半日游','g3','restaurant','¥380','/2人']]},
+grassland:{th:'grassland',ic:'park',name:'呼伦贝尔草原四日',dest:'呼伦贝尔 · 海拉尔',date:'2026-07-12（周日）出发',spec:'固定套餐 · 蒙古包 2 晚 + 酒店 1 晚 · 2 成人 1 儿童',
+ incs:[['holiday_village','蒙古包 2 晚'],['restaurant','餐食 6 次'],['sports_martial_arts','骑马穿越'],['directions_car','越野车 4 天'],['support_agent','专属管家']],
+ old:'¥5,480',base:3280,add:520,addTxt:'草原摄影跟拍 +¥520',coupon:100,paid:3700,vouchers:12,rsv:4,
+ rsvTxt:['烤全羊晚宴','呼伦湖全鱼宴','牧民家访','送机专车'],
+ remark:'孩子 6 岁，骑马希望安排最温顺的马。',
+ todo:[['event_busy','预约 4 项需预约的服务','烤全羊 · 鱼宴 · 家访 · 送机','去预约','g3'],['qr_code_2','查看 12 张核销凭证','含越野车与骑马各一张子券','查看','g1'],['timeline','加入行程助手','4 天跨 3 个牧场，含日出提醒','打开','g4']],
+ rec:[['乌兰布统摄影三日','g2','wb_twilight','¥2,680','/人'],['阿尔山森林温泉四日','g4','hot_tub','¥3,080','/2人'],['呼伦湖观鸟两日','g3','water','¥1,480','/2人']]},
+snow:{th:'snow',ic:'ac_unit',name:'长白山雪季三日',dest:'长白山 · 二道白河',date:'2027-01-08（周五）出发',spec:'固定套餐 · 雪场标准双床房 · 2 成人 1 儿童',
+ incs:[['hotel','雪场酒店 2 晚'],['downhill_skiing','教学+全天雪票'],['hot_tub','户外温泉'],['restaurant','餐食 4 次'],['local_taxi','机场接送']],
+ old:'¥4,680',base:2880,add:680,addTxt:'私教升级一对一 +¥680',coupon:100,paid:3460,vouchers:10,rsv:5,
+ rsvTxt:['滑雪教学','铁锅炖晚宴','户外温泉','雪原徒步','送机专车'],
+ remark:'孩子 6 岁第一次滑雪，希望教练耐心一点。',
+ todo:[['event_busy','预约 5 项需预约的服务','教学 · 温泉 · 晚宴 · 徒步 · 送机','去预约','g3'],['qr_code_2','查看 10 张核销凭证','雪具与雪票已含在子券内','查看','g1'],['timeline','加入行程助手','含 05:30 雾凇晨拍叫醒提醒','打开','g4']],
+ rec:[['雾凇岛摄影两日','g4','wb_twilight','¥1,280','/2人'],['亚布力滑雪三日','g2','downhill_skiing','¥2,580','/人'],['延吉美食民俗两日','g3','restaurant','¥1,180','/2人']]},
+city:{th:'city',ic:'location_city',name:'上海屋顶周末两日',dest:'上海 · 外滩',date:'2026-10-23（周四）出发',spec:'固定套餐 · 外滩江景套房 · 2 成人',
+ incs:[['hotel','江景套房 1 晚'],['local_bar','屋顶酒吧黄昏场'],['restaurant_menu','餐酒晚宴'],['map','City Walk 导览'],['local_taxi','专车接送']],
+ old:'¥3,540',base:1980,add:320,addTxt:'黄浦江游船夜场 +¥320',coupon:100,paid:2200,vouchers:8,rsv:4,
+ rsvTxt:['屋顶酒吧黄昏场','餐酒晚宴','City Walk 导览','弄堂本帮午餐'],
+ remark:'希望屋顶酒吧安排靠栏杆的位置，看得到日落。',
+ todo:[['event_busy','预约 4 项需预约的服务','屋顶酒吧 · 晚宴 · 导览 · 午餐','去预约','g3'],['qr_code_2','查看 8 张核销凭证','1 张总凭证 + 8 张分项子券','查看','g1'],['timeline','加入行程助手','含日落时间 17:38 提醒','打开','g4']],
+ rec:[['苏州园林私享两日','g4','temple_buddhist','¥1,680','/2人'],['杭州西湖茶事两日','g3','local_cafe','¥1,480','/2人'],['莫干山云端两日','g1','filter_hdr','¥1,680','/2人']]}
+};
+
+let TH='ocean',payMethod=0;
+const $=id=>document.getElementById(id);
+const PAYS=[['wechat','微信支付','#1aad19','推荐 · 即时到账'],['account_balance','企业对公转账','#3E6B62','团建订单 · 1-2 个工作日审核到账'],['redeem','企业福利额度','#C9952B','可用 ¥800 · 差额部分自付'],['credit_card','分期付款','#5A5BD0','3/6/12 期 · 需信用审核']];
+
+function money(n){return '¥'+n.toLocaleString()}
+function renderThemes(){
+  $('themes').innerHTML=Object.keys(LIB).map(k=>
+    `<div class="th${k===TH?' on':''}" style="color:${LIB[k].sw}" onclick="pick('${k}')"><span class="sw" style="background:${LIB[k].sw}"></span>${LIB[k].n}</div>`).join('');
+}
+function renderSummary(){
+  const p=ORD[TH];
+  $('summary').setAttribute('data-theme',p.th);
+  $('paxCard').setAttribute('data-theme',p.th);
+  $('summary').innerHTML=`<div class="sum-img g1"><span class="mi">${p.ic}</span>
+    <div class="sum-tkey"><i style="background:${LIB[p.th].sw}"></i>${LIB[p.th].n}主题 · theme_key=${p.th}</div>
+    <div class="sum-edit" onclick="showToast('返回详情页修改规格与加购')"><span class="mi">edit</span>修改</div></div>
+   <div class="sum-b"><div class="sum-t">${p.name}</div>
+    <div class="sum-m">${p.date}<br>${p.spec}</div>
+    <div class="sum-incs">${p.incs.map(x=>`<i><span class="mi">${x[0]}</span>${x[1]}</i>`).join('')}</div>
+    <div class="sum-foot"><span>已加购：${p.addTxt}</span><b>${money(p.paid)}</b></div></div>`;
+  $('barOld').textContent='单买总价 '+p.old;
+  $('barNow').textContent=p.paid.toLocaleString();
+  $('barU').textContent='已含 '+p.vouchers+' 项服务';
+  $('feeBase').textContent=money(p.base)+' × 1 组（2 人）';
+  $('feeAdd').textContent=p.addTxt;
+  $('payDue').textContent=money(p.paid);
+  $('payBtnAmt').textContent=money(p.paid);
+  $('remark').value=p.remark;
+  $('feeBox').innerHTML=`<div class="fee-t">费 用 明 细</div>
+    <div class="fee-r"><span>${p.name} · 套餐基础价</span><span>${money(p.base)}</span></div>
+    <div class="fee-r"><span>${p.addTxt}</span><span>${money(p.add)}</span></div>
+    <div class="fee-r g"><span>新人立减券</span><span>-${money(p.coupon)}</span></div>
+    <div class="fee-r"><span>礼品卡额度</span><span style="color:var(--tx3)">未使用</span></div>
+    <div class="fee-tot"><span>实付合计<br>含 ${p.vouchers} 项服务 · ${p.rsv} 项需预约</span><b>${p.paid.toLocaleString()}</b></div>`;
+}
+function renderDone(){
+  const p=ORD[TH];
+  $('okHero').setAttribute('data-theme',p.th);
+  $('okHero').querySelector('.ok-ring .mi').style.color='var(--pri-d)';
+  $('okSub').innerHTML=`订单号 YQ2026092800328 · 已支付 ${money(p.paid)}<br>${p.vouchers} 张核销凭证已生成`;
+  $('okCount').setAttribute('data-theme',p.th);
+  $('ringPath').setAttribute('stroke',LIB[p.th].sw);
+  $('ringTxt').textContent='0/'+p.vouchers;
+  $('okCountD').textContent='有效期 90 天内 · 未核销可随时全额退';
+  $('todo').innerHTML=`<div class="todo-h"><div class="todo-t">接下来要做三件事</div><div class="todo-s">完成预约后，商家会为你留好位置</div></div>`+
+   p.todo.map(t=>`<div class="todo-i" onclick="showToast('${t[1]}')"><div class="todo-ic ${t[4]}"><span class="mi">${t[0]}</span></div>
+   <div class="todo-b"><div class="todo-n">${t[1]}</div><div class="todo-d">${t[2]}</div></div>
+   <div class="todo-go">${t[3]} <span class="mi">chevron_right</span></div></div>`).join('');
+  $('warn').innerHTML=`<b>重要：</b>本产品中 ${p.rsv} 项服务需提前预约（${p.rsvTxt.join('、')}）。未预约直接到店可能无法接待，建议现在就完成预约，或由管家代为处理。`;
+  $('rec').innerHTML=p.rec.map(r=>`<div class="rec-c" onclick="showToast('进入产品详情')"><div class="rec-img ${r[1]}"><span class="mi">${r[2]}</span></div><div class="rec-t">${r[0]}</div><div class="rec-p">${r[3]}<small>${r[4]}</small></div></div>`).join('');
+}
+function pick(k){
+  if(k===TH)return;
+  $('veil').classList.add('on');
+  setTimeout(()=>{TH=k;renderThemes();renderSummary();renderDone();
+    setTimeout(()=>$('veil').classList.remove('on'),100);
+    showToast('已切换到「'+LIB[k].n+'」主题 · 订单摘要与凭证数随之变化');},250);
+}
+function renderPays(){
+  $('payList').innerHTML=PAYS.map((x,i)=>
+    `<div class="pay${i===0?' on':''}" onclick="payPick(this,${i})"><div class="pay-ic" style="background:${x[2]}"><span class="mi">${x[0]}</span></div>
+     <div class="pay-b"><div class="pay-n">${x[1]}</div><div class="pay-d">${x[3]}</div></div><div class="radio"></div></div>`).join('');
+}
+function payPick(el,i){el.parentNode.querySelectorAll('.pay').forEach(p=>p.classList.remove('on'));el.classList.add('on');if(i!==undefined)payMethod=i;}
+function doPay(){
+  closeSheet();
+  $('pgBook').classList.remove('on');$('pgDone').classList.add('on');window.scrollTo(0,0);
+  const p=ORD[TH],n=p.vouchers,circ=138.2;
+  setTimeout(()=>{$('ringPath').style.transition='stroke-dashoffset 1.1s cubic-bezier(.22,.75,.28,1)';$('ringPath').style.strokeDashoffset=circ*(1-0);},200);
+  showToast('支付成功 · '+n+' 张核销凭证已生成');
+}
+function addKid(){const k=$('kidBlock');k.style.display=k.style.display==='none'?'block':'none';showToast('儿童出行人区块已切换');}
+function delKid(){$('kidBlock').style.display='none';showToast('已移除儿童出行人');}
+function openSheet(n){$('mask').classList.add('on');$('sh'+n).classList.add('on');}
+function closeSheet(){$('mask').classList.remove('on');document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('on'));}
+function showToast(x){const t=$('toast');t.innerHTML=x;t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),2200);}
+renderThemes();renderSummary();renderDone();renderPays();
+</script>
+</body>
+</html>

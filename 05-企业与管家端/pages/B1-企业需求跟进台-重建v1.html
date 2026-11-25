@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>云栖度假 · 企业需求跟进台（B1 · 重建 v1）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F3F5F7; --card:#fff; --tx:#1A2138; --tx2:#5B6477; --tx3:#9BA3B5;
+  --line:#E5E9EF; --line2:#F0F3F7;
+  --pri:#2B5FE0; --pri-d:#1E48B8; --pri-l:#EEF2FE; --pri-xl:#F6F8FE;
+  --ok:#16A34A; --ok-l:#ECFDF5; --warn:#D97706; --warn-l:#FFF7ED;
+  --err:#DC2626; --err-l:#FEF2F2; --gold:#C9952B; --gold-l:#FBF4E4;
+  --r-sm:6px; --r-md:10px; --r-lg:14px;
+  --sh:0 1px 3px rgba(26,33,56,.06),0 1px 2px rgba(26,33,56,.04);
+  --sh-m:0 4px 14px rgba(26,33,56,.08);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);font-size:13px;-webkit-font-smoothing:antialiased}
+.mi{font-family:'Material Icons';font-weight:normal;font-style:normal;font-size:18px;line-height:1;vertical-align:-3px;display:inline-block}
+.app{display:flex;min-height:100vh}
+/* shell */
+.side{width:232px;flex-shrink:0;background:#1A2138;color:#fff;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{padding:18px 20px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand-ic{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#2B5FE0,#5B8DEF);display:flex;align-items:center;justify-content:center}
+.brand-ic .mi{font-size:18px;color:#fff}
+.brand-t{font-size:14px;font-weight:800;letter-spacing:.02em}
+.brand-s{font-size:9px;color:#8A95AD;letter-spacing:.14em;margin-top:2px}
+.snav{padding:12px 10px;flex:1;overflow:auto}
+.snav-g{font-size:9px;color:#6E7893;letter-spacing:.14em;font-weight:800;padding:12px 12px 6px}
+.snav-i{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:#B9C2D6;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:2px;transition:.15s}
+.snav-i:hover{background:rgba(255,255,255,.06);color:#fff}
+.snav-i.on{background:var(--pri);color:#fff}
+.snav-i .mi{font-size:17px}
+.snav-i .badge{margin-left:auto;background:rgba(255,255,255,.16);border-radius:999px;padding:1px 7px;font-size:10px;font-weight:800}
+.sfoot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:9px}
+.sfoot-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#1D4ED8);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.sfoot-n{font-size:11px;font-weight:800}.sfoot-r{font-size:9px;color:#8A95AD;margin-top:2px}
+.main{flex:1;min-width:0}
+.top{height:62px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:20}
+.crumb{font-size:12px;color:var(--tx3);font-weight:700;display:flex;align-items:center;gap:7px}
+.crumb b{color:var(--tx);font-weight:800}
+.crumb .mi{font-size:15px;color:var(--tx3)}
+.top-r{display:flex;align-items:center;gap:14px}
+.top-r .mi{font-size:20px;color:var(--tx2);cursor:pointer}
+.top-r .mi:hover{color:var(--pri)}
+.page{padding:22px 24px 40px;max-width:1520px;margin:0 auto}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:16px;flex-wrap:wrap}
+.pt{font-size:21px;font-weight:800;letter-spacing:-.01em}
+.ps{font-size:11.5px;color:var(--tx2);margin-top:6px;line-height:1.7;font-weight:600}
+.ph-r{display:flex;gap:9px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:8px;font-size:11.5px;font-weight:800;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--tx);transition:.15s}
+.btn:hover{border-color:var(--pri);color:var(--pri)}
+.btn .mi{font-size:16px}
+.btn-pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn-pri:hover{background:var(--pri-d);color:#fff}
+.btn-gold{background:var(--gold);border-color:var(--gold);color:#fff}
+/* kpi */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:14px 16px;box-shadow:var(--sh)}
+.kpi-l{font-size:10.5px;color:var(--tx2);font-weight:800;display:flex;align-items:center;gap:6px}
+.kpi-l .mi{font-size:15px;color:var(--pri)}
+.kpi-v{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-top:9px}
+.kpi-v small{font-size:12px;font-weight:700;color:var(--tx2);margin-left:2px}
+.kpi-d{font-size:10px;font-weight:700;margin-top:6px;display:flex;align-items:center;gap:4px}
+.kpi-d .mi{font-size:13px}.kpi-d.up{color:var(--ok)}.kpi-d.down{color:var(--err)}.kpi-d.flat{color:var(--tx3)}
+/* notice */
+.notice{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;background:var(--warn-l);border:1px solid #FED7AA;border-radius:var(--r-md);margin-bottom:16px;font-size:11px;color:#92400E;font-weight:700;line-height:1.8}
+.notice .mi{font-size:17px;flex-shrink:0;color:var(--warn)}
+.notice b{color:#7C2D12}
+/* grid */
+.grid{display:grid;grid-template-columns:288px minmax(0,1fr) 322px;gap:14px;align-items:start}
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--sh);overflow:hidden}
+.panel-h{padding:13px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.panel-t{font-size:12px;font-weight:800;display:flex;align-items:center;gap:7px}
+.panel-t .mi{font-size:17px;color:var(--pri)}
+.panel-t small{font-size:10px;color:var(--tx3);font-weight:700;margin-left:4px}
+.panel-a{font-size:10.5px;color:var(--pri);font-weight:800;cursor:pointer;display:flex;align-items:center;gap:3px}
+.panel-b{padding:12px 14px}
+/* demand list */
+.dem{padding:12px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:9px;cursor:pointer;transition:.15s;background:#fff}
+.dem:hover{border-color:var(--pri);box-shadow:var(--sh-m)}
+.dem.on{border-color:var(--pri);background:var(--pri-xl);box-shadow:0 0 0 2px rgba(43,95,224,.10)}
+.dem-h{display:flex;align-items:center;gap:9px}
+.dem-av{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;flex-shrink:0}
+.dem-n{font-size:12px;font-weight:800;flex:1;min-width:0}
+.st{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:9px;font-weight:800;white-space:nowrap}
+.st.wait{background:var(--warn-l);color:var(--warn)}
+.st.done{background:var(--ok-l);color:var(--ok)}
+.st.demo{background:var(--gold-l);color:var(--gold)}
+.st.info{background:var(--pri-l);color:var(--pri)}
+.dem-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.chip{font-size:9.5px;font-weight:700;color:var(--tx2);background:var(--line2);border-radius:5px;padding:3px 7px}
+.dem-f{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line)}
+.dem-f-t{font-size:9.5px;color:var(--tx3);font-weight:700}
+.dem-f-v{font-size:12px;font-weight:800;color:var(--pri)}
+/* detail rows */
+.rows{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.row{padding:9px 0;border-bottom:1px dashed var(--line)}
+.row-l{font-size:10px;color:var(--tx3);font-weight:700;margin-bottom:3px}
+.row-v{font-size:12px;font-weight:800;line-height:1.6}
+.row-v .tag{display:inline-block;font-size:9px;font-weight:800;padding:2px 6px;border-radius:5px;background:var(--pri-l);color:var(--pri);margin-right:4px}
+.sec-t2{font-size:11px;font-weight:800;color:var(--tx2);margin:16px 0 9px;display:flex;align-items:center;gap:6px}
+.sec-t2 .mi{font-size:16px;color:var(--pri)}
+/* timeline */
+.tl{position:relative;padding-left:20px}
+.tl:before{content:'';position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tli{position:relative;padding-bottom:13px}
+.tli:last-child{padding-bottom:0}
+.tli-d{position:absolute;left:-19px;top:3px;width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid var(--line)}
+.tli.ok .tli-d{border-color:var(--ok);background:var(--ok)}
+.tli.now .tli-d{border-color:var(--pri);background:var(--pri);box-shadow:0 0 0 4px var(--pri-l)}
+.tli-n{font-size:11px;font-weight:800;line-height:1.5}
+.tli-m{font-size:10px;color:var(--tx2);font-weight:600;margin-top:3px;line-height:1.65}
+.tli-t{font-size:9px;color:var(--tx3);font-weight:700;margin-top:3px}
+/* plan */
+.plan{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;margin-bottom:12px}
+.plan-h{padding:12px 13px;background:linear-gradient(120deg,var(--pri-xl),#fff);border-bottom:1px solid var(--line)}
+.plan-tag{font-size:9px;font-weight:800;color:var(--pri);letter-spacing:.1em}
+.plan-n{font-size:13px;font-weight:800;margin-top:5px;line-height:1.5}
+.plan-m{font-size:10px;color:var(--tx2);font-weight:700;margin-top:5px}
+.plan-b{padding:12px 13px}
+.bline{display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;padding:5px 0;color:var(--tx2)}
+.bline b{color:var(--tx)}
+.bline.tot{border-top:1px dashed var(--line);margin-top:6px;padding-top:9px;font-size:12px}
+.bline.tot b{color:var(--pri);font-size:15px}
+.bline.save{color:var(--ok)}
+.plan-f{padding:10px 13px;background:var(--ok-l);border-top:1px solid #BBF7D0;font-size:10px;color:#166534;font-weight:800;line-height:1.7;display:flex;gap:7px}
+.plan-f .mi{font-size:15px;flex-shrink:0}
+/* link cards */
+.lk{display:flex;align-items:center;gap:9px;padding:10px 11px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.lk:hover{border-color:var(--pri);background:var(--pri-xl)}
+.lk-ic{width:28px;height:28px;border-radius:7px;background:var(--pri-l);color:var(--pri);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lk-ic .mi{font-size:16px}
+.lk-b{flex:1;min-width:0}
+.lk-n{font-size:10.5px;font-weight:800}
+.lk-d{font-size:9px;color:var(--tx3);font-weight:700;margin-top:3px;line-height:1.5}
+.lk .mi.chev{font-size:16px;color:var(--tx3)}
+/* actions */
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.act{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 8px;border-radius:8px;font-size:10.5px;font-weight:800;cursor:pointer;border:1px solid var(--line);background:#fff;transition:.15s}
+.act:hover{border-color:var(--pri);color:var(--pri)}
+.act .mi{font-size:16px}
+.act.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.act.pri:hover{background:var(--pri-d);color:#fff}
+.act.gold{background:var(--gold);border-color:var(--gold);color:#fff}
+.act.gold:hover{color:#fff;filter:brightness(.94)}
+/* footer note */
+.foot{margin-top:14px;padding:11px 14px;background:var(--line2);border:1px dashed var(--line);border-radius:var(--r-md);font-size:10px;color:var(--tx2);font-weight:700;line-height:1.85}
+.foot b{color:var(--tx)}
+/* modal */
+.veil{position:fixed;inset:0;background:rgba(15,20,35,.5);z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
+.veil.on{display:flex}
+.modal{background:#fff;border-radius:var(--r-lg);width:min(560px,100%);box-shadow:0 24px 60px rgba(0,0,0,.22);overflow:hidden}
+.modal-h{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.modal-h-t{font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px}
+.modal-h-t .mi{color:var(--pri)}
+.modal-x{cursor:pointer;color:var(--tx3);font-size:20px}
+.modal-x:hover{color:var(--err)}
+.modal-b{padding:16px 18px;max-height:60vh;overflow:auto}
+.modal-f{padding:13px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:9px;background:var(--line2)}
+.mrow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--line);font-size:11px;font-weight:700}
+.mrow-l{color:var(--tx2)}.mrow-v{font-weight:800}
+.mwarn{margin-top:12px;padding:10px 12px;background:var(--warn-l);border:1px solid #FED7AA;border-radius:8px;font-size:10px;color:#92400E;font-weight:700;line-height:1.8}
+/* toast */
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-14px);background:#1A2138;color:#fff;padding:11px 18px;border-radius:9px;font-size:11.5px;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.24);opacity:0;pointer-events:none;transition:.24s;z-index:90;max-width:min(620px,92vw);line-height:1.6}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{background:#15803D}.toast.warn{background:#B45309}
+@media(max-width:1200px){.grid{grid-template-columns:260px minmax(0,1fr)}.grid>.col3{grid-column:1/-1}}
+@media(max-width:820px){.side{display:none}.kpis{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.grid>.col3{grid-column:auto}.rows{grid-template-columns:1fr}}
+
+/* decision v3 - confirmed rules strip */
+.dstrip{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;margin-bottom:14px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;font-size:10.5px;color:#14532D;font-weight:700;line-height:1.85}
+.dstrip>.mi{font-size:18px;flex-shrink:0;color:#15803D}
+.dstrip b{color:#166534}
+.dstrip .dstrip-t{font-size:11px;font-weight:800;letter-spacing:.02em}
+.dstrip .dstrip-x{color:#166534;font-weight:600}
+
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+
+/* yx-deep-B1 */
+.yx-overdue{animation:yxPulse 2.4s ease-in-out infinite}@keyframes yxPulse{0%,100%{box-shadow:0 0 0 0 rgba(194,65,12,0)}50%{box-shadow:0 0 0 3px rgba(194,65,12,.18)}}
+</style>
+</head>
+<body>
+<!-- yx-deep-B1 -->
+<div id="yxB1Hint" style="margin:0 0 10px;padding:9px 12px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;font-size:10.5px;color:#7C2D12;font-weight:700;line-height:1.8">跟进口径：需求提交后 <b>2 小时内首次回电</b>；方案发出后 <b>24 小时内确认</b>；对公到账 <b>当日激活订单</b>。逾期项在时间线以橙色标记。</div>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-ic"><span class="mi">terrain</span></div>
+      <div><div class="brand-t">云栖度假</div><div class="brand-s">ENTERPRISE DESK</div></div>
+    </div>
+    <nav class="snav">
+      <div class="snav-g">企业服务</div>
+      <div class="snav-i on"><span class="mi">groups</span>企业需求<span class="badge">5</span></div>
+      <div class="snav-i" onclick="showToast('AI 方案生成 · 见 07-AI能力层/企业端','warn')"><span class="mi">auto_awesome</span>AI 方案生成</div>
+      <div class="snav-i" onclick="showToast('礼品卡批次 · 见平台端 A11（PREP 态 · 备案中）','warn')"><span class="mi">card_giftcard</span>礼品卡批次</div>
+      <div class="snav-g">管家工作台</div>
+      <div class="snav-i" onclick="showToast('工作台')"><span class="mi">dashboard</span>工作台</div>
+      <div class="snav-i" onclick="showToast('我的日程')"><span class="mi">event_note</span>我的日程</div>
+      <div class="snav-i" onclick="showToast('客户对话 · 见 P13 管家客服')"><span class="mi">forum</span>客户对话</div>
+      <div class="snav-g">关联端</div>
+      <div class="snav-i" onclick="showToast('A9 对公转账与发票管理（财务端）')"><span class="mi">account_balance_wallet</span>对公转账</div>
+      <div class="snav-i" onclick="showToast('P11 企业专区（C端，含于 原型-05 主题化 v2 最新版）')"><span class="mi">phone_iphone</span>企业专区</div>
+    </nav>
+    <div class="sfoot">
+      <div class="sfoot-av">林</div>
+      <div><div class="sfoot-n">管家·小林</div><div class="sfoot-r">高级管家 · 企业组</div></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <div class="crumb"><span class="mi">groups</span>企业需求 <span class="mi">chevron_right</span><b>需求跟进台</b></div>
+      <div class="top-r"><span class="mi" onclick="showToast('搜索企业需求')">search</span><span class="mi" onclick="showToast('通知中心 · 三端合一')">notifications</span><span class="mi" onclick="showToast('帮助')">help_outline</span><span class="mi" onclick="showToast('管家·小林')">account_circle</span></div>
+    </header>
+
+    <div class="page">
+      <!-- DECISION_V3_APPLIED -->
+<div class="dstrip"><span class="mi">gavel</span><div><div class="dstrip-t">决策 4 已定稿（路径 A） · 企业礼品卡走备案与资金存管</div><div class="dstrip-x">方向已定，但<b>成立前提需法务书面定性</b>（是否同一品牌特许体系）。四项闸门齐备前保持 PREP 态。<b>开票区分</b>：团建定制开专票；礼品卡采购只能开不征税普票、实际消费不再开票（A9 财务端已联动）。</div></div></div>
+
+      <div class="ph">
+        <div>
+          <div class="pt">企业需求跟进台</div>
+          <div class="ps">需求提交 → 管家跟进 → AI 方案 → 客户确认 → 专属链接 → 批量下单 → 对公到账激活 → 开票送达</div>
+        </div>
+        <div class="ph-r">
+          <div class="btn" onclick="showToast('导出需求清单 · 口径：净 GMV（含退款冲减）')"><span class="mi">file_download</span>导出清单</div>
+          <div class="btn btn-pri" data-yx-risk="批量下单" data-yx-impact="影响面：生成多笔订单并占用共享池库存。" onclick="openBatch()"><span class="mi">group_add</span>批量下单</div>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="kpi-l"><span class="mi">assignment</span>待跟进需求</div><div class="kpi-v">5<small>条</small></div><div class="kpi-d down"><span class="mi">schedule</span>1 条超 24h 未回电</div></div>
+        <div class="kpi"><div class="kpi-l"><span class="mi">description</span>本月方案已发</div><div class="kpi-v">18<small>份</small></div><div class="kpi-d up"><span class="mi">arrow_upward</span>转化率 61%</div></div>
+        <div class="kpi"><div class="kpi-l"><span class="mi">payments</span>本月企业成交额</div><div class="kpi-v">¥426<small>K</small></div><div class="kpi-d up"><span class="mi">arrow_upward</span>环比 +24%</div></div>
+        <div class="kpi"><div class="kpi-l"><span class="mi">card_giftcard</span>礼品卡采购意向</div><div class="kpi-v">¥200<small>K</small></div><div class="kpi-d flat"><span class="mi">lock</span>PREP 态 · 待备案回执</div></div>
+      </div>
+
+      <div class="notice">
+        <span class="mi">gavel</span>
+        <div><b>✅ 决策 4 已定稿（路径 A）：走单用途商业预付卡备案 + 资金存管，当前 PREP 态。</b>但<b>成立前提需法务书面定性</b>：单用途卡仅限「本企业 / 所属集团 / 同一品牌特许经营体系」内兑付，是否跨法人不是判断依据；若额度可在多个独立第三方商家兑付，可能被认定为多用途预付卡（须持牌支付机构发行）。四项闸门（法务定性 / 财务科目 / 备案回执 / 存管协议生效）齐备前：不收对公款、不生成可兑换的正式码、不发真实资金流水。<b>团建定制（非礼品卡）链路不受此限制。</b></div>
+      </div>
+
+      <div class="grid">
+        <!-- col 1 : demand list -->
+        <div class="panel">
+          <div class="panel-h"><div class="panel-t"><span class="mi">groups</span>需求列表<small>按提交时间</small></div><div class="panel-a" onclick="showToast('筛选需求')">筛选 <span class="mi">filter_list</span></div></div>
+          <div class="panel-b" id="demList"></div>
+        </div>
+
+        <!-- col 2 : detail -->
+        <div class="panel">
+          <div class="panel-h"><div class="panel-t"><span class="mi">assignment</span><span id="detailTitle">携程旅行 · 2026 年度团建</span></div><div class="panel-a" onclick="showToast('编辑需求')">编辑 <span class="mi">edit</span></div></div>
+          <div class="panel-b">
+            <div class="rows" id="detailRows"></div>
+
+            <div class="sec-t2"><span class="mi">timeline</span>跟进时间线</div>
+            <div class="tl" id="detailTl"></div>
+
+            <div class="sec-t2"><span class="mi">account_balance_wallet</span>资金与发票关联</div>
+            <div class="lk" onclick="showToast('跳转财务端 A9 · 对公转账 DD20261107001')">
+              <div class="lk-ic"><span class="mi">receipt_long</span></div>
+              <div class="lk-b"><div class="lk-n">对公转账 DD20261107001 · ¥8,000.00</div><div class="lk-d">招商银行 6225****8801 · 流水已匹配 · 确认到账后激活订单</div></div>
+              <span class="mi chev">chevron_right</span>
+            </div>
+            <div class="lk" onclick="showToast('跳转财务端 A9 · 专票待开')">
+              <div class="lk-ic"><span class="mi">description</span></div>
+              <div class="lk-b"><div class="lk-n">增值税专用发票 · 待开票</div><div class="lk-d">携程旅行（上海）有限公司 · 服务完成后开具</div></div>
+              <span class="mi chev">chevron_right</span>
+            </div>
+            <div class="lk" onclick="showToast('跳转平台端 A13 · 退款资金影响对账')">
+              <div class="lk-ic"><span class="mi">currency_yen</span></div>
+              <div class="lk-b"><div class="lk-n">退款冲减反向流水入口</div><div class="lk-d">企业订单发生退款时，按「GMV 不回冲、单列退款冲减」写入流水；导出带净 GMV 水印</div></div>
+              <span class="mi chev">chevron_right</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- col 3 : plan + actions -->
+        <div class="col3">
+          <div class="panel" style="margin-bottom:14px">
+            <div class="panel-h"><div class="panel-t"><span class="mi">auto_awesome</span>推荐方案<small>AI 生成 · 12 秒</small></div><div class="panel-a" onclick="showToast('打开 07-AI能力层/企业端/原型-AI企业方案生成-v1.html')">查看原型 <span class="mi">open_in_new</span></div></div>
+            <div class="panel-b">
+              <div class="plan">
+                <div class="plan-h">
+                  <div class="plan-tag">AI GENERATED PLAN</div>
+                  <div class="plan-n">莫干山团建包场三日</div>
+                  <div class="plan-m">45 人 · 3 天 2 晚 · 11/22 出行 · 含会议与拓展</div>
+                </div>
+                <div class="plan-b">
+                  <div class="bline"><span>住宿（45人×2晚×¥380）</span><b>¥34,200</b></div>
+                  <div class="bline"><span>餐饮（45人×5餐×¥180）</span><b>¥40,500</b></div>
+                  <div class="bline"><span>活动（会议+拓展+徒步）</span><b>¥12,000</b></div>
+                  <div class="bline"><span>交通（包车）</span><b>¥8,000</b></div>
+                  <div class="bline" style="color:var(--err)"><span>初稿合计</span><b style="color:var(--err)">¥94,700 · 超预算 ¥14,700</b></div>
+                  <div class="bline save"><span>AI 优化三条（餐饮 4 餐 / 拓展半日 / 标间）</span><b>−¥16,300</b></div>
+                  <div class="bline tot"><span>优化后合计</span><b>¥78,400</b></div>
+                </div>
+                <div class="plan-f"><span class="mi">verified</span><div>控制在客户预算 ¥80,000 内。<b>需人工确认</b>：出行人名单、发票抬头、儿童/无障碍需求。</div></div>
+              </div>
+              <div class="acts">
+                <div class="act" onclick="showToast('已拨打 138****6201 · 回电记录写入跟进时间线','ok')"><span class="mi">call</span>回电客户</div>
+                <div class="act" onclick="showToast('方案已发送给客户 · 客户可在 P11 企业专区查看','ok')"><span class="mi">send</span>发送方案</div>
+                <div class="act" onclick="showToast('已生成专属链接 /ent/CT20261107 · 有效期 7 天','ok')"><span class="mi">link</span>专属链接</div>
+                <div class="act pri" data-yx-risk="批量下单" data-yx-impact="影响面：生成多笔订单并占用共享池库存。" onclick="openBatch()"><span class="mi">group_add</span>批量下单</div>
+              </div>
+              <div class="foot">
+                <b>链路对账：</b>P11 企业专区提交需求 → B1 跟进 → AI 企业方案生成 → 专属链接批量下单 → A9 对公到账确认激活订单 → A9 开票送达 → A11 礼品卡批次（PREP 态 · 备案中）→ A13 退款冲减（如有）。<br>
+                <b>口径基准：</b>成交 GMV 不回冲，退款单列「退款冲减」，环比与报表一律用净 GMV。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="veil" id="veil" data-yx-risk="批量下单" data-yx-impact="影响面：生成多笔订单并占用共享池库存。" onclick="if(event.target===this)closeBatch()">
+  <div class="modal">
+    <div class="modal-h"><div class="modal-h-t"><span class="mi">group_add</span>批量下单 · 携程旅行 2026 年度团建</div><span class="mi modal-x" onclick="closeBatch()">close</span></div>
+    <div class="modal-b">
+      <div class="mrow"><span class="mrow-l">关联需求</span><span class="mrow-v">CT20261107 · 45 人</span></div>
+      <div class="mrow"><span class="mrow-l">方案</span><span class="mrow-v">莫干山团建包场三日</span></div>
+      <div class="mrow"><span class="mrow-l">出行日期</span><span class="mrow-v">2026-11-22 至 11-24</span></div>
+      <div class="mrow"><span class="mrow-l">出行人导入</span><span class="mrow-v">Excel 已上传 · 45 / 45 校验通过</span></div>
+      <div class="mrow"><span class="mrow-l">支付主体</span><span class="mrow-v">企业对公转账</span></div>
+      <div class="mrow"><span class="mrow-l">订单总额</span><span class="mrow-v">¥78,400.00</span></div>
+      <div class="mrow"><span class="mrow-l">已到账</span><span class="mrow-v" style="color:var(--ok)">¥8,000.00（DD20261107001）</span></div>
+      <div class="mrow"><span class="mrow-l">待补尾款</span><span class="mrow-v" style="color:var(--warn)">¥70,400.00</span></div>
+      <div class="mrow"><span class="mrow-l">发票</span><span class="mrow-v">团建定制 · 增值税专用发票 · 待开（礼品卡采购另按不征税普票）</span></div>
+      <div class="mwarn"><span class="mi">info</span> 对公转账需财务在 A9 完成「凭证 + 银行流水」双核对并确认到账后才激活订单；当前仅到账 ¥8,000，批量下单将生成 <b>待激活</b> 订单，不会提前发放子券。一码多核：45 人 × N 项服务，核销码发在子券上。</div>
+    </div>
+    <div class="modal-f">
+      <div class="btn" onclick="closeBatch()">取消</div>
+      <div class="btn btn-pri" data-yx-risk="批量下单" data-yx-impact="影响面：生成多笔订单并占用共享池库存。" onclick="closeBatch();showToast('已生成 45 人待激活订单 · 等待 A9 确认尾款到账','ok')"><span class="mi">check</span>确认批量下单</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+var DEMANDS=[
+ {id:'CT20261107',name:'携程旅行',contact:'张明 · 138****6201',people:45,budget:'¥80,000',date:'11/22',dest:'莫干山',type:'会议 + 拓展',status:'待客户确认',st:'wait',
+  av:'携',color:'linear-gradient(135deg,#3B82F6,#1D4ED8)',amount:'¥78,400',
+  rows:[['企业名称','携程旅行（上海）有限公司'],['需求编号','CT20261107'],['人数 / 预算','45 人 · ¥80,000'],['出行日期','2026-11-22 至 11-24（3 天 2 晚）'],['目的地偏好','莫干山'],['活动类型','<span class="tag">会议</span><span class="tag">拓展</span><span class="tag">晚宴</span>'],['支付主体','企业对公转账'],['发票需求','增值税专用发票（抬头已提供）'],['专属链接','/ent/CT20261107 · 有效期 7 天'],['当前状态','<span class="st wait">待客户确认方案</span>']],
+  tl:[['需求提交','P11 企业专区提交：45 人 / 预算 ¥8 万 / 11/22 出行','11-07 09:15','ok'],
+      ['AI 生成方案初稿','12 秒生成「莫干山团建包场三日」¥94,700，超预算 ¥14,700','11-07 09:16','ok'],
+      ['AI 优化建议','餐饮改 4 餐 −¥8,100 / 拓展半日 −¥4,000 / 标间 −¥4,200 → ¥78,400','11-07 09:16','ok'],
+      ['管家回电','小林回电确认出行人名单与发票抬头','11-07 09:30','ok'],
+      ['方案发送','已通过 P11 企业专区推送客户，附带行程与预算明细','11-07 10:02','ok'],
+      ['客户确认方案','客户口头确认，待书面回传名单','11-07 10:15','ok'],
+      ['生成专属链接 → 批量下单 → 对公到账激活','待管家执行；A9 到账确认后才发放子券','下一步','now']]},
+ {id:'BD20261106',name:'字节跳动',contact:'陈悦 · 139****8830',people:60,budget:'¥120,000',date:'11/29',dest:'安吉',type:'团建包场',status:'方案已生成',st:'done',
+  av:'字',color:'linear-gradient(135deg,#12897C,#0C6B61)',amount:'¥112,600',
+  rows:[['企业名称','字节跳动有限公司'],['需求编号','BD20261106'],['人数 / 预算','60 人 · ¥120,000'],['出行日期','2026-11-29 至 12-01'],['目的地偏好','安吉竹海'],['活动类型','<span class="tag">团建包场</span><span class="tag">竹林徒步</span>'],['支付主体','企业对公转账'],['发票需求','增值税专用发票'],['对公转账','DD20261106008 · ¥12,000 待审核'],['当前状态','<span class="st done">方案已生成 · 待回电</span>']],
+  tl:[['需求提交','P11 企业专区提交：60 人 / 预算 ¥12 万 / 11/29 出行','11-06 16:30','ok'],
+      ['AI 生成方案','安吉竹海包场三日 ¥112,600，控制在预算内','11-06 16:31','ok'],
+      ['回电客户','待管家回电确认出行人名单','超 24h 未回电','now']]},
+ {id:'HW20261030',name:'华为技术',contact:'赵磊 · 137****4521',people:500,budget:'¥200,000',date:'全年分批',dest:'全国多目的地',type:'企业福利礼品卡',status:'DEMO 待合规',st:'demo',
+  av:'华',color:'linear-gradient(135deg,#C9952B,#A67A1C)',amount:'¥200,000',
+  rows:[['企业名称','华为技术有限公司'],['需求编号','HW20261030'],['覆盖人数 / 预算','500 人 · ¥200,000'],['使用方式','全年分批兑换，员工自选套餐'],['支付主体','企业对公转账'],['对公转账','DD20261105003 · ¥20,000 待审核'],['礼品卡批次','A11 · PREP 态未激活（待备案回执）'],['资金性质','<span class="st demo">已定方向 · 单用途卡备案 + 资金存管（待法务定性成立前提）</span>'],['收入确认','按子券核销进度逐项结转，不按兑换动作'],['当前状态','<span class="st demo">PREP 态 · 不收对公款 · 待备案回执</span>']],
+  tl:[['采购意向提交','500 人全年福利额度，预算 ¥20 万','10-30 10:00','ok'],
+      ['财务初核','对公转账凭证已上传 A9，待流水核对','10-30 14:20','ok'],
+      ['合规闸门','✅ 方向已定：单用途卡备案 + 资金存管；需法务确认「发卡主体与兑付范围是否构成同一品牌特许体系」等成立前提','阻塞中 · 待法务','now'],
+      ['A11 批次激活 / P11 去 PREP 态','四项闸门齐备 + 财务法务双签后执行；确认前不生成正式兑换码','—','']]}
+];
+var cur=0;
+function render(){
+  var box=document.getElementById('demList'),h='';
+  for(var i=0;i<DEMANDS.length;i++){
+    var d=DEMANDS[i];
+    h+='<div class="dem'+(i===cur?' on':'')+'" onclick="pick('+i+')">'
+      +'<div class="dem-h"><div class="dem-av" style="background:'+d.color+'">'+d.av+'</div>'
+      +'<div class="dem-n">'+d.name+'</div><span class="st '+d.st+'">'+d.status+'</span></div>'
+      +'<div class="dem-meta"><span class="chip">'+d.people+' 人</span><span class="chip">'+d.budget+'</span><span class="chip">'+d.date+'</span><span class="chip">'+d.dest+'</span></div>'
+      +'<div class="dem-f"><span class="dem-f-t">'+d.id+' · '+d.type+'</span><span class="dem-f-v">'+d.amount+'</span></div></div>';
+  }
+  box.innerHTML=h;
+  var d=DEMANDS[cur];
+  document.getElementById('detailTitle').textContent=d.name+' · 需求跟进';
+  var r='';
+  for(var j=0;j<d.rows.length;j++) r+='<div class="row"><div class="row-l">'+d.rows[j][0]+'</div><div class="row-v">'+d.rows[j][1]+'</div></div>';
+  document.getElementById('detailRows').innerHTML=r;
+  var t='';
+  for(var k=0;k<d.tl.length;k++){
+    var e=d.tl[k];
+    t+='<div class="tli '+(e[3]||'')+'"><div class="tli-d"></div><div class="tli-n">'+e[0]+'</div><div class="tli-m">'+e[1]+'</div><div class="tli-t">'+e[2]+'</div></div>';
+  }
+  document.getElementById('detailTl').innerHTML=t;
+}
+function pick(i){cur=i;render();}
+function openBatch(){document.getElementById('veil').classList.add('on');}
+function closeBatch(){document.getElementById('veil').classList.remove('on');}
+function showToast(msg,type){
+  var el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className='toast show'+(type?' '+type:'');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(function(){el.className='toast'+(type?' '+type:'')},2800);
+}
+render();
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+
+<script>
+
+(function(){
+  YX.next('今天要跟进（逾期优先）',[
+    {label:'🔴 携程回电逾期 1 条 → 立即回电',fn:function(){YX.toast('已拨号 · 携程旅行（上海）有限公司 · CT20261107','err');}},
+    {label:'🟠 方案待确认 2 条 → 发提醒',fn:function(){YX.toast('已发送方案提醒 · 华为 ¥78,400 / 字节 ¥120,000','warn');}},
+    {label:'🟡 对公到账待审 1 笔 → 去 A9',fn:function(){YX.toast('打开 A9 · DD20261105003 · ¥20,000');}}
+  ],'#yxB1Hint');
+})();
+
+</script>
+</body>
+</html>

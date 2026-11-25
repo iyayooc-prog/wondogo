@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>云栖度假 · 平台后台 · 商家审核（A3）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F7; --card:#fff; --tx:#1A2138; --tx2:#5B6477; --tx3:#9BA3B5;
+  --line:#E5E9EF; --line2:#F0F3F7;
+  --pri:#2B5FE0; --pri-d:#1E48B8; --pri-l:#EEF2FE; --pri-xl:#F6F8FE;
+  --ok:#16A34A; --ok-l:#ECFDF5;
+  --warn:#D97706; --warn-l:#FFF7ED;
+  --err:#DC2626; --err-l:#FEF2F2;
+  --r-sm:6px; --r-md:10px; --r-lg:14px;
+  --sh:0 1px 3px rgba(26,33,56,.06),0 1px 2px rgba(26,33,56,.04);
+  --sh-m:0 4px 14px rgba(26,33,56,.08);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+
+.side{background:#1A2138;color:#C5CCDE;padding:20px 14px;display:flex;flex-direction:column;gap:3px}
+.brand{display:flex;align-items:center;gap:8px;padding:6px 10px 22px;color:#fff;font-weight:800;font-size:15px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px}
+.brand .mi{font-size:20px;color:#4E7FEF}
+.brand small{font-size:9px;font-weight:600;letter-spacing:.1em;color:#6C7690;margin-left:4px}
+.nav{font-size:10.5px;font-weight:700;letter-spacing:.08em;color:#6C7690;padding:14px 10px 6px}
+.sit{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+.sit .mi{font-size:18px;color:#8993A8}
+.sit:hover{background:rgba(255,255,255,.05);color:#fff}
+.sit.on{background:linear-gradient(90deg,#2B5FE0,rgba(43,95,224,.3));color:#fff}
+.sit.on .mi{color:#fff}
+.sit b{margin-left:auto;padding:1px 6px;background:var(--warn);color:#fff;font-size:9px;border-radius:8px;font-weight:700}
+.sfoot{margin-top:auto;padding:12px 10px 0;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:#8993A8;display:flex;align-items:center;gap:8px}
+.sfoot-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4E7FEF,#2B5FE0);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px}
+
+.main{display:flex;flex-direction:column;min-width:0}
+.top{height:62px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.bread{font-size:12.5px;color:var(--tx3);font-weight:600;display:flex;align-items:center;gap:6px}
+.bread .mi{font-size:14px}
+.bread b{color:var(--tx);font-weight:800}
+.top-r{display:flex;align-items:center;gap:14px;margin-left:auto}
+.top-ic{position:relative;cursor:pointer}
+.top-ic .mi{font-size:20px;color:var(--tx2)}
+.top-ic b{position:absolute;top:-4px;right:-6px;padding:0 5px;background:var(--err);color:#fff;font-size:9px;border-radius:8px;font-weight:800}
+
+.page{padding:24px 28px 40px;max-width:1520px;width:100%}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:14px}
+.pt{font-size:22px;font-weight:800;letter-spacing:-.015em}
+.ps{font-size:12px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.6}
+.ph-r{display:flex;gap:10px;align-items:center}
+.btn{padding:9px 17px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;transition:.15s}
+.btn .mi{font-size:16px}
+.btn-pri{background:var(--pri);color:#fff;box-shadow:var(--sh)}
+.btn-sec{background:#fff;color:var(--tx2);border-color:var(--line)}
+.btn-ok{background:var(--ok);color:#fff}.btn-err{background:var(--err);color:#fff}.btn-warn{background:var(--warn);color:#fff}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{background:#fff;border-radius:var(--r-lg);padding:18px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,var(--pri-l),transparent 70%);opacity:.6}
+.kpi-l{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:.04em;display:flex;align-items:center;gap:6px}
+.kpi-l .mi{font-size:14px}
+.kpi-v{font-size:28px;font-weight:800;letter-spacing:-.025em;margin-top:10px;line-height:1}
+.kpi-v small{font-size:13px;font-weight:700;color:var(--tx3)}
+.kpi-d{display:flex;align-items:center;gap:4px;margin-top:11px;font-size:11px;font-weight:800}
+.kpi-d .mi{font-size:14px}
+.kpi-d.up{color:var(--ok)}.kpi-d.down{color:var(--err)}.kpi-d.flat{color:var(--tx3)}
+
+/* 双栏布局 */
+.layout{display:grid;grid-template-columns:380px 1fr;gap:18px}
+.panel{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden;display:flex;flex-direction:column}
+.panel-h{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:#FAFBFD}
+.panel-t{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:7px}
+.panel-t .mi{font-size:17px;color:var(--pri)}
+.panel-t small{font-size:10px;color:var(--tx3);font-weight:600;margin-left:4px}
+.panel-b{padding:0;flex:1;overflow-y:auto;max-height:calc(100vh - 280px)}
+.panel-b::-webkit-scrollbar{width:5px}
+.panel-b::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+
+/* 申请列表 */
+.ap-list{padding:6px 0}
+.ap{display:flex;gap:11px;padding:13px 16px;border-bottom:1px solid var(--line2);cursor:pointer;transition:.15s}
+.ap:hover{background:var(--pri-xl)}
+.ap.on{background:var(--pri-l);border-left:3px solid var(--pri);padding-left:13px}
+.ap-av{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;font-weight:800;color:#fff}
+.ap-b{flex:1;min-width:0}
+.ap-t{font-size:12.5px;font-weight:800;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ap-st{padding:2px 7px;border-radius:5px;font-size:8.5px;font-weight:800}
+.ap-st.pend{background:var(--warn-l);color:var(--warn)}
+.ap-st.pass{background:var(--ok-l);color:var(--ok)}
+.ap-st.fail{background:var(--err-l);color:var(--err)}
+.ap-st.ren{background:var(--pri-l);color:var(--pri-d)}
+.ap-m{font-size:10px;color:var(--tx3);margin-top:5px;font-weight:600;line-height:1.6}
+.ap-r{text-align:right;flex-shrink:0}
+.ap-time{font-size:9.5px;color:var(--tx3);font-weight:700}
+.ap-sla{font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;margin-top:4px;display:inline-block}
+.ap-sla.warn{background:var(--warn-l);color:var(--warn)}
+.ap-sla.ok{background:var(--ok-l);color:var(--ok)}
+.ap-sla.err{background:var(--err-l);color:var(--err)}
+
+/* 详情 */
+.detail-h{padding:22px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,var(--pri-l),#fff)}
+.detail-av{width:62px;height:62px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;margin-bottom:13px;box-shadow:var(--sh)}
+.detail-n{font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1.35}
+.detail-m{font-size:11.5px;color:var(--tx2);margin-top:9px;line-height:1.85;font-weight:600}
+.detail-tags{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.dtag{padding:3px 10px;background:#fff;border:1px solid var(--line);border-radius:var(--r-full);font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px}
+.dtag .mi{font-size:12px}
+.dtag.risk{background:var(--warn-l);border-color:var(--warn);color:var(--warn)}
+.dtag.theme i{width:9px;height:9px;border-radius:50%;display:block}
+
+/* 区块 */
+.sec{padding:16px 22px;border-bottom:1px solid var(--line)}
+.sec-t{font-size:12.5px;font-weight:800;margin-bottom:13px;display:flex;align-items:center;gap:7px;letter-spacing:.02em}
+.sec-t .mi{font-size:16px;color:var(--pri)}
+.sec-t small{margin-left:auto;font-size:10px;font-weight:600;color:var(--tx3)}
+
+/* 基础信息 */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-i{padding:11px 13px;background:var(--line2);border-radius:var(--r-sm);font-size:11.5px}
+.info-k{font-size:9.5px;font-weight:700;color:var(--tx3);letter-spacing:.04em}
+.info-v{font-size:12px;font-weight:800;margin-top:4px;color:var(--tx);line-height:1.5}
+.info-v.warn{color:var(--warn)}
+
+/* 资质卡片 */
+.cert-list{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.cert{border:1.5px solid var(--line);border-radius:var(--r-md);overflow:hidden;cursor:pointer;transition:.18s}
+.cert:hover{border-color:var(--pri);transform:translateY(-2px)}
+.cert.pass{border-color:var(--ok)}
+.cert.fail{border-color:var(--err)}
+.cert-img{height:94px;position:relative;display:flex;align-items:center;justify-content:center;background:var(--line2)}
+.cert-img .mi{font-size:40px;color:var(--tx3)}
+.cert-st{position:absolute;top:7px;right:7px;padding:2px 8px;background:rgba(255,255,255,.95);backdrop-filter:blur(3px);border-radius:var(--r-full);font-size:9px;font-weight:800;display:flex;align-items:center;gap:3px}
+.cert-st.pass{color:var(--ok)}
+.cert-st.fail{color:var(--err)}
+.cert-st.pend{color:var(--warn)}
+.cert-st .mi{font-size:11px}
+.cert-b{padding:10px 12px}
+.cert-n{font-size:11.5px;font-weight:800;line-height:1.4}
+.cert-m{font-size:9.5px;color:var(--tx3);margin-top:4px;font-weight:600;line-height:1.6}
+.cert-exp{display:inline-block;margin-top:5px;padding:1px 7px;border-radius:4px;font-size:9px;font-weight:800;background:var(--line2);color:var(--tx2)}
+.cert-exp.warn{background:var(--warn-l);color:var(--warn)}
+
+/* 资源项预览 */
+.res-list{display:flex;flex-direction:column;gap:8px}
+.res{display:flex;gap:10px;padding:11px 12px;background:var(--line2);border-radius:var(--r-sm)}
+.res-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.res-ic .mi{font-size:15px;color:#fff}
+.res-b{flex:1;min-width:0}
+.res-n{font-size:11.5px;font-weight:800}
+.res-m{font-size:9.5px;color:var(--tx3);margin-top:2px;font-weight:600}
+.res-r{text-align:right}
+.res-p{font-size:12px;font-weight:800}
+.res-st{font-size:9px;color:var(--tx3);font-weight:700;margin-top:2px}
+
+/* 风险检测 */
+.risk-list{display:flex;flex-direction:column;gap:8px}
+.risk{display:flex;gap:11px;padding:11px 13px;border-radius:var(--r-sm)}
+.risk.high{background:var(--err-l);border-left:3px solid var(--err)}
+.risk.med{background:var(--warn-l);border-left:3px solid var(--warn)}
+.risk.low{background:var(--ok-l);border-left:3px solid var(--ok)}
+.risk-ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.risk.high .risk-ic{background:var(--err);color:#fff}
+.risk.med .risk-ic{background:var(--warn);color:#fff}
+.risk.low .risk-ic{background:var(--ok);color:#fff}
+.risk-ic .mi{font-size:15px}
+.risk-b{flex:1}
+.risk-t{font-size:11.5px;font-weight:800}
+.risk-d{font-size:10px;color:var(--tx2);margin-top:3px;font-weight:600;line-height:1.6}
+.risk-tag{display:inline-block;margin-top:4px;padding:1px 7px;border-radius:4px;font-size:9px;font-weight:800}
+.risk.high .risk-tag{background:rgba(220,38,38,.15);color:var(--err)}
+.risk.med .risk-tag{background:rgba(217,119,6,.15);color:var(--warn)}
+.risk.low .risk-tag{background:rgba(22,163,74,.15);color:var(--ok)}
+
+/* 操作区 */
+.action{padding:18px 22px;background:linear-gradient(135deg,var(--pri-xl),#fff);border-top:1px solid var(--line);position:sticky;bottom:0}
+.action-t{font-size:13px;font-weight:800;margin-bottom:13px;display:flex;align-items:center;gap:7px}
+.action-t .mi{font-size:17px;color:var(--pri)}
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.action-field label{display:block;font-size:10px;font-weight:800;color:var(--tx2);margin-bottom:5px;letter-spacing:.04em}
+.action-field select,.action-field textarea{width:100%;padding:9px 11px;background:#fff;border:1.5px solid var(--line);border-radius:var(--r-sm);font-size:12px;font-family:var(--sans);outline:none;font-weight:600;transition:.15s;resize:none;line-height:1.6}
+.action-field textarea{min-height:54px}
+.action-field select:focus,.action-field textarea:focus{border-color:var(--pri)}
+.action-btns{display:flex;gap:9px}
+.action-btns .btn{flex:1;justify-content:center;padding:12px}
+
+/* 资质大图 */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:100;display:none;align-items:center;justify-content:center;padding:30px}
+.modal.on{display:flex;animation:fadeIn .22s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{background:#fff;border-radius:var(--r-lg);max-width:520px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-h{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.modal-t{font-size:15px;font-weight:800}
+.modal-x{width:30px;height:30px;border-radius:50%;background:var(--line2);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.modal-x .mi{font-size:17px;color:var(--tx2)}
+.modal-b{padding:20px}
+.cert-big{aspect-ratio:4/3;background:var(--line2);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative}
+.cert-big .mi{font-size:80px;color:var(--tx3)}
+.cert-big-st{position:absolute;top:12px;right:12px;padding:5px 12px;background:var(--ok);color:#fff;border-radius:var(--r-full);font-size:11px;font-weight:800;display:flex;align-items:center;gap:4px}
+.cert-info{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cert-i{padding:10px 12px;background:var(--line2);border-radius:var(--r-sm)}
+.cert-i-k{font-size:9.5px;font-weight:700;color:var(--tx3)}
+.cert-i-v{font-size:12px;font-weight:800;margin-top:3px;color:var(--tx)}
+.modal-f{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:9px;justify-content:flex-end;background:#FAFBFD}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(26,33,56,.92);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;max-width:320px}
+.toast.show{opacity:1}
+.toast.ok{background:var(--ok)}
+.toast.err{background:var(--err)}
+.toast.warn{background:var(--warn)}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="mi">terrain</span>云栖度假<small>ADMIN</small></div>
+    <div class="nav">概览</div>
+    <div class="sit"><span class="mi">dashboard</span>数据看板</div>
+    <div class="sit"><span class="mi">inventory_2</span>套餐组货工具</div>
+    <div class="nav">资源与商家</div>
+    <div class="sit on"><span class="mi">storefront</span>商家与资质审核<b>3</b></div>
+    <div class="sit"><span class="mi">category</span>资源项库</div>
+    <div class="nav">订单与售后</div>
+    <div class="sit"><span class="mi">receipt_long</span>订单中心</div>
+    <div class="sit"><span class="mi">gavel</span>退款仲裁<b>4</b></div>
+    <div class="sit"><span class="mi">payments</span>分账与结算</div>
+    <div class="nav">内容与营销</div>
+    <div class="sit"><span class="mi">auto_stories</span>内容与首页 CMS</div>
+    <div class="sit"><span class="mi">campaign</span>营销中心</div>
+    <div class="sit"><span class="mi">palette</span>主题库<b>6</b></div>
+    <div class="nav">系统</div>
+    <div class="sit"><span class="mi">payments</span>分账权限配置</div>
+    <div class="sit"><span class="mi">admin_panel_settings</span>角色与权限</div>
+    <div class="sit"><span class="mi">history</span>操作日志</div>
+    <div class="sfoot"><div class="sfoot-av">YK</div>运营 · 尹凯</div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="bread"><span class="mi">home</span> 平台后台 <span class="mi">chevron_right</span> <b>商家与资质审核</b></div>
+      <div class="top-r">
+        <div class="top-ic" onclick="showToast('待办事项')"><span class="mi">notifications_none</span><b>3</b></div>
+        <div class="top-ic" onclick="showToast('导出商家名单')"><span class="mi">download</span></div>
+        <div class="top-ic" onclick="showToast('帮助文档')"><span class="mi">help_outline</span></div>
+      </div>
+    </div>
+
+    <div class="page">
+      <div class="ph">
+        <div>
+          <div class="pt">商家与资质审核</div>
+          <div class="ps">入驻审核 · 资质管理 · 风险监测 · 平均审核时长 1.2 天</div>
+        </div>
+        <div class="ph-r">
+          <div class="btn btn-sec" onclick="showToast('导出审核报表')"><span class="mi">file_download</span>导出</div>
+          <div class="btn btn-pri" onclick="showToast('邀请新商家入驻')"><span class="mi">person_add</span>邀请入驻</div>
+        </div>
+      </div>
+
+      <!-- KPI -->
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">pending_actions</span>待审核入驻</div>
+          <div class="kpi-v">3<small> 家</small></div>
+          <div class="kpi-d down"><span class="mi">priority_high</span>1 家超 SLA</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">verified_user</span>已通过商家</div>
+          <div class="kpi-v">48<small> 家</small></div>
+          <div class="kpi-d up"><span class="mi">trending_up</span>+6 本月</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">warning</span>资质待更新</div>
+          <div class="kpi-v">2<small> 家</small></div>
+          <div class="kpi-d flat"><span class="mi">schedule</span>30 天内到期</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-l"><span class="mi">timer</span>平均审核时长</div>
+          <div class="kpi-v">1.2<small> 天</small></div>
+          <div class="kpi-d up"><span class="mi">trending_down</span>-22% vs 上月</div>
+        </div>
+      </div>
+
+      <!-- 双栏 -->
+      <div class="layout">
+        <!-- 左：申请列表 -->
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">list_alt</span>审核队列<small>按 SLA 紧急度排序</small></div>
+          </div>
+          <div class="panel-b">
+            <div class="ap-list">
+              <div class="ap on" onclick="pickAp(this)">
+                <div class="ap-av" style="background:linear-gradient(135deg,#F59E0B,#D97706)">栖</div>
+                <div class="ap-b">
+                  <div class="ap-t">栖云山房 · 精品民宿 <span class="ap-st pend">待审核 · 入驻</span></div>
+                  <div class="ap-m">莫干山 · 住宿类 · 申请 6 小时<br>联系人：林小姐 · 138****6721</div>
+                </div>
+                <div class="ap-r"><div class="ap-time">今天 14:02</div><div class="ap-sla warn">SLA 18h</div></div>
+              </div>
+              <div class="ap" onclick="pickAp(this)">
+                <div class="ap-av" style="background:linear-gradient(135deg,#06B6D4,#0891B2)">浪</div>
+                <div class="ap-b">
+                  <div class="ap-t">浪尖帆船俱乐部 <span class="ap-st pend">待审核 · 入驻</span></div>
+                  <div class="ap-m">千岛湖 · 玩乐类 · 申请 1 天<br>联系人：王船长 · 139****2233</div>
+                </div>
+                <div class="ap-r"><div class="ap-time">昨天 19:44</div><div class="ap-sla ok">SLA 6h</div></div>
+              </div>
+              <div class="ap" onclick="pickAp(this)">
+                <div class="ap-av" style="background:linear-gradient(135deg,#EC4899,#BE185D)">野</div>
+                <div class="ap-b">
+                  <div class="ap-t">野奢·松阳帐篷营地 <span class="ap-st pend">待审核 · 资质续期</span></div>
+                  <div class="ap-m">松阳 · 住宿类 · 食品经营许可证过期<br>联系人：老陈 · 137****5566</div>
+                </div>
+                <div class="ap-r"><div class="ap-time">2 天前</div><div class="ap-sla err">已超 SLA</div></div>
+              </div>
+              <div style="padding:12px 16px 4px;font-size:10px;font-weight:800;color:var(--tx3);letter-spacing:.1em">已 通 过</div>
+              <div class="ap" onclick="pickAp(this)">
+                <div class="ap-av" style="background:linear-gradient(135deg,#12897C,#0C6B61)">竹</div>
+                <div class="ap-b">
+                  <div class="ap-t">竹里馆 · 山野厨房 <span class="ap-st pass">已通过</span></div>
+                  <div class="ap-m">莫干山 · 餐饮类 · 2024-03 入驻 · 评分 4.9</div>
+                </div>
+                <div class="ap-r"><div class="ap-time">3 天前</div></div>
+              </div>
+              <div class="ap" onclick="pickAp(this)">
+                <div class="ap-av" style="background:linear-gradient(135deg,#0E86C4,#0A6291)">海</div>
+                <div class="ap-b">
+                  <div class="ap-t">海隅·石屋民宿 <span class="ap-st pass">已通过</span></div>
+                  <div class="ap-m">东极岛 · 住宿类 · 2024-05 入驻 · 评分 4.9</div>
+                </div>
+                <div class="ap-r"><div class="ap-time">5 天前</div></div>
+              </div>
+              <div style="padding:12px 16px 4px;font-size:10px;font-weight:800;color:var(--tx3);letter-spacing:.1em">已 驳 回</div>
+              <div class="ap" onclick="pickAp(this)">
+                <div class="ap-av" style="background:linear-gradient(135deg,#6B7585,#4A5568)">某</div>
+                <div class="ap-b">
+                  <div class="ap-t">某无照农家乐 <span class="ap-st fail">已驳回</span></div>
+                  <div class="ap-m">安吉 · 餐饮类 · 食品经营许可证无效</div>
+                </div>
+                <div class="ap-r"><div class="ap-time">7 天前</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右：审核详情 -->
+        <div class="panel">
+          <div class="panel-h">
+            <div class="panel-t"><span class="mi">fact_check</span>审核详情<small>栖云山房 · 精品民宿</small></div>
+            <div style="display:flex;gap:7px">
+              <button class="btn btn-sec" style="padding:6px 12px;font-size:11px" onclick="showToast('联系商家')"><span class="mi">chat</span>联系</button>
+              <button class="btn btn-sec" style="padding:6px 12px;font-size:11px" onclick="showToast('查看商家主页')"><span class="mi">open_in_new</span>主页</button>
+            </div>
+          </div>
+          <div class="panel-b" style="max-height:calc(100vh - 180px)">
+
+            <div class="detail-h">
+              <div class="detail-av" style="background:linear-gradient(135deg,#F59E0B,#D97706)">栖</div>
+              <div class="detail-n">栖云山房 · 精品民宿</div>
+              <div class="detail-m">申请类型：新商家入驻 · 提交于 2026-11-02 14:02<br>申请主题：莫干山山林主题精品民宿 · 12 间房 · 主打云海观景</div>
+              <div class="detail-tags">
+                <span class="dtag"><span class="mi">place</span>湖州 · 莫干山</span>
+                <span class="dtag"><span class="mi">hotel</span>住宿类</span>
+                <span class="dtag theme"><i style="background:#12897C"></i>山林主题</span>
+                <span class="dtag risk"><span class="mi">warning</span>需补充 1 项资质</span>
+              </div>
+            </div>
+
+            <div class="sec">
+              <div class="sec-t"><span class="mi">business</span>商家基础信息</div>
+              <div class="info-grid">
+                <div class="info-i"><div class="info-k">统一社会信用代码</div><div class="info-v">91330521MA2****7X</div></div>
+                <div class="info-i"><div class="info-k">法定代表人</div><div class="info-v">林小姐</div></div>
+                <div class="info-i"><div class="info-k">注册资本</div><div class="info-v">¥500 万</div></div>
+                <div class="info-i"><div class="info-k">成立年份</div><div class="info-v">2022 年（已运营 3 年）</div></div>
+                <div class="info-i"><div class="info-k">经营地址</div><div class="info-v">浙江省湖州市德清县莫干山镇庾村</div></div>
+                <div class="info-i"><div class="info-k">联系手机</div><div class="info-v">138****6721</div></div>
+                <div class="info-i" style="grid-column:1/3"><div class="info-k">商家自述</div><div class="info-v">12 间云海观景房，主打日式侘寂风，步行 5 分钟可达莫干山主峰。已有小红书 8,000+ 粉丝，大众点评 4.8 分。</div></div>
+              </div>
+            </div>
+
+            <div class="sec">
+              <div class="sec-t"><span class="mi">verified_user</span>资质证照<small>点击看大图</small></div>
+              <div class="cert-list">
+                <div class="cert pass" onclick="openCert('营业执照','pass','91330521MA2****7X','2022-03-15','长期有效','林小姐')">
+                  <div class="cert-img"><span class="mi">description</span><div class="cert-st pass"><span class="mi">verified</span>OCR 验证通过</div></div>
+                  <div class="cert-b"><div class="cert-n">营业执照</div><div class="cert-m">统一社会信用代码 · 法人林小姐</div><div class="cert-exp">有效期至：长期</div></div>
+                </div>
+                <div class="cert pass" onclick="openCert('特种行业许可证','pass','浙德公特字 2024 第 0118 号','2024-04-10','2027-04-09','德清县公安局')">
+                  <div class="cert-img" style="background:linear-gradient(135deg,#E5E9EF,#F0F3F7)"><span class="mi">shield</span><div class="cert-st pass"><span class="mi">verified</span>OCR 验证通过</div></div>
+                  <div class="cert-b"><div class="cert-n">特种行业许可证</div><div class="cert-m">住宿业必备 · 德清县公安局颁发</div><div class="cert-exp">有效期至 2027-04-09</div></div>
+                </div>
+                <div class="cert fail" onclick="openCert('消防安全检查合格证','fail','未上传','—','—','—')">
+                  <div class="cert-img" style="background:linear-gradient(135deg,#FEF2F2,#FECACA)"><span class="mi" style="color:var(--err)">report_gmailerror</span><div class="cert-st fail"><span class="mi">close</span>未上传</div></div>
+                  <div class="cert-b"><div class="cert-n">消防安全检查合格证</div><div class="cert-m">住宿业必备 · 缺失</div><div class="cert-exp warn">⚠ 必须补充</div></div>
+                </div>
+                <div class="cert pass" onclick="openCert('公共场所卫生许可证','pass','浙德卫公字 2024 第 0089 号','2024-05-12','2026-05-11','德清县卫健局')">
+                  <div class="cert-img" style="background:linear-gradient(135deg,#ECFDF5,#A7F3D0)"><span class="mi" style="color:var(--ok)">health_and_safety</span><div class="cert-st pass"><span class="mi">verified</span>OCR 验证通过</div></div>
+                  <div class="cert-b"><div class="cert-n">公共场所卫生许可证</div><div class="cert-m">德清县卫健局颁发</div><div class="cert-exp warn">⚠ 6 个月后到期</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sec">
+              <div class="sec-t"><span class="mi">category</span>申报资源项预览<small>入驻后可在 M2 管理</small></div>
+              <div class="res-list">
+                <div class="res">
+                  <div class="res-ic" style="background:linear-gradient(135deg,#C6E8B0,#2E8B57)"><span class="mi">hotel</span></div>
+                  <div class="res-b"><div class="res-n">云海观景大床房</div><div class="res-m">32㎡ · 1.8m 大床 · 含双早</div></div>
+                  <div class="res-r"><div class="res-p">¥880</div><div class="res-st">供货价</div></div>
+                </div>
+                <div class="res">
+                  <div class="res-ic" style="background:linear-gradient(135deg,#C6E8B0,#2E8B57)"><span class="mi">holiday_home</span></div>
+                  <div class="res-b"><div class="res-n">日式侘寂套房</div><div class="res-m">52㎡ · 榻榻米 + 私汤</div></div>
+                  <div class="res-r"><div class="res-p">¥1,480</div><div class="res-st">供货价</div></div>
+                </div>
+                <div class="res">
+                  <div class="res-ic" style="background:linear-gradient(135deg,#FFE0B2,#E08A4A)"><span class="mi">restaurant</span></div>
+                  <div class="res-b"><div class="res-n">日式怀石早餐</div><div class="res-m">含 9 道 · 需预约</div></div>
+                  <div class="res-r"><div class="res-p">¥180</div><div class="res-st">供货价</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sec">
+              <div class="sec-t"><span class="mi">security</span>智能风险检测<small>系统自动扫描</small></div>
+              <div class="risk-list">
+                <div class="risk high">
+                  <div class="risk-ic"><span class="mi">report_gmailerror</span></div>
+                  <div class="risk-b">
+                    <div class="risk-t">消防安全检查合格证缺失</div>
+                    <div class="risk-d">住宿类商家必须上传消防合格证，当前资料不完整，无法通过入驻审核。</div>
+                    <div class="risk-tag">阻断项 · 必须补充</div>
+                  </div>
+                </div>
+                <div class="risk med">
+                  <div class="risk-ic"><span class="mi">schedule</span></div>
+                  <div class="risk-b">
+                    <div class="risk-t">卫生许可证 6 个月后到期</div>
+                    <div class="risk-d">浙德卫公字 2024 第 0089 号 · 有效期至 2026-05-11，建议入驻后立即提醒商家启动续期流程。</div>
+                    <div class="risk-tag">观察项 · 入驻后跟进</div>
+                  </div>
+                </div>
+                <div class="risk low">
+                  <div class="risk-ic"><span class="mi">check_circle</span></div>
+                  <div class="risk-b">
+                    <div class="risk-t">营业执照与法人信息一致</div>
+                    <div class="risk-d">OCR 验证通过，法人林小姐，统一社会信用代码匹配，未发现异常。</div>
+                    <div class="risk-tag">通过</div>
+                  </div>
+                </div>
+                <div class="risk low">
+                  <div class="risk-ic"><span class="mi">check_circle</span></div>
+                  <div class="risk-b">
+                    <div class="risk-t">外部信用查询无异常</div>
+                    <div class="risk-d">企查查 / 天眼查无重大诉讼、无行政处罚记录，未被列入失信名单。</div>
+                    <div class="risk-tag">通过</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="action">
+              <div class="action-t"><span class="mi">gavel</span>审核裁定</div>
+              <div class="action-row">
+                <div class="action-field">
+                  <label>审核结论</label>
+                  <select id="vAction">
+                    <option>待裁定</option>
+                    <option value="pass">通过 · 立即上线</option>
+                    <option value="cond">有条件通过 · 限期补充资质</option>
+                    <option value="return">退回修改 · 需重新提交</option>
+                    <option value="fail">驳回 · 拒绝入驻</option>
+                  </select>
+                </div>
+                <div class="action-field">
+                  <label>分配主题</label>
+                  <select>
+                    <option>山林 forest（推荐）</option>
+                    <option>海洋 ocean</option>
+                    <option>古镇 heritage</option>
+                    <option>草原 grassland</option>
+                    <option>雪域温泉 snow</option>
+                    <option>城市 city</option>
+                  </select>
+                </div>
+              </div>
+              <div class="action-field" style="margin-bottom:13px">
+                <label>审核意见（将发送给商家）</label>
+                <textarea>林小姐您好，栖云山房的入驻申请已收到。整体资料完整，但缺少《消防安全检查合格证》，这是住宿类商家的法定必备资质。请在 7 日内补充上传，我们将在收到后 24 小时内完成终审。
+
+已通过项：营业执照 ✓ · 特种行业许可证 ✓ · 卫生许可证 ✓
+需注意项：卫生许可证将于 2026-05-11 到期，建议提前 3 个月启动续期。
+
+如有疑问请联系平台运营 尹凯。</textarea>
+              </div>
+              <div class="action-btns">
+                <button class="btn btn-sec" onclick="showToast('已保存为草稿')"><span class="mi">save</span>保存草稿</button>
+                <button class="btn btn-warn" onclick="showToast('已退回商家补充资质','warn')"><span class="mi">reply</span>退回修改</button>
+                <button class="btn btn-ok" onclick="showToast('已通过审核 · 商家已收到通知','ok')"><span class="mi">verified</span>通过审核</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 资质大图弹窗 -->
+<div class="modal" id="certModal">
+  <div class="modal-box">
+    <div class="modal-h">
+      <div class="modal-t" id="certT">营业执照</div>
+      <div class="modal-x" onclick="closeCert()"><span class="mi">close</span></div>
+    </div>
+    <div class="modal-b">
+      <div class="cert-big" id="certBig">
+        <span class="mi">description</span>
+        <div class="cert-big-st" id="certSt"><span class="mi">verified</span>OCR 验证通过</div>
+      </div>
+      <div class="cert-info">
+        <div class="cert-i"><div class="cert-i-k">证照编号</div><div class="cert-i-v" id="certNo">91330521MA2****7X</div></div>
+        <div class="cert-i"><div class="cert-i-k">颁发日期</div><div class="cert-i-v" id="certD1">2022-03-15</div></div>
+        <div class="cert-i"><div class="cert-i-k">有效期至</div><div class="cert-i-v" id="certD2">长期有效</div></div>
+        <div class="cert-i"><div class="cert-i-k">颁发机构</div><div class="cert-i-v" id="certOrg">德清县市场监督管理局</div></div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-sec" onclick="closeCert()">关闭</button>
+      <button class="btn btn-sec" onclick="showToast('已下载证照')"><span class="mi">download</span>下载</button>
+      <button class="btn btn-pri" onclick="showToast('已重新 OCR 验证')"><span class="mi">autorenew</span>重新验证</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+function pickAp(el){
+  el.parentNode.querySelectorAll('.ap').forEach(a=>a.classList.remove('on'));
+  el.classList.add('on');
+}
+function openCert(name,st,no,d1,d2,org){
+  document.getElementById('certT').textContent=name;
+  document.getElementById('certNo').textContent=no;
+  document.getElementById('certD1').textContent=d1;
+  document.getElementById('certD2').textContent=d2;
+  document.getElementById('certOrg').textContent=org;
+  const stEl=document.getElementById('certSt');
+  if(st==='pass'){stEl.innerHTML='<span class="mi">verified</span>OCR 验证通过';stEl.style.background='var(--ok)';}
+  else if(st==='fail'){stEl.innerHTML='<span class="mi">close</span>未上传';stEl.style.background='var(--err)';}
+  else{stEl.innerHTML='<span class="mi">pending</span>待验证';stEl.style.background='var(--warn)';}
+  document.getElementById('certModal').classList.add('on');
+}
+function closeCert(){document.getElementById('certModal').classList.remove('on');}
+function showToast(x,t){
+  const el=document.getElementById('toast');
+  el.textContent=x;
+  el.className='toast show'+(t?' '+t:'');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>el.className='toast',2200);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCert();});
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+</body>
+</html>

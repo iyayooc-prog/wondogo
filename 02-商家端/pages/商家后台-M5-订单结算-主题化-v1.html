@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云栖度假 · 商家端 · 订单结算（M5）</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E1217; --bg2:#161B22; --bg3:#1F262F; --bg4:#283039;
+  --card:#1F262F; --card2:#283039;
+  --tx:#E8ECF1; --tx2:#A3ACBA; --tx3:#6B7585;
+  --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.05);
+  --ok:#22C55E; --ok-l:#14532D;
+  --warn:#F59E0B; --warn-l:#422006;
+  --err:#EF4444; --err-l:#450A0A;
+  --gold:#F59E0B; --gold-l:#422006;
+  --r-sm:8px; --r-md:14px; --r-lg:18px; --r-full:999px;
+  --sh:0 4px 14px rgba(0,0,0,.35); --sh-m:0 8px 26px rgba(0,0,0,.4);
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif;
+  --ease:cubic-bezier(.22,.75,.28,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:#000;color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{max-width:375px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;padding-bottom:66px;box-shadow:0 0 40px rgba(0,0,0,.6)}
+.mi{font-family:'Material Icons'}
+
+/* 顶部身份条 */
+.idbar{background:var(--bg2);padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:11px}
+.id-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#3B4554,#283039);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff}
+.id-b{flex:1;min-width:0}
+.id-n{font-size:13px;font-weight:800}
+.id-m{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600;display:flex;align-items:center;gap:4px}
+.id-m i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block}
+.id-ic{width:32px;height:32px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.id-ic .mi{font-size:17px;color:var(--tx2)}
+
+/* 顶部导航 */
+.navbar{position:sticky;top:0;z-index:40;background:rgba(14,18,23,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:13px 16px;display:flex;align-items:center;gap:12px}
+.navbar .mi.back{font-size:20px;cursor:pointer;color:var(--tx)}
+.navbar-t{flex:1;font-size:15px;font-weight:800}
+
+/* 主余额卡 */
+.balance-card{margin:14px;background:linear-gradient(135deg,#F59E0B 0%,#D97706 100%);border-radius:var(--r-lg);padding:20px;box-shadow:var(--sh-m);position:relative;overflow:hidden}
+.balance-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(255,255,255,.15),transparent 70%)}
+.balance-k{font-size:10px;font-weight:800;color:rgba(255,255,255,.8);letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2}
+.balance-v{font-size:32px;font-weight:800;color:#fff;margin-top:8px;letter-spacing:-.02em;position:relative;z-index:2}
+.balance-v small{font-size:14px;font-weight:700;margin-left:2px}
+.balance-sub{display:flex;gap:16px;margin-top:14px;position:relative;z-index:2}
+.balance-s{flex:1}
+.balance-s-k{font-size:9px;font-weight:700;color:rgba(255,255,255,.7)}
+.balance-s-v{font-size:14px;font-weight:800;color:#fff;margin-top:3px}
+.balance-s-v small{font-size:9px;font-weight:600;color:rgba(255,255,255,.7)}
+.balance-actions{display:flex;gap:8px;margin-top:16px;position:relative;z-index:2}
+.balance-btn{flex:1;padding:10px;background:rgba(255,255,255,.95);color:#D97706;border-radius:var(--r-sm);font-size:12px;font-weight:800;text-align:center;cursor:pointer;transition:.18s;display:flex;align-items:center;justify-content:center;gap:5px}
+.balance-btn:hover{background:#fff;transform:translateY(-1px)}
+.balance-btn .mi{font-size:15px}
+
+/* 结算周期卡 */
+.settle-cycle{margin:0 14px 14px;background:var(--card);border-radius:var(--r-md);padding:15px;box-shadow:var(--sh)}
+.cycle-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cycle-t{font-size:12px;font-weight:800;display:flex;align-items:center;gap:6px}
+.cycle-t .mi{font-size:15px;color:var(--ok)}
+.cycle-a{font-size:10px;color:var(--tx3);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:2px}
+.cycle-a .mi{font-size:13px}
+.cycle-progress{margin-bottom:12px}
+.cycle-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;position:relative}
+.cycle-bar-fill{height:100%;background:linear-gradient(90deg,var(--ok),#4ADE80);border-radius:3px;transition:width .6s var(--ease)}
+.cycle-bar-text{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--tx3);font-weight:700}
+.cycle-info{display:flex;gap:8px}
+.cycle-i{flex:1;padding:9px;background:var(--bg2);border-radius:var(--r-sm);text-align:center}
+.cycle-i-k{font-size:9px;color:var(--tx3);font-weight:700}
+.cycle-i-v{font-size:13px;font-weight:800;color:var(--tx);margin-top:3px}
+.cycle-i-v small{font-size:8px;color:var(--tx3);font-weight:600}
+
+/* Tab 切换 */
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--line);margin:0 14px 14px;border-radius:var(--r-md) var(--r-md) 0 0;overflow:hidden}
+.tab{flex:1;padding:11px 0;text-align:center;font-size:11.5px;font-weight:800;color:var(--tx3);cursor:pointer;position:relative;transition:.18s}
+.tab.on{color:var(--tx);background:var(--bg3)}
+.tab.on::after{content:'';position:absolute;left:30%;right:30%;bottom:0;height:2.5px;background:var(--ok);border-radius:2px}
+.tab b{display:inline-block;margin-left:3px;padding:0 5px;background:var(--warn);color:#fff;font-size:8px;border-radius:8px;font-weight:800;vertical-align:middle}
+
+/* 结算记录列表 */
+.settle-list{padding:0 14px 80px}
+.settle-date{font-size:10px;font-weight:800;color:var(--tx3);letter-spacing:.06em;padding:8px 0 6px;display:flex;align-items:center;gap:6px}
+.settle-date .mi{font-size:13px}
+.settle{background:var(--card);border-radius:var(--r-md);margin-bottom:9px;box-shadow:var(--sh);overflow:hidden;cursor:pointer;transition:.22s}
+.settle:hover{transform:translateY(-1px);box-shadow:var(--sh-m)}
+.settle-h{padding:13px 14px 10px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--line2)}
+.settle-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.settle-ic .mi{font-size:19px;color:#fff}
+.settle-b{flex:1;min-width:0}
+.settle-n{font-size:12.5px;font-weight:800;display:flex;align-items:center;gap:6px}
+.settle-st{padding:2px 7px;border-radius:6px;font-size:8.5px;font-weight:800}
+.settle-st.ok{background:var(--ok-l);color:var(--ok)}
+.settle-st.wait{background:var(--warn-l);color:var(--warn)}
+.settle-st.err{background:var(--err-l);color:var(--err)}
+.settle-m{font-size:10px;color:var(--tx3);margin-top:4px;font-weight:600;line-height:1.55}
+.settle-r{text-align:right;flex-shrink:0}
+.settle-v{font-size:14px;font-weight:800}
+.settle-v.plus{color:var(--ok)}
+.settle-v.minus{color:var(--err)}
+.settle-v small{font-size:9px;font-weight:600;display:block;margin-top:2px;color:var(--tx3)}
+.settle-detail{padding:10px 14px 12px;background:var(--bg2)}
+.settle-row{display:flex;justify-content:space-between;padding:5px 0;font-size:10.5px}
+.settle-row-l{color:var(--tx3);font-weight:600}
+.settle-row-v{color:var(--tx);font-weight:700}
+.settle-ft{display:flex;gap:7px;padding:0 14px 13px}
+.settle-btn{flex:1;padding:7px;border-radius:6px;background:var(--bg3);text-align:center;font-size:10.5px;font-weight:800;cursor:pointer;color:var(--tx2);display:flex;align-items:center;justify-content:center;gap:4px}
+.settle-btn .mi{font-size:13px}
+.settle-btn.pri{background:var(--ok);color:#fff}
+
+/* 银行卡管理 */
+.bank-card{margin:0 14px 14px;background:var(--card);border-radius:var(--r-md);padding:14px;box-shadow:var(--sh)}
+.bank-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.bank-t{font-size:12px;font-weight:800;display:flex;align-items:center;gap:6px}
+.bank-t .mi{font-size:15px;color:var(--tx2)}
+.bank-a{font-size:10.5px;color:var(--ok);font-weight:800;cursor:pointer;display:flex;align-items:center;gap:3px}
+.bank-a .mi{font-size:13px}
+.bank-item{display:flex;align-items:center;gap:11px;padding:11px;background:var(--bg2);border-radius:var(--r-sm);margin-bottom:7px}
+.bank-item:last-child{margin-bottom:0}
+.bank-ic{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#3B82F6,#1D4ED8);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bank-ic .mi{font-size:17px;color:#fff}
+.bank-b{flex:1;min-width:0}
+.bank-n{font-size:12px;font-weight:800}
+.bank-m{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.bank-def{padding:2px 6px;background:var(--ok-l);color:var(--ok);font-size:8.5px;font-weight:800;border-radius:4px;margin-left:5px}
+
+/* 月度对账单 */
+.statement{margin:0 14px 14px;background:var(--card);border-radius:var(--r-md);padding:14px;box-shadow:var(--sh)}
+.stat-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.stat-t{font-size:12px;font-weight:800;display:flex;align-items:center;gap:6px}
+.stat-t .mi{font-size:15px;color:var(--tx2)}
+.stat-a{font-size:10.5px;color:var(--tx3);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:3px}
+.stat-a .mi{font-size:13px}
+.stat-list{display:flex;flex-direction:column;gap:7px}
+.stat-item{display:flex;align-items:center;gap:11px;padding:11px;background:var(--bg2);border-radius:var(--r-sm);cursor:pointer;transition:.18s}
+.stat-item:hover{background:var(--bg3)}
+.stat-ic{width:34px;height:34px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-ic .mi{font-size:17px;color:var(--tx2)}
+.stat-b{flex:1;min-width:0}
+.stat-n{font-size:12px;font-weight:800}
+.stat-m{font-size:10px;color:var(--tx3);margin-top:3px;font-weight:600}
+.stat-r{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.stat-r .mi{font-size:17px;color:var(--tx3)}
+
+/* FAB */
+.fab{position:fixed;bottom:80px;right:20px;width:56px;height:56px;border-radius:50%;background:var(--ok);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 24px rgba(34,197,94,.4);z-index:40;transition:.2s}
+.fab:hover{transform:scale(1.06)}
+.fab:active{transform:scale(.94)}
+.fab .mi{font-size:28px;color:#fff}
+
+/* 底部 Tab */
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:375px;display:flex;background:var(--bg2);border-top:1px solid var(--line);padding:8px 0 10px;z-index:50}
+.tabbar .tab2{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:var(--tx3);font-weight:700;cursor:pointer}
+.tabbar .tab2 .mi{font-size:22px}
+.tabbar .tab2.on{color:var(--ok)}
+
+/* 弹窗 */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:100;display:none;align-items:flex-end;justify-content:center}
+.modal.on{display:flex;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{background:var(--bg2);border-radius:var(--r-lg) var(--r-lg) 0 0;width:100%;max-width:375px;max-height:80vh;overflow-y:auto;animation:slideUp .3s var(--ease)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-h{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:10}
+.modal-t{font-size:15px;font-weight:800}
+.modal-x{width:28px;height:28px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.modal-x .mi{font-size:17px;color:var(--tx2)}
+.modal-b{padding:16px 18px}
+.modal-f{padding:14px 18px;border-top:1px solid var(--line);background:var(--bg2);display:flex;gap:9px;position:sticky;bottom:0}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 19px;background:rgba(34,197,94,.94);color:#fff;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;text-align:center;font-weight:700;box-shadow:0 4px 16px rgba(34,197,94,.35);max-width:290px}
+.toast.show{opacity:1}
+.toast.warn{background:var(--warn);box-shadow:0 4px 16px rgba(245,158,11,.35)}
+.toast.err{background:var(--err);box-shadow:0 4px 16px rgba(239,68,68,.35)}
+
+/* ===== YX 全局体验基线 v1 · 不覆盖页面原有样式与函数 ===== */
+/* 首屏动作条：插在 body 开头，吸顶但可收起，不进入 app 内部 flex 布局 */
+.yx-next{position:sticky;top:8px;z-index:8500;box-shadow:0 6px 18px rgba(0,0,0,.06);margin:8px 12px}
+.yx-next-fold{padding:4px 8px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.yx-next.folded{padding:6px 12px}
+.yx-next.folded .yx-next-a,.yx-next.folded .yx-next-fold{display:none}
+.yx-next.folded:after{content:'展开动作';font-size:10px;color:#166534;font-weight:800;cursor:pointer}
+.yx-next.folded{cursor:pointer}
+
+:root{--yx-pri:#12897C;--yx-err:#C2410C;--yx-warn:#B45309;--yx-ok:#15803D;--yx-line:#E5E7EB;--yx-tx:#1F2937;--yx-tx2:#6B7280;--yx-bg:#fff}
+.yx-root{font-family:inherit}
+:focus-visible{outline:2px solid var(--yx-pri);outline-offset:2px}
+.yx-mask{position:fixed;inset:0;z-index:9000;background:rgba(17,24,39,.52);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.yx-mask.on{display:flex}
+.yx-dialog{background:var(--yx-bg);border:1px solid var(--yx-line);border-radius:14px;width:100%;max-width:380px;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.24);animation:yxIn .18s ease-out}
+@keyframes yxIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.yx-dlg-t{font-size:15px;font-weight:800;color:var(--yx-tx);display:flex;gap:9px;align-items:center}
+.yx-dlg-t .mi{font-size:20px;color:var(--yx-warn)}
+.yx-dlg-b{margin-top:11px;font-size:12px;line-height:1.85;color:var(--yx-tx2);font-weight:600}
+.yx-impact{margin-top:12px;padding:11px 13px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:9px;font-size:11px;line-height:1.9;color:#7C2D12;font-weight:700}
+.yx-impact b{color:#9A3412}
+.yx-danger{margin-top:10px;font-size:10.5px;color:var(--yx-err);font-weight:800;display:flex;gap:6px;align-items:center}
+.yx-dlg-a{display:flex;gap:9px;margin-top:18px}
+.yx-dlg-a button{flex:1;padding:11px;border-radius:9px;border:1px solid var(--yx-line);background:#fff;color:var(--yx-tx);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-dlg-a button.yx-go{background:var(--yx-pri);border-color:var(--yx-pri);color:#fff}
+.yx-dlg-a button.yx-go.danger{background:var(--yx-err);border-color:var(--yx-err)}
+.yx-toast{position:fixed;z-index:9100;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:.2s;background:#1F2937;color:#fff;padding:11px 15px;border-radius:10px;font-size:11.5px;font-weight:700;line-height:1.7;max-width:min(90vw,420px);box-shadow:0 12px 32px rgba(0,0,0,.24);display:flex;gap:10px;align-items:center}
+.yx-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.yx-toast.ok{background:#14532D}.yx-toast.warn{background:#92400E}.yx-toast.err{background:#9A3412}
+.yx-toast .yx-undo{margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:transparent;color:#fff;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yx-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.yx-next{margin:0 0 12px;padding:10px 13px;background:linear-gradient(100deg,#F0FDF4,#fff);border:1px solid #BBF7D0;border-left:3px solid var(--yx-ok);border-radius:9px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.yx-next-t{font-size:11px;font-weight:800;color:#14532D;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.yx-next-a{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.yx-next-a button{padding:5px 10px;border:1px solid #86EFAC;background:#fff;color:#166534;border-radius:6px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-next-a button:hover{background:#DCFCE7}
+.yx-state{padding:26px 16px;text-align:center;color:var(--yx-tx2);font-size:11.5px;font-weight:600;line-height:1.9}
+.yx-state .mi{font-size:30px;display:block;color:#9CA3AF;margin-bottom:8px}
+.yx-state button{margin-top:10px;padding:8px 14px;border:1px solid var(--yx-line);background:#fff;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.yx-skel{background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:yxSk 1.3s infinite;border-radius:6px;height:12px;margin:8px 0}
+@keyframes yxSk{to{background-position:-200% 0}}
+/* 无障碍与降级 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+@media (max-width:640px){
+  .yx-dialog{max-width:100%;padding:16px}
+  .yx-toast{bottom:14px;left:12px;right:12px;transform:translateY(14px);max-width:none}
+  .yx-toast.on{transform:translateY(0)}
+  .yx-next{flex-direction:column;gap:7px}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="idbar">
+    <div class="id-av">竹</div>
+    <div class="id-b">
+      <div class="id-n">竹里馆 · 山野厨房</div>
+      <div class="id-m"><i></i>营业中 · B-0032 · 评分 4.9</div>
+    </div>
+    <div class="id-ic" onclick="showToast('消息中心')"><span class="mi">notifications_none</span></div>
+    <div class="id-ic" onclick="showToast('商家设置')"><span class="mi">settings</span></div>
+  </div>
+
+  <div class="navbar">
+    <span class="mi back" onclick="showToast('返回经营看板')">arrow_back</span>
+    <div class="navbar-t">订单结算</div>
+  </div>
+
+  <!-- 主余额卡 -->
+  <div class="balance-card">
+    <div class="balance-k">可提现余额</div>
+    <div class="balance-v">¥18,420<small>.00</small></div>
+    <div class="balance-sub">
+      <div class="balance-s">
+        <div class="balance-s-k">待结算</div>
+        <div class="balance-s-v">¥6,840<small> · T+7</small></div>
+      </div>
+      <div class="balance-s">
+        <div class="balance-s-k">本月累计</div>
+        <div class="balance-s-v">¥42,680</div>
+      </div>
+    </div>
+    <div class="balance-actions">
+      <div class="balance-btn" onclick="showToast('提现流程')"><span class="mi">account_balance_wallet</span>提现</div>
+      <div class="balance-btn" onclick="showToast('查看资金明细')"><span class="mi">receipt_long</span>明细</div>
+    </div>
+  </div>
+
+  <!-- 结算周期 -->
+  <div class="settle-cycle">
+    <div class="cycle-h">
+      <div class="cycle-t"><span class="mi">schedule</span>当前结算周期 · 10月04日-10日</div>
+      <div class="cycle-a" onclick="showToast('查看历史周期')">历史 <span class="mi">chevron_right</span></div>
+    </div>
+    <div class="cycle-progress">
+      <div class="cycle-bar">
+        <div class="cycle-bar-fill" style="width:85%"></div>
+      </div>
+      <div class="cycle-bar-text">
+        <span>已核销 ¥6,840</span>
+        <span>剩 2 天结算</span>
+      </div>
+    </div>
+    <div class="cycle-info">
+      <div class="cycle-i">
+        <div class="cycle-i-k">本周期核销单数</div>
+        <div class="cycle-i-v">24<small> 单</small></div>
+      </div>
+      <div class="cycle-i">
+        <div class="cycle-i-k">预计结算日</div>
+        <div class="cycle-i-v">10月17日<small> · 周四</small></div>
+      </div>
+      <div class="cycle-i">
+        <div class="cycle-i-k">结算方式</div>
+        <div class="cycle-i-v">T+7<small> · 自动</small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab -->
+  <div class="tabs">
+    <div class="tab on" onclick="tabPick(this)">待结算 <b>6</b></div>
+    <div class="tab" onclick="tabPick(this)">已结算 18</div>
+    <div class="tab" onclick="tabPick(this)">全部</div>
+  </div>
+
+  <!-- 收口补丁 v1.1 · 锁价口径提示 -->
+  <div style="margin:0 14px 14px;padding:12px 14px;background:rgba(34,197,94,.10);border:1px solid rgba(34,197,94,.35);border-radius:var(--r-md);display:flex;align-items:flex-start;gap:9px">
+    <span class="mi" style="font-size:17px;color:var(--ok);flex-shrink:0">lock_clock</span>
+    <div style="font-size:10.5px;color:var(--tx2);font-weight:600;line-height:1.8"><b style="color:var(--ok)">✅ 最终口径 · 结算读支付成功时的 PriceSnapshot</b>，商家后续改供货价不影响<b>已支付订单</b>；未支付订单按最新价重算；差额由平台承担，不向你补扣也不向用户补收。平台佣金按权限规范只展示金额，不展示佣金率。退款从待结算款扣减时，会在本页生成一条对应流水。</div>
+  </div>
+
+  <!-- 结算记录 -->
+  <div class="settle-list">
+    <div class="settle-date"><span class="mi">today</span>今天 · 10月11日</div>
+    <div class="settle" onclick="showToast('查看订单详情')">
+      <div class="settle-h">
+        <div class="settle-ic" style="background:linear-gradient(135deg,#22C55E,#16A34A)"><span class="mi">fact_check</span></div>
+        <div class="settle-b">
+          <div class="settle-n">山野午餐 · 张明远 <span class="settle-st ok">待结算</span></div>
+          <div class="settle-m">订单号 YQ2026101100089 · 核销时间 12:34 · 快照供货价 ¥280</div>
+        </div>
+        <div class="settle-r">
+          <div class="settle-v plus">+¥280</div>
+          <small>10月18日到账</small>
+        </div>
+      </div>
+      <div class="settle-detail">
+        <div class="settle-row"><div class="settle-row-l">资源项</div><div class="settle-row-v">山野午餐 · 八道时令</div></div>
+        <div class="settle-row"><div class="settle-row-l">平台对外售价</div><div class="settle-row-v">¥320</div></div>
+        <div class="settle-row"><div class="settle-row-l">你的供货价（支付时快照）</div><div class="settle-row-v">¥280</div></div>
+        <div class="settle-row"><div class="settle-row-l">平台佣金</div><div class="settle-row-v">¥40</div></div>
+        <div class="settle-row"><div class="settle-row-l">券成本承担</div><div class="settle-row-v">¥0 · 本单无券</div></div>
+        <div class="settle-row"><div class="settle-row-l">锁价时间</div><div class="settle-row-v">支付成功 10-11 12:20 · PriceSnapshot</div></div>
+      </div>
+    </div>
+
+    <div class="settle" onclick="showToast('查看订单详情')">
+      <div class="settle-h">
+        <div class="settle-ic" style="background:linear-gradient(135deg,#22C55E,#16A34A)"><span class="mi">fact_check</span></div>
+        <div class="settle-b">
+          <div class="settle-n">星空围炉晚宴 · 李思 <span class="settle-st ok">待结算</span></div>
+          <div class="settle-m">订单号 YQ2026101100076 · 核销时间 19:42 · 供货价 ¥460</div>
+        </div>
+        <div class="settle-r">
+          <div class="settle-v plus">+¥460</div>
+          <small>10月18日到账</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="settle-date"><span class="mi">calendar_today</span>昨天 · 10月10日</div>
+    <div class="settle" onclick="showToast('查看订单详情')">
+      <div class="settle-h">
+        <div class="settle-ic" style="background:linear-gradient(135deg,#22C55E,#16A34A)"><span class="mi">fact_check</span></div>
+        <div class="settle-b">
+          <div class="settle-n">竹林下午茶 · 王芳 <span class="settle-st ok">待结算</span></div>
+          <div class="settle-m">订单号 YQ2026101000054 · 核销时间 15:20 · 供货价 ¥180</div>
+        </div>
+        <div class="settle-r">
+          <div class="settle-v plus">+¥180</div>
+          <small>10月17日到账</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="settle" onclick="showToast('查看订单详情')">
+      <div class="settle-h">
+        <div class="settle-ic" style="background:linear-gradient(135deg,#F59E0B,#D97706)"><span class="mi">gavel</span></div>
+        <div class="settle-b">
+          <div class="settle-n">竹林茶道体验 · 陈磊 <span class="settle-st wait">仲裁中</span></div>
+          <div class="settle-m">订单号 YQ2026101000041 · 用户申请退款 · 等待平台裁定</div>
+        </div>
+        <div class="settle-r">
+          <div class="settle-v" style="color:var(--warn)">¥180</div>
+          <small>待裁定</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="settle-date"><span class="mi">event</span>10月09日</div>
+    <div class="settle" onclick="showToast('查看订单详情')">
+      <div class="settle-h">
+        <div class="settle-ic" style="background:linear-gradient(135deg,#22C55E,#16A34A)"><span class="mi">fact_check</span></div>
+        <div class="settle-b">
+          <div class="settle-n">山野午餐 · 周先生（团建 22 人）<span class="settle-st ok">待结算</span></div>
+          <div class="settle-m">订单号 YQ2026100900032 · 核销时间 12:15 · 供货价 ¥6,160</div>
+        </div>
+        <div class="settle-r">
+          <div class="settle-v plus">+¥6,160</div>
+          <small>10月16日到账</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="settle-date"><span class="mi">event</span>10月08日 · 已结算</div>
+    <div class="settle" onclick="showToast('查看订单详情')">
+      <div class="settle-h">
+        <div class="settle-ic" style="background:linear-gradient(135deg,#6B7585,#4A5568)"><span class="mi">payments</span></div>
+        <div class="settle-b">
+          <div class="settle-n">星空围炉晚宴 · Y. Lin <span class="settle-st" style="background:var(--bg3);color:var(--tx3)">已结算</span></div>
+          <div class="settle-m">订单号 YQ2026100800018 · 已于 10月15日 到账至尾号 6721 银行卡</div>
+        </div>
+        <div class="settle-r">
+          <div class="settle-v" style="color:var(--tx3)">¥460</div>
+          <small>已到账</small>
+        </div>
+      </div>
+      <div class="settle-ft">
+        <div class="settle-btn" onclick="event.stopPropagation();showToast('查看银行流水')"><span class="mi">receipt</span>流水</div>
+        <div class="settle-btn" onclick="event.stopPropagation();showToast('下载电子凭证')"><span class="mi">download</span>凭证</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 银行卡管理 -->
+  <div class="bank-card">
+    <div class="bank-h">
+      <div class="bank-t"><span class="mi">credit_card</span>提现银行卡</div>
+      <div class="bank-a" onclick="showToast('添加银行卡')"><span class="mi">add</span>添加</div>
+    </div>
+    <div class="bank-item">
+      <div class="bank-ic"><span class="mi">account_balance</span></div>
+      <div class="bank-b">
+        <div class="bank-n">招商银行 · 储蓄卡 <span class="bank-def">默认</span></div>
+        <div class="bank-m">尾号 6721 · 张明远</div>
+      </div>
+      <span class="mi" style="font-size:17px;color:var(--tx3);cursor:pointer" onclick="showToast('编辑银行卡')">edit</span>
+    </div>
+    <div class="bank-item">
+      <div class="bank-ic" style="background:linear-gradient(135deg,#EF4444,#B91C1C)"><span class="mi">account_balance</span></div>
+      <div class="bank-b">
+        <div class="bank-n">中国银行 · 对公账户</div>
+        <div class="bank-m">尾号 8842 · 杭州云栖网络科技有限公司</div>
+      </div>
+      <span class="mi" style="font-size:17px;color:var(--tx3);cursor:pointer" onclick="showToast('编辑银行卡')">edit</span>
+    </div>
+  </div>
+
+  <!-- 月度对账单 -->
+  <div class="statement">
+    <div class="stat-h">
+      <div class="stat-t"><span class="mi">description</span>月度对账单</div>
+      <div class="stat-a" onclick="showToast('查看全部对账单')">全部 <span class="mi">chevron_right</span></div>
+    </div>
+    <div class="stat-list">
+      <div class="stat-item" onclick="showToast('下载 2026年9月 对账单 PDF')">
+        <div class="stat-ic"><span class="mi">picture_as_pdf</span></div>
+        <div class="stat-b">
+          <div class="stat-n">2026年9月对账单</div>
+          <div class="stat-m">结算金额 ¥38,420 · 48 笔 · 已于 10月07日 生成</div>
+        </div>
+        <div class="stat-r"><span class="mi">download</span></div>
+      </div>
+      <div class="stat-item" onclick="showToast('下载 2026年8月 对账单 PDF')">
+        <div class="stat-ic"><span class="mi">picture_as_pdf</span></div>
+        <div class="stat-b">
+          <div class="stat-n">2026年8月对账单</div>
+          <div class="stat-m">结算金额 ¥31,280 · 36 笔 · 已于 09月07日 生成</div>
+        </div>
+        <div class="stat-r"><span class="mi">download</span></div>
+      </div>
+      <div class="stat-item" onclick="showToast('下载 2026年7月 对账单 PDF')">
+        <div class="stat-ic"><span class="mi">picture_as_pdf</span></div>
+        <div class="stat-b">
+          <div class="stat-n">2026年7月对账单</div>
+          <div class="stat-m">结算金额 ¥28,640 · 32 笔 · 已于 08月07日 生成</div>
+        </div>
+        <div class="stat-r"><span class="mi">download</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fab" onclick="showToast('导出本月结算报表')"><span class="mi">file_download</span></div>
+
+  <div class="tabbar">
+    <div class="tab2" onclick="showToast('返回经营看板')"><span class="mi">dashboard</span><span>看板</span></div>
+    <div class="tab2" onclick="showToast('进入资源项管理')"><span class="mi">category</span><span>资源</span></div>
+    <div class="tab2" onclick="showToast('进入扫码核销台')"><span class="mi">qr_code_scanner</span><span>核销</span></div>
+    <div class="tab2 on"><span class="mi">payments</span><span>结算</span></div>
+    <div class="tab2" onclick="showToast('评价管理')"><span class="mi">rate_review</span><span>评价</span></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+function tabPick(el){
+  el.parentNode.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  showToast('已切换分类：'+el.textContent.replace(/\s+/g,' '));
+}
+function showToast(x,t){
+  const el=document.getElementById('toast');
+  el.textContent=x;
+  el.className='toast show'+(t?' '+t:'');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>el.className='toast',2000);
+}
+</script>
+
+<script>
+
+/* ===== YX 全局体验基线 v1 · 独立命名空间，不覆盖页面原有函数 ===== */
+(function(){
+  if(window.YX)return;
+  var D=document, B=D.body;
+  var root=D.createElement('div'); root.className='yx-root';
+  root.innerHTML=
+    '<div class="yx-mask" id="yxMask" role="dialog" aria-modal="true" aria-labelledby="yxDlgT">'+
+      '<div class="yx-dialog">'+
+        '<div class="yx-dlg-t" id="yxDlgT"><span class="mi">gavel</span><span id="yxDlgTitle">请确认</span></div>'+
+        '<div class="yx-dlg-b" id="yxDlgBody"></div>'+
+        '<div class="yx-impact" id="yxDlgImpact"></div>'+
+        '<div class="yx-danger"><span class="mi">error_outline</span><span id="yxDlgDanger">此操作不可撤销</span></div>'+
+        '<div class="yx-dlg-a"><button id="yxCancel" type="button">取消</button><button id="yxGo" class="yx-go" type="button">确认</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="yx-toast" id="yxToast" role="status"><span id="yxToastMsg"></span></div>'+
+    '<div class="yx-live" id="yxLive" aria-live="polite"></div>';
+  B.appendChild(root);
+  var mask=D.getElementById('yxMask'), dlgT=D.getElementById('yxDlgTitle'),
+      dlgB=D.getElementById('yxDlgBody'), dlgI=D.getElementById('yxDlgImpact'),
+      dlgD=D.getElementById('yxDlgDanger'), go=D.getElementById('yxGo'),
+      cancel=D.getElementById('yxCancel'), toastEl=D.getElementById('yxToast'),
+      toastMsg=D.getElementById('yxToastMsg'), live=D.getElementById('yxLive');
+  var pending=null, lastFocus=null, tTimer=null;
+
+  function close(){mask.classList.remove('on'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); pending=null;}
+  function open(o){
+    lastFocus=D.activeElement;
+    dlgT.textContent=o.title||'请确认此操作';
+    dlgB.innerHTML=o.body||'';
+    dlgI.innerHTML=o.impact||'影响面：本操作会写入业务流水。';
+    dlgD.textContent=o.danger||'此操作不可撤销，请核对后再继续。';
+    go.textContent=o.okText||'确认执行';
+    go.className='yx-go'+(o.danger?' danger':'');
+    go.classList.toggle('danger',!!o.dangerStyle);
+    if(o.dangerStyle)go.classList.add('danger');
+    mask.classList.add('on');
+    pending=o;
+    setTimeout(function(){go.focus();},30);
+  }
+  go.addEventListener('click',function(){var p=pending;close();if(p&&p.onOk)p.onOk();});
+  cancel.addEventListener('click',function(){var p=pending;close();if(p&&p.onCancel)p.onCancel();});
+  mask.addEventListener('click',function(e){if(e.target===mask){var p=pending;close();if(p&&p.onCancel)p.onCancel();}});
+  D.addEventListener('keydown',function(e){
+    if(!mask.classList.contains('on'))return;
+    if(e.key==='Escape'){var p=pending;close();if(p&&p.onCancel)p.onCancel();}
+    if(e.key==='Enter'&&D.activeElement===go){var q=pending;close();if(q&&q.onOk)q.onOk();}
+  });
+
+  function toast(msg,tone,undo){
+    clearTimeout(tTimer);
+    var old=toastEl.querySelector('.yx-undo'); if(old)old.parentNode.removeChild(old);
+    toastMsg.textContent=msg;
+    if(undo&&undo.label&&undo.fn){
+      var b=D.createElement('button'); b.className='yx-undo'; b.type='button'; b.textContent=undo.label;
+      b.onclick=function(){clearTimeout(tTimer);toastEl.classList.remove('on');undo.fn();};
+      toastEl.appendChild(b);
+    }
+    toastEl.className='yx-toast on'+(tone?' '+tone:'');
+    live.textContent=msg;
+    tTimer=setTimeout(function(){toastEl.classList.remove('on');},tone==='err'?4200:3000);
+  }
+  function next(title,items,anchor){
+    var box=D.createElement('div'); box.className='yx-next';
+    var h='<div class="yx-next-t"><span class="mi">bolt</span>'+title+'</div><div class="yx-next-a">';
+    for(var i=0;i<items.length;i++){h+='<button type="button" data-i="'+i+'">'+items[i].label+'</button>';}
+    h+='</div><button type="button" class="yx-next-fold" aria-label="收起">收起</button>'; box.innerHTML=h;
+    box.addEventListener('click',function(e){
+      if(box.classList.contains('folded')){box.classList.remove('folded');return;}
+      var f=e.target.closest?e.target.closest('.yx-next-fold'):null;
+      if(f){box.classList.add('folded');return;}
+      var b=e.target.closest?e.target.closest('button[data-i]'):null; if(!b)return;
+      var it=items[parseInt(b.getAttribute('data-i'),10)]; if(it&&it.fn)it.fn();
+    });
+    var host=anchor?D.querySelector(anchor):null;
+    if(host&&host.parentNode)host.parentNode.insertBefore(box,host);
+    else B.insertBefore(box,B.firstChild);
+    return box;
+  }
+  function state(el,kind,o){
+    if(!el)return;
+    o=o||{};
+    if(kind==='skeleton'){
+      el.innerHTML='<div class="yx-state"><div class="yx-skel" style="width:70%"></div><div class="yx-skel" style="width:90%"></div><div class="yx-skel" style="width:55%"></div></div>';
+    }else if(kind==='empty'){
+      el.innerHTML='<div class="yx-state"><span class="mi">inbox</span>'+(o.text||'这里还没有数据')+(o.tip?'<br><span style="font-size:10px">'+o.tip+'</span>':'')+(o.action?'<br><button type="button" id="yxStateAct">'+o.action+'</button>':'')+'</div>';
+      var a=D.getElementById('yxStateAct'); if(a&&o.onAction)a.onclick=o.onAction;
+    }else if(kind==='error'){
+      el.innerHTML='<div class="yx-state"><span class="mi">error_outline</span>'+(o.text||'加载失败，请重试')+'<br><button type="button" id="yxStateAct">重新加载</button></div>';
+      var r=D.getElementById('yxStateAct'); if(r&&o.onRetry)r.onclick=o.onRetry;
+    }
+  }
+  /* 声明式危险操作保护：带 data-yx-risk 的元素先确认再放行原 onclick */
+  D.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('[data-yx-risk]'):null;
+    if(!el||el.getAttribute('data-yx-pass')==='1')return;
+    e.stopPropagation(); e.preventDefault();
+    var label=el.getAttribute('data-yx-risk')||'此操作';
+    var impact=el.getAttribute('data-yx-impact')||'影响面：会写入业务流水并触发下游通知。';
+    open({
+      title:'确认执行「'+label+'」？',
+      body:'你正在执行一项会影响资金或履约状态的操作，请核对下方影响面后再继续。',
+      impact:impact, danger:'资金 / 履约类操作提交后不可撤销，需走仲裁或人工工单回滚。',
+      okText:'确认'+label, dangerStyle:true,
+      onOk:function(){
+        el.setAttribute('data-yx-pass','1');
+        try{el.click();}finally{setTimeout(function(){el.setAttribute('data-yx-pass','0');},80);}
+        toast(label+'已提交','ok');
+      }
+    });
+  },true);
+
+  window.YX={
+    confirm:function(o){return new Promise(function(res){open({title:o.title,body:o.body,impact:o.impact,danger:o.danger,okText:o.okText,dangerStyle:o.dangerStyle,onOk:function(){res(true);if(o.onOk)o.onOk();},onCancel:function(){res(false);if(o.onCancel)o.onCancel();}});});},
+    toast:toast, next:next, state:state,
+    say:function(m){live.textContent=m;}
+  };
+})();
+
+</script>
+</body>
+</html>
